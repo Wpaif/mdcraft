@@ -7,4 +7,3 @@ pub struct Item {
     pub is_resource: bool,
     pub preco_input: String,
 }
-

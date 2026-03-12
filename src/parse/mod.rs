@@ -81,4 +81,3 @@ pub fn parse_clipboard(clipboard_content: &str, resource_list: &[&str]) -> Vec<I
 
     items
 }
-

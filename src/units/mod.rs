@@ -13,4 +13,3 @@ pub fn format_game_units(valor: f64) -> String {
         format!("{:.0}", valor)
     }
 }
-
