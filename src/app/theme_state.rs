@@ -1,8 +1,9 @@
 use eframe::egui;
+use serde::{Deserialize, Serialize};
 
 // The `Theme` enum represents the application's chosen color theme (light or dark).
 // It is separate from the top-level `theme` module which provides color palettes.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Theme {
     Light,
     Dark,

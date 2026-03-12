@@ -1,8 +1,8 @@
 use eframe::egui;
 
+use super::detect_system_theme;
 use super::sidebar::render_sidebar;
 use super::styles::{setup_custom_styles, setup_emoji_support};
-use super::theme_state::theme_toggle_button;
 use super::ui_sections::{
     collect_found_resources, render_closing, render_craft_input, render_items_and_values,
 };
@@ -18,17 +18,55 @@ impl eframe::App for super::MdcraftApp {
             self.fonts_loaded = true;
         }
 
+        if self.follow_system_theme {
+            let system_theme = detect_system_theme();
+            if self.theme != system_theme {
+                self.theme = system_theme;
+                ctx.set_visuals(self.theme.visuals());
+            }
+        }
+
         egui::Area::new(egui::Id::new("theme_toggle_area"))
             .anchor(egui::Align2::RIGHT_TOP, egui::vec2(-16.0, 16.0))
             .order(egui::Order::Foreground)
             .show(ctx, |ui| {
-                if theme_toggle_button(ui, self.theme)
-                    .on_hover_text("Alternar tema")
-                    .clicked()
-                {
-                    self.theme = self.theme.toggle();
-                    ctx.set_visuals(self.theme.visuals());
-                }
+                ui.menu_button(egui::RichText::new("⚙").size(18.0), |ui| {
+                    ui.label(egui::RichText::new("Tema").strong());
+                    ui.add_space(4.0);
+
+                    let manual_label = if self.theme == super::Theme::Dark {
+                        "☀ Alternar para claro"
+                    } else {
+                        "🌙 Alternar para escuro"
+                    };
+
+                    let manual_toggle_clicked = ui
+                        .add_sized(
+                            [190.0, 32.0],
+                            egui::Button::new(egui::RichText::new(manual_label).strong()),
+                        )
+                        .on_hover_text("Alternar tema manualmente")
+                        .clicked();
+
+                    if manual_toggle_clicked {
+                        // Manual toggle turns off automatic OS sync.
+                        self.follow_system_theme = false;
+                        self.theme = self.theme.toggle();
+                        ctx.set_visuals(self.theme.visuals());
+                        ui.close();
+                    }
+
+                    ui.separator();
+
+                    let follow_resp = ui
+                        .checkbox(&mut self.follow_system_theme, "Seguir sistema")
+                        .on_hover_text("Usa o tema claro/escuro do sistema operacional");
+
+                    if follow_resp.changed() && self.follow_system_theme {
+                        self.theme = detect_system_theme();
+                        ctx.set_visuals(self.theme.visuals());
+                    }
+                });
             });
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -65,5 +103,9 @@ impl eframe::App for super::MdcraftApp {
                         });
                 });
         });
+    }
+
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        self.save_app_settings(storage);
     }
 }

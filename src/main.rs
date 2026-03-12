@@ -13,15 +13,15 @@ use crate::app::MdcraftApp;
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([850.0, 750.0])
+            .with_inner_size([1000.0, 750.0])
             .with_min_inner_size([600.0, 500.0]),
 
         ..Default::default()
     };
 
     eframe::run_native(
-        "Mdcraft Calculator Pro",
+        "Mdcraft",
         options,
-        Box::new(|_cc| Ok(Box::<MdcraftApp>::default())),
+        Box::new(|cc| Ok(Box::new(MdcraftApp::from_creation_context(cc)))),
     )
 }

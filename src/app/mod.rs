@@ -11,6 +11,7 @@
 //! * `ui` – the implementation of `eframe::App` and the main view.
 
 use crate::model::Item;
+use dark_light::Mode;
 use serde::{Deserialize, Serialize};
 
 // `Item` is needed for the application state. Parser functions and formatter are
@@ -19,12 +20,21 @@ use serde::{Deserialize, Serialize};
 // re-export the Theme type so callers can refer to `app::Theme`.
 pub use theme_state::Theme;
 
+const APP_SETTINGS_KEY: &str = "mdcraft.app_settings";
+
 mod price;
 mod sidebar;
 mod styles;
 mod theme_state;
 mod ui;
 mod ui_sections;
+
+pub(super) fn detect_system_theme() -> Theme {
+    match dark_light::detect() {
+        Ok(Mode::Dark) => Theme::Dark,
+        Ok(Mode::Light) | Ok(Mode::Unspecified) | Err(_) => Theme::Light,
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SavedCraft {
@@ -44,6 +54,7 @@ pub struct MdcraftApp {
     pub resource_list: Vec<String>,
     pub fonts_loaded: bool,
     pub theme: Theme,
+    pub follow_system_theme: bool,
     pub sidebar_open: bool,
     pub saved_crafts: Vec<SavedCraft>,
     pub pending_craft_name: String,
@@ -59,8 +70,51 @@ pub struct MdcraftApp {
     pub export_feedback: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Default)]
+struct AppSettings {
+    theme: Option<Theme>,
+    follow_system_theme: Option<bool>,
+    #[serde(default)]
+    saved_crafts: Vec<SavedCraft>,
+}
+
+impl MdcraftApp {
+    pub fn from_creation_context(cc: &eframe::CreationContext<'_>) -> Self {
+        let mut app = Self::default();
+
+        if let Some(storage) = cc.storage
+            && let Some(raw) = storage.get_string(APP_SETTINGS_KEY)
+            && let Ok(settings) = serde_json::from_str::<AppSettings>(&raw)
+        {
+            if let Some(theme) = settings.theme {
+                app.theme = theme;
+            }
+            if let Some(follow_system_theme) = settings.follow_system_theme {
+                app.follow_system_theme = follow_system_theme;
+            }
+            app.saved_crafts = settings.saved_crafts;
+        }
+
+        app
+    }
+
+    pub fn save_app_settings(&self, storage: &mut dyn eframe::Storage) {
+        let settings = AppSettings {
+            theme: Some(self.theme),
+            follow_system_theme: Some(self.follow_system_theme),
+            saved_crafts: self.saved_crafts.clone(),
+        };
+
+        if let Ok(raw) = serde_json::to_string(&settings) {
+            storage.set_string(APP_SETTINGS_KEY, raw);
+        }
+    }
+}
+
 impl Default for MdcraftApp {
     fn default() -> Self {
+        let system_theme = detect_system_theme();
+
         Self {
             input_text: String::new(),
             items: Vec::new(),
@@ -101,8 +155,9 @@ impl Default for MdcraftApp {
                 "Strange Gold Bar".to_string(),
             ],
             fonts_loaded: false,
-            theme: Theme::Dark,
-            sidebar_open: false,
+            theme: system_theme,
+            follow_system_theme: true,
+            sidebar_open: true,
             saved_crafts: Vec::new(),
             pending_craft_name: String::new(),
             awaiting_craft_name: false,

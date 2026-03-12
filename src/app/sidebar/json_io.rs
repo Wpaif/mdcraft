@@ -1,16 +1,9 @@
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 
-use crate::parse::parse_clipboard;
+use crate::app::{MdcraftApp, SavedCraft};
 
-use super::{MdcraftApp, SavedCraft};
-
-const SIDEBAR_WIDTH_EXPANDED: f32 = 260.0;
-const SIDEBAR_WIDTH_COLLAPSED: f32 = 56.0;
-
-fn placeholder(ui: &egui::Ui, text: &str) -> egui::RichText {
-    egui::RichText::new(text).color(ui.visuals().text_color().gamma_multiply(0.7))
-}
+use super::{normalize_craft_name, placeholder};
 
 fn action_button_colors(ui: &egui::Ui) -> (egui::Color32, egui::Stroke, egui::Color32) {
     let accent = ui.visuals().hyperlink_color;
@@ -139,9 +132,7 @@ fn json_layout_job(ui: &egui::Ui, text: &str, wrap_width: f32) -> egui::text::La
                 i += 1;
                 while i < bytes.len() {
                     let c = bytes[i] as char;
-                    if c.is_ascii_digit()
-                        || matches!(c, '.' | 'e' | 'E' | '+' | '-')
-                    {
+                    if c.is_ascii_digit() || matches!(c, '.' | 'e' | 'E' | '+' | '-') {
                         i += 1;
                     } else {
                         break;
@@ -166,9 +157,7 @@ fn json_layout_job(ui: &egui::Ui, text: &str, wrap_width: f32) -> egui::text::La
                 i += 1;
                 while i < bytes.len() {
                     let c = bytes[i] as char;
-                    if c.is_whitespace()
-                        || matches!(c, '{' | '}' | '[' | ']' | ':' | ',' | '"')
-                    {
+                    if c.is_whitespace() || matches!(c, '{' | '}' | '[' | ']' | ':' | ',' | '"') {
                         break;
                     }
                     i += 1;
@@ -181,224 +170,12 @@ fn json_layout_job(ui: &egui::Ui, text: &str, wrap_width: f32) -> egui::text::La
     job
 }
 
-pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
-    let width = if app.sidebar_open {
-        SIDEBAR_WIDTH_EXPANDED
-    } else {
-        SIDEBAR_WIDTH_COLLAPSED
-    };
-
-    egui::SidePanel::left(egui::Id::new("sidebar_panel"))
-        .resizable(false)
-        .exact_width(width)
-        .show_separator_line(false)
-        .show(ctx, |ui| {
-            let panel_fill = ui.visuals().panel_fill;
-
-            egui::Frame::NONE
-                .fill(panel_fill)
-                .inner_margin(egui::Margin::symmetric(10, 10))
-                .show(ui, |ui| {
-                    let content_w = ui.available_width();
-                    render_sidebar_header(ui, app);
-
-                    if app.sidebar_open {
-                        render_sidebar_content(ui, app, content_w);
-                    }
-                });
-        });
-
-    render_delete_confirmation_popup(ctx, app);
-    render_import_recipes_popup(ctx, app);
-    render_export_recipes_popup(ctx, app);
-}
-
-fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f32) {
-    let content_w = content_w.max(120.0);
-    let has_saved_crafts = !app.saved_crafts.is_empty();
-
-    ui.add_space(8.0);
-    ui.separator();
-    ui.add_space(10.0);
-
-    let footer_h = if has_saved_crafts { 126.0 } else { 86.0 };
-    let scroll_h = (ui.available_height() - footer_h).max(120.0);
-
-    egui::ScrollArea::vertical()
-        .auto_shrink([false, false])
-        .max_height(scroll_h)
-        .show(ui, |ui| {
-            let has_recipe = !app.input_text.trim().is_empty() && !app.items.is_empty();
-            if has_recipe {
-                let save_clicked = ui
-                    .add_sized([content_w, 32.0], egui::Button::new("Salvar receita atual"))
-                    .clicked();
-
-                if save_clicked {
-                    app.awaiting_craft_name = true;
-                    app.pending_craft_name.clear();
-                    app.focus_craft_name_input = true;
-                }
-            } else {
-                ui.label(egui::RichText::new("Adicione uma receita para salvar").weak());
-            }
-
-            if app.awaiting_craft_name {
-                ui.add_space(10.0);
-                ui.label(egui::RichText::new("Nome da receita:").strong());
-
-                let mut name_resp_opt: Option<egui::Response> = None;
-                egui::Frame::NONE
-                    .inner_margin(egui::Margin::symmetric(6, 4))
-                    .show(ui, |ui| {
-                        let input_width = (content_w - 12.0).max(80.0);
-                        let name_resp = ui.add_sized(
-                            [input_width, 30.0],
-                            egui::TextEdit::singleline(&mut app.pending_craft_name)
-                                .hint_text(placeholder(ui, "Digite um nome ou pressione Enter")),
-                        );
-                        name_resp_opt = Some(name_resp);
-                    });
-
-                let name_resp = name_resp_opt.expect("name input response should exist");
-
-                if app.focus_craft_name_input {
-                    name_resp.request_focus();
-                    app.focus_craft_name_input = false;
-                }
-
-                if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
-                    app.awaiting_craft_name = false;
-                    app.pending_craft_name.clear();
-                    app.focus_craft_name_input = false;
-                }
-
-                let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
-                let save_by_enter = enter_pressed;
-
-                if save_by_enter {
-                    let fallback_name = format!("Receita {}", app.saved_crafts.len() + 1);
-                    let raw_name = if app.pending_craft_name.trim().is_empty() {
-                        fallback_name
-                    } else {
-                        app.pending_craft_name.clone()
-                    };
-                    let normalized_name = normalize_craft_name(&raw_name);
-                    app.saved_crafts.insert(
-                        0,
-                        SavedCraft {
-                            name: normalized_name,
-                            recipe_text: app.input_text.clone(),
-                            sell_price_input: app.sell_price_input.clone(),
-                        },
-                    );
-                    app.active_saved_craft_index = app.active_saved_craft_index.map(|idx| idx + 1);
-                    app.awaiting_craft_name = false;
-                    app.pending_craft_name.clear();
-                    app.focus_craft_name_input = false;
-                }
-            }
-
-            ui.add_space(12.0);
-            ui.separator();
-            ui.add_space(8.0);
-            ui.label(egui::RichText::new("Receitas salvas").strong());
-            ui.add_space(6.0);
-
-            if app.saved_crafts.is_empty() {
-                ui.label(egui::RichText::new("Nenhuma receita salva ainda.").weak());
-            } else {
-                let mut pending_click_delete: Option<usize> = None;
-                let mut pending_click_select: Option<usize> = None;
-
-                for (idx, craft) in app.saved_crafts.iter().enumerate() {
-                    ui.group(|ui| {
-                        ui.set_width(content_w);
-                        let is_active = app.active_saved_craft_index == Some(idx);
-                        let name_text = normalize_craft_name(&craft.name);
-                        let saved_lines = craft
-                            .recipe_text
-                            .lines()
-                            .filter(|line| !line.trim().is_empty())
-                            .count();
-                        let has_saved_price = !craft.sell_price_input.trim().is_empty();
-                        let hover_details = if has_saved_price {
-                            format!("{} linhas salvas | com preco final", saved_lines)
-                        } else {
-                            format!("{} linhas salvas", saved_lines)
-                        };
-                        let row_height = 26.0;
-                        let icon_size = 22.0;
-                        ui.allocate_ui_with_layout(
-                            egui::vec2(content_w, row_height),
-                            egui::Layout::left_to_right(egui::Align::Center),
-                            |ui| {
-                                let text_width =
-                                    (content_w - icon_size - ui.spacing().item_spacing.x - 8.0)
-                                        .max(80.0);
-
-                                let name_fill = if is_active {
-                                    ui.visuals().faint_bg_color
-                                } else {
-                                    ui.visuals().widgets.inactive.bg_fill
-                                };
-                                let name_stroke = if is_active {
-                                    ui.visuals().widgets.active.bg_stroke
-                                } else {
-                                    ui.visuals().widgets.inactive.bg_stroke
-                                };
-
-                                let name_btn = egui::Button::new(
-                                    egui::RichText::new(name_text)
-                                        .size(16.0)
-                                        .color(ui.visuals().text_color()),
-                                )
-                                .fill(name_fill)
-                                .stroke(name_stroke);
-
-                                let name_resp = ui
-                                    .add_sized([text_width, icon_size], name_btn)
-                                    .on_hover_text(hover_details);
-
-                                if name_resp.clicked() {
-                                    pending_click_select = Some(idx);
-                                }
-
-                                let delete_btn = egui::Button::new(
-                                    egui::RichText::new("🗑")
-                                        .size(13.0)
-                                        .color(egui::Color32::from_rgb(220, 98, 98)),
-                                )
-                                .fill(egui::Color32::from_rgba_unmultiplied(220, 98, 98, 32))
-                                .stroke(egui::Stroke::new(
-                                    1.0,
-                                    egui::Color32::from_rgb(180, 72, 72),
-                                ));
-
-                                let delete_clicked = ui
-                                    .add_sized([icon_size, icon_size], delete_btn)
-                                    .on_hover_text("Excluir receita")
-                                    .clicked();
-
-                                if delete_clicked {
-                                    pending_click_delete = Some(idx);
-                                }
-                            },
-                        );
-                    });
-                    ui.add_space(6.0);
-                }
-
-                if let Some(idx) = pending_click_delete {
-                    app.pending_delete_index = Some(idx);
-                }
-
-                if let Some(idx) = pending_click_select {
-                    load_saved_craft_for_edit(app, idx);
-                }
-            }
-        });
-
+pub(super) fn render_sidebar_json_actions(
+    ui: &mut egui::Ui,
+    app: &mut MdcraftApp,
+    content_w: f32,
+    has_saved_crafts: bool,
+) {
     ui.add_space(10.0);
     ui.separator();
     ui.add_space(10.0);
@@ -489,7 +266,7 @@ fn parse_imported_saved_crafts(raw_json: &str) -> Result<Vec<SavedCraft>, String
     Ok(crafts)
 }
 
-fn render_import_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
+pub(super) fn render_import_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
     if !app.awaiting_import_json {
         return;
     }
@@ -501,9 +278,12 @@ fn render_import_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
         .resizable(false)
         .fixed_size(egui::vec2(560.0, 390.0))
         .show(ctx, |ui| {
-            let mut json_layouter = |ui: &egui::Ui, text: &dyn egui::TextBuffer, wrap_width: f32| {
-                ui.ctx().fonts_mut(|fonts| fonts.layout_job(json_layout_job(ui, text.as_str(), wrap_width)))
-            };
+            let mut json_layouter =
+                |ui: &egui::Ui, text: &dyn egui::TextBuffer, wrap_width: f32| {
+                    ui.ctx().fonts_mut(|fonts| {
+                        fonts.layout_job(json_layout_job(ui, text.as_str(), wrap_width))
+                    })
+                };
 
             let (action_fill, action_stroke, action_text) = action_button_colors(ui);
 
@@ -555,8 +335,7 @@ fn render_import_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
                 if format_clicked {
                     let raw_json = app.import_json_input.trim();
                     if raw_json.is_empty() {
-                        app.import_feedback =
-                            Some("Cole um JSON antes de formatar.".to_string());
+                        app.import_feedback = Some("Cole um JSON antes de formatar.".to_string());
                     } else {
                         match serde_json::from_str::<serde_json::Value>(raw_json) {
                             Ok(value) => match serde_json::to_string_pretty(&value) {
@@ -648,7 +427,7 @@ fn render_import_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
         });
 }
 
-fn render_export_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
+pub(super) fn render_export_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
     if !app.awaiting_export_json {
         return;
     }
@@ -660,9 +439,12 @@ fn render_export_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
         .resizable(false)
         .fixed_size(egui::vec2(560.0, 390.0))
         .show(ctx, |ui| {
-            let mut json_layouter = |ui: &egui::Ui, text: &dyn egui::TextBuffer, wrap_width: f32| {
-                ui.ctx().fonts_mut(|fonts| fonts.layout_job(json_layout_job(ui, text.as_str(), wrap_width)))
-            };
+            let mut json_layouter =
+                |ui: &egui::Ui, text: &dyn egui::TextBuffer, wrap_width: f32| {
+                    ui.ctx().fonts_mut(|fonts| {
+                        fonts.layout_job(json_layout_job(ui, text.as_str(), wrap_width))
+                    })
+                };
 
             let (action_fill, action_stroke, action_text) = action_button_colors(ui);
 
@@ -705,7 +487,8 @@ fn render_export_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
 
                 if copied {
                     ui.ctx().copy_text(app.export_json_output.clone());
-                    app.export_feedback = Some("JSON copiado para a area de transferencia.".to_string());
+                    app.export_feedback =
+                        Some("JSON copiado para a area de transferencia.".to_string());
                 }
 
                 if ui
@@ -717,153 +500,4 @@ fn render_export_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
                 }
             });
         });
-}
-
-fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {
-    let Some(craft) = app.saved_crafts.get(idx) else {
-        return;
-    };
-
-    app.input_text = craft.recipe_text.clone();
-    app.sell_price_input = craft.sell_price_input.clone();
-
-    let resources: Vec<&str> = app.resource_list.iter().map(AsRef::as_ref).collect();
-    app.items = parse_clipboard(&app.input_text, &resources);
-    app.active_saved_craft_index = Some(idx);
-}
-
-fn normalize_craft_name(raw_name: &str) -> String {
-    raw_name
-        .split_whitespace()
-        .filter(|w| !w.is_empty())
-        .map(|word| {
-            let mut chars = word.chars();
-            match chars.next() {
-                Some(first) => {
-                    let first = first.to_uppercase().collect::<String>();
-                    let rest = chars.as_str().to_lowercase();
-                    format!("{}{}", first, rest)
-                }
-                None => String::new(),
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
-}
-
-fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
-    let Some(idx) = app.pending_delete_index else {
-        return;
-    };
-
-    if idx >= app.saved_crafts.len() {
-        app.pending_delete_index = None;
-        return;
-    }
-
-    let recipe_name = app.saved_crafts[idx].name.clone();
-
-    egui::Window::new("Confirmar Exclusão")
-        .id(egui::Id::new("confirm_delete_saved_recipe"))
-        .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
-        .collapsible(false)
-        .resizable(false)
-        .fixed_size(egui::vec2(400.0, 190.0))
-        .show(ctx, |ui| {
-            ui.spacing_mut().item_spacing = egui::vec2(8.0, 8.0);
-
-            ui.vertical_centered(|ui| {
-                ui.label(
-                    egui::RichText::new("Deseja realmente apagar esta receita?")
-                        .strong()
-                        .size(16.0),
-                );
-                ui.add_space(4.0);
-                ui.label(
-                    egui::RichText::new(format!("'{}'", recipe_name))
-                        .weak()
-                        .size(14.0),
-                );
-            });
-
-            ui.add_space(12.0);
-            let cancel_fill = ui.visuals().widgets.inactive.bg_fill;
-            let delete_fill = egui::Color32::from_rgb(181, 61, 61);
-            let row_height = 32.0;
-            let button_width = 120.0;
-            let spacing = ui.spacing().item_spacing.x;
-            let total_buttons_width = (button_width * 2.0) + spacing;
-            let left_pad = ((ui.available_width() - total_buttons_width) * 0.5).max(0.0);
-
-            ui.horizontal(|ui| {
-                ui.add_space(left_pad);
-
-                if ui
-                    .add_sized(
-                        [button_width, row_height],
-                        egui::Button::new("Cancelar").fill(cancel_fill),
-                    )
-                    .clicked()
-                {
-                    app.pending_delete_index = None;
-                }
-
-                if ui
-                    .add_sized(
-                        [button_width, row_height],
-                        egui::Button::new(
-                            egui::RichText::new("Apagar")
-                                .strong()
-                                .color(egui::Color32::WHITE),
-                        )
-                        .fill(delete_fill),
-                    )
-                    .clicked()
-                {
-                    app.saved_crafts.remove(idx);
-
-                    if let Some(active_idx) = app.active_saved_craft_index {
-                        app.active_saved_craft_index = if active_idx == idx {
-                            None
-                        } else if active_idx > idx {
-                            Some(active_idx - 1)
-                        } else {
-                            Some(active_idx)
-                        };
-                    }
-
-                    app.pending_delete_index = None;
-                }
-            });
-        });
-}
-
-fn render_sidebar_header(ui: &mut egui::Ui, app: &mut MdcraftApp) {
-    ui.horizontal(|ui| {
-        let toggle_icon = if app.sidebar_open { "◀" } else { "▶" };
-        let (rect, resp) = ui.allocate_exact_size(egui::vec2(28.0, 28.0), egui::Sense::click());
-
-        let bg = if resp.hovered() {
-            ui.visuals().widgets.hovered.bg_fill
-        } else {
-            ui.visuals().widgets.inactive.bg_fill
-        };
-        ui.painter()
-            .rect_filled(rect, egui::CornerRadius::same(6), bg);
-        ui.painter().text(
-            rect.center(),
-            egui::Align2::CENTER_CENTER,
-            toggle_icon,
-            egui::TextStyle::Button.resolve(ui.style()),
-            ui.visuals().text_color(),
-        );
-
-        if resp.clicked() {
-            app.sidebar_open = !app.sidebar_open;
-        }
-
-        if app.sidebar_open {
-            ui.label(egui::RichText::new("RECEITAS").strong());
-        }
-    });
 }
