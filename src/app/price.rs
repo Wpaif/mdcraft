@@ -42,7 +42,11 @@ pub fn paint_price_status(ui: &mut egui::Ui, status: PriceStatus) -> egui::Respo
             let br = center + egui::vec2(r * 0.9, r * 0.85);
             let yellow = egui::Color32::from_rgb(241, 250, 140);
             let stroke = egui::Stroke::new(1.5, egui::Color32::from_rgb(154, 103, 0));
-            p.add(egui::Shape::convex_polygon(vec![top, br, bl], yellow, stroke));
+            p.add(egui::Shape::convex_polygon(
+                vec![top, br, bl],
+                yellow,
+                stroke,
+            ));
 
             // Exclamation mark.
             let bar_top = center + egui::vec2(0.0, -r * 0.35);
