@@ -44,8 +44,10 @@ impl eframe::App for super::MdcraftApp {
 
                     ui.add_space(20.0);
 
+                    let content_width = ui.available_width();
+
                     ui.group(|ui| {
-                        ui.set_width(ui.available_width());
+                        ui.set_width(content_width);
                         egui::Frame::NONE
                             .inner_margin(egui::Margin::same(5))
                             .show(ui, |ui| {
@@ -99,18 +101,31 @@ impl eframe::App for super::MdcraftApp {
 
                     if !self.items.is_empty() {
                         ui.group(|ui| {
-                            ui.set_width(ui.available_width());
+                            ui.set_width(content_width);
                             egui::Frame::NONE
                                 .inner_margin(egui::Margin::same(5))
                                 .show(ui, |ui| {
                                     ui.label(egui::RichText::new("🛒 Itens e Valores").strong());
                                     ui.add_space(10.0);
 
-                                    // Newspaper layout: compute columns and rows, fill top-to-bottom.
-                                    let available_space_for_cols = ui.available_width();
-                                    let min_col_width = 360.0;
-                                    let max_columns =
-                                        (available_space_for_cols / min_col_width).floor() as usize;
+                                    // Keep columns inside the same content width used by the other blocks.
+                                    let available_space_for_cols = (content_width - 10.0).max(300.0);
+                                    let field_gap = 8.0;
+                                    let min_item_w = 120.0;
+                                    let min_qty_w = 46.0;
+                                    let min_price_w = 96.0;
+                                    let min_total_w = 78.0;
+                                    let min_status_w = 56.0;
+                                    let min_col_width = min_item_w
+                                        + min_qty_w
+                                        + min_price_w
+                                        + min_total_w
+                                        + min_status_w
+                                        + (field_gap * 4.0);
+                                    let max_columns = (((available_space_for_cols + field_gap)
+                                        / (min_col_width + field_gap))
+                                        .floor() as usize)
+                                        .max(1);
 
                                     let indices_precificaveis: Vec<usize> = self
                                         .items
@@ -128,6 +143,17 @@ impl eframe::App for super::MdcraftApp {
                                     };
                                     let rows = (num_items + column_count - 1) / column_count; // ceil
 
+                                    // Stretch each column block to fully occupy the available width.
+                                    let total_gaps = ((column_count * 5).saturating_sub(1)) as f32 * field_gap;
+                                    let per_col_width =
+                                        ((available_space_for_cols - total_gaps) / column_count as f32)
+                                            .max(min_col_width - (field_gap * 4.0));
+                                    let item_w = per_col_width * 0.38;
+                                    let qty_w = per_col_width * 0.12;
+                                    let price_w = per_col_width * 0.20;
+                                    let total_w = per_col_width * 0.20;
+                                    let status_w = per_col_width - item_w - qty_w - price_w - total_w;
+
                                     egui::ScrollArea::vertical()
                                         .max_height(350.0)
                                         .auto_shrink([false, true])
@@ -138,32 +164,45 @@ impl eframe::App for super::MdcraftApp {
                                                     // Each item uses 5 logical cells: Item, Qtd, Preço Unit., Total, Status
                                                     egui::Grid::new("items_grid_multi")
                                                         .num_columns((column_count * 5) as usize)
-                                                        .spacing([15.0, 12.0])
+                                                        .spacing([field_gap, 10.0])
                                                         .striped(true)
                                                         .show(ui, |ui| {
                                                             // Header repeated per column
                                                             for _col in 0..column_count {
-                                                                ui.heading(
-                                                                    egui::RichText::new("Item")
-                                                                        .size(14.0),
+                                                                ui.add_sized(
+                                                                    [item_w, 20.0],
+                                                                    egui::Label::new(
+                                                                        egui::RichText::new("Item")
+                                                                            .size(14.0),
+                                                                    ),
                                                                 );
-                                                                ui.heading(
-                                                                    egui::RichText::new("Qtd")
-                                                                        .size(14.0),
+                                                                ui.add_sized(
+                                                                    [qty_w, 20.0],
+                                                                    egui::Label::new(
+                                                                        egui::RichText::new("Qtd")
+                                                                            .size(14.0),
+                                                                    ),
                                                                 );
-                                                                ui.heading(
-                                                                    egui::RichText::new(
-                                                                        "Preço Unit.",
-                                                                    )
-                                                                    .size(14.0),
+                                                                ui.add_sized(
+                                                                    [price_w, 20.0],
+                                                                    egui::Label::new(
+                                                                        egui::RichText::new("Preço")
+                                                                            .size(14.0),
+                                                                    ),
                                                                 );
-                                                                ui.heading(
-                                                                    egui::RichText::new("Total")
-                                                                        .size(14.0),
+                                                                ui.add_sized(
+                                                                    [total_w, 20.0],
+                                                                    egui::Label::new(
+                                                                        egui::RichText::new("Total")
+                                                                            .size(14.0),
+                                                                    ),
                                                                 );
-                                                                ui.heading(
-                                                                    egui::RichText::new("Status")
-                                                                        .size(14.0),
+                                                                ui.add_sized(
+                                                                    [status_w, 20.0],
+                                                                    egui::Label::new(
+                                                                        egui::RichText::new("Status")
+                                                                            .size(14.0),
+                                                                    ),
                                                                 );
                                                             }
                                                             ui.end_row();
@@ -181,42 +220,42 @@ impl eframe::App for super::MdcraftApp {
                                                                         let item = &mut self.items
                                                                             [real_idx];
 
-                                                                        let nome_truncado =
-                                                                            if item.nome.len() > 25
-                                                                            {
-                                                                                format!(
-                                                                                    "{}...",
-                                                                                    &item.nome
-                                                                                        [..22]
-                                                                                )
-                                                                            } else {
-                                                                                item.nome.clone()
-                                                                            };
+                                                                        let max_chars =
+                                                                            ((item_w - 10.0) / 7.0)
+                                                                                .clamp(10.0, 24.0)
+                                                                                as usize;
+                                                                        let nome_truncado = if item.nome.len() > max_chars {
+                                                                            let cut = max_chars.saturating_sub(3);
+                                                                            format!("{}...", &item.nome[..cut])
+                                                                        } else {
+                                                                            item.nome.clone()
+                                                                        };
 
-                                                                        ui.label(
-                                                                            egui::RichText::new(
-                                                                                nome_truncado,
-                                                                            )
-                                                                            .strong(),
+                                                                        ui.add_sized(
+                                                                            [item_w, 22.0],
+                                                                            egui::Label::new(
+                                                                                egui::RichText::new(nome_truncado)
+                                                                                    .strong(),
+                                                                            ),
                                                                         )
                                                                         .on_hover_text(&item.nome);
 
-                                                                        ui.label(
-                                                                            item.quantidade
-                                                                                .to_string(),
+                                                                        ui.add_sized(
+                                                                            [qty_w, 22.0],
+                                                                            egui::Label::new(
+                                                                                item.quantidade
+                                                                                    .to_string(),
+                                                                            ),
                                                                         );
 
                                                                         let text_edit =
                                                                     egui::TextEdit::singleline(
                                                                         &mut item.preco_input,
                                                                     )
-                                                                    .desired_width(140.0)
+                                                                    .desired_width(price_w - 8.0)
                                                                     .margin(egui::vec2(8.0, 8.0));
 
-                                                                        if ui
-                                                                            .add(text_edit)
-                                                                            .changed()
-                                                                        {
+                                                                        if ui.add_sized([price_w, 24.0], text_edit).changed() {
                                                                             item.preco_unitario =
                                                                         parse_price_flag(
                                                                             &item.preco_input,
@@ -227,11 +266,14 @@ impl eframe::App for super::MdcraftApp {
                                                                                 * item.quantidade;
                                                                         }
 
-                                                                        ui.label(
-                                                                            egui::RichText::new(
-                                                                                format_game_units(
-                                                                                    item.valor_total
-                                                                                        as f64,
+                                                                        ui.add_sized(
+                                                                            [total_w, 22.0],
+                                                                            egui::Label::new(
+                                                                                egui::RichText::new(
+                                                                                    format_game_units(
+                                                                                        item.valor_total
+                                                                                            as f64,
+                                                                                    ),
                                                                                 ),
                                                                             ),
                                                                         );
@@ -261,25 +303,31 @@ impl eframe::App for super::MdcraftApp {
                                                                     PriceStatus::None => None,
                                                                 };
 
-                                                                        let resp =
-                                                                            paint_price_status(
-                                                                                ui, status,
-                                                                            );
-                                                                        if let Some(text) = hover {
-                                                                            resp.on_hover_text(
-                                                                                text,
-                                                                            );
-                                                                        }
+                                                                        ui.allocate_ui_with_layout(
+                                                                            egui::vec2(status_w, 22.0),
+                                                                            egui::Layout::left_to_right(
+                                                                                egui::Align::Center,
+                                                                            ),
+                                                                            |ui| {
+                                                                                let resp =
+                                                                                    paint_price_status(
+                                                                                        ui, status,
+                                                                                    );
+                                                                                if let Some(text) = hover {
+                                                                                    resp.on_hover_text(text);
+                                                                                }
+                                                                            },
+                                                                        );
 
                                                                         total_cost +=
                                                                             item.valor_total;
                                                                     } else {
                                                                         // filler cells to keep grid alignment
-                                                                        ui.label(" ");
-                                                                        ui.label(" ");
-                                                                        ui.label(" ");
-                                                                        ui.label(" ");
-                                                                        ui.label(" ");
+                                                                        ui.add_sized([item_w, 22.0], egui::Label::new(" "));
+                                                                        ui.add_sized([qty_w, 22.0], egui::Label::new(" "));
+                                                                        ui.add_sized([price_w, 22.0], egui::Label::new(" "));
+                                                                        ui.add_sized([total_w, 22.0], egui::Label::new(" "));
+                                                                        ui.add_sized([status_w, 22.0], egui::Label::new(" "));
                                                                     }
                                                                 }
                                                                 ui.end_row();
@@ -294,7 +342,7 @@ impl eframe::App for super::MdcraftApp {
                     ui.add_space(20.0);
 
                     ui.group(|ui| {
-                        ui.set_width(ui.available_width());
+                        ui.set_width(content_width);
                         egui::Frame::NONE
                             .inner_margin(egui::Margin::same(5))
                             .show(ui, |ui| {
@@ -302,7 +350,11 @@ impl eframe::App for super::MdcraftApp {
                                 ui.add_space(10.0);
 
                                 ui.horizontal(|ui| {
-                                    ui.label("Preço de Venda Final:");
+                                    // Keep label and input aligned without stretching the whole section.
+                                    ui.add_sized(
+                                        [150.0, 32.0],
+                                        egui::Label::new("Preço de Venda Final:"),
+                                    );
                                     ui.add(
                                         egui::TextEdit::singleline(&mut self.sell_price_input)
                                             .desired_width(180.0)
@@ -312,7 +364,7 @@ impl eframe::App for super::MdcraftApp {
 
                                 ui.add_space(15.0);
 
-                                ui.horizontal(|ui| {
+                                ui.horizontal_top(|ui| {
                                     ui.vertical(|ui| {
                                         ui.label("CUSTO TOTAL");
                                         ui.heading(egui::RichText::new(format_game_units(
