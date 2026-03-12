@@ -1,1 +1,14 @@
-/target
+# Build output
+/target/
+
+# Local packaging/output folders (optional, if used by scripts)
+/dist/
+/artifacts/
+
+# Editor/OS noise
+.DS_Store
+Thumbs.db
+
+# Runtime logs/temp files
+*.log
+*.tmp

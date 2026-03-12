@@ -1,4 +1,33 @@
+[alias]
+# Native Linux x64 build/release
+build-x64 = "build --target x86_64-unknown-linux-gnu"
+build-x64-release = "build --release --target x86_64-unknown-linux-gnu"
+run-x64 = "run --target x86_64-unknown-linux-gnu"
+run-x64-release = "run --release --target x86_64-unknown-linux-gnu"
+
+# Cross Linux ARM64 build/release
+build-arm64 = "build --target aarch64-unknown-linux-gnu"
+build-arm64-release = "build --release --target aarch64-unknown-linux-gnu"
+
+# Existing Windows x64 cross build/release
+build-win64 = "build --target x86_64-pc-windows-gnu"
+build-win64-release = "build --release --target x86_64-pc-windows-gnu"
+
+check-x64 = "check --target x86_64-unknown-linux-gnu"
+check-arm64 = "check --target aarch64-unknown-linux-gnu"
+check-win64 = "check --target x86_64-pc-windows-gnu"
+
 [target.x86_64-pc-windows-gnu]
 linker = "x86_64-w64-mingw32-gcc"
 ar = "x86_64-w64-mingw32-gcc-ar"
-rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+ar = "aarch64-linux-gnu-gcc-ar"
+
+[target.x86_64-unknown-linux-musl]
+linker = "musl-gcc"
+
+[target.aarch64-unknown-linux-musl]
+linker = "aarch64-linux-musl-gcc"
+ar = "aarch64-linux-musl-gcc-ar"
