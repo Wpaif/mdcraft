@@ -3,8 +3,8 @@ use eframe::egui;
 use crate::parse::{parse_clipboard, parse_price_flag};
 use crate::units::format_game_units;
 
-use super::price::{paint_price_status, PriceStatus};
 use super::MdcraftApp;
+use super::price::{PriceStatus, paint_price_status};
 
 pub(super) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, content_width: f32) {
     ui.group(|ui| {
@@ -23,7 +23,8 @@ pub(super) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                 );
 
                 if response.changed() {
-                    let resources: Vec<&str> = app.resource_list.iter().map(AsRef::as_ref).collect();
+                    let resources: Vec<&str> =
+                        app.resource_list.iter().map(AsRef::as_ref).collect();
                     let old_items = std::mem::take(&mut app.items);
                     let mut new_items = parse_clipboard(&app.input_text, &resources);
 
@@ -64,7 +65,7 @@ pub(super) fn render_items_and_values(
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(egui::RichText::new("🛒 Itens e Valores").strong());
+                ui.label(egui::RichText::new("\u{1F6D2}\u{FE0E} Itens e Valores").strong());
                 ui.add_space(10.0);
 
                 let available_space_for_cols = (content_width - 10.0).max(300.0);
@@ -93,7 +94,8 @@ pub(super) fn render_items_and_values(
                     + min_total_w
                     + min_status_w
                     + (field_gap * 4.0);
-                let max_columns = (((available_space_for_cols + field_gap) / (min_col_width + field_gap))
+                let max_columns = (((available_space_for_cols + field_gap)
+                    / (min_col_width + field_gap))
                     .floor() as usize)
                     .max(1);
 
@@ -129,23 +131,33 @@ pub(super) fn render_items_and_values(
                                         for _ in 0..column_count {
                                             ui.add_sized(
                                                 [item_w, 20.0],
-                                                egui::Label::new(egui::RichText::new("Item").size(14.0)),
+                                                egui::Label::new(
+                                                    egui::RichText::new("Item").size(14.0),
+                                                ),
                                             );
                                             ui.add_sized(
                                                 [qty_w, 20.0],
-                                                egui::Label::new(egui::RichText::new("Qtd").size(14.0)),
+                                                egui::Label::new(
+                                                    egui::RichText::new("Qtd").size(14.0),
+                                                ),
                                             );
                                             ui.add_sized(
                                                 [price_w, 20.0],
-                                                egui::Label::new(egui::RichText::new("Preço").size(14.0)),
+                                                egui::Label::new(
+                                                    egui::RichText::new("Preço").size(14.0),
+                                                ),
                                             );
                                             ui.add_sized(
                                                 [total_w, 20.0],
-                                                egui::Label::new(egui::RichText::new("Total").size(14.0)),
+                                                egui::Label::new(
+                                                    egui::RichText::new("Total").size(14.0),
+                                                ),
                                             );
                                             ui.add_sized(
                                                 [status_w, 20.0],
-                                                egui::Label::new(egui::RichText::new("Status").size(14.0)),
+                                                egui::Label::new(
+                                                    egui::RichText::new("Status").size(14.0),
+                                                ),
                                             );
                                         }
                                         ui.end_row();
@@ -161,7 +173,8 @@ pub(super) fn render_items_and_values(
                                                     ui.add_sized(
                                                         [item_w, 0.0],
                                                         egui::Label::new(
-                                                            egui::RichText::new(&nome_completo).strong(),
+                                                            egui::RichText::new(&nome_completo)
+                                                                .strong(),
                                                         )
                                                         .wrap(),
                                                     )
@@ -169,28 +182,40 @@ pub(super) fn render_items_and_values(
 
                                                     ui.add_sized(
                                                         [qty_w, 22.0],
-                                                        egui::Label::new(item.quantidade.to_string()),
+                                                        egui::Label::new(
+                                                            item.quantidade.to_string(),
+                                                        ),
                                                     );
 
-                                                    let text_edit = egui::TextEdit::singleline(&mut item.preco_input)
-                                                        .desired_width(price_w - 8.0)
-                                                        .margin(egui::vec2(8.0, 8.0));
+                                                    let text_edit = egui::TextEdit::singleline(
+                                                        &mut item.preco_input,
+                                                    )
+                                                    .desired_width(price_w - 8.0)
+                                                    .margin(egui::vec2(8.0, 8.0));
 
-                                                    if ui.add_sized([price_w, 24.0], text_edit).changed() {
+                                                    if ui
+                                                        .add_sized([price_w, 24.0], text_edit)
+                                                        .changed()
+                                                    {
                                                         item.preco_unitario =
-                                                            parse_price_flag(&item.preco_input).unwrap_or(0);
-                                                        item.valor_total = item.preco_unitario * item.quantidade;
+                                                            parse_price_flag(&item.preco_input)
+                                                                .unwrap_or(0);
+                                                        item.valor_total =
+                                                            item.preco_unitario * item.quantidade;
                                                     }
 
                                                     ui.add_sized(
                                                         [total_w, 22.0],
-                                                        egui::Label::new(egui::RichText::new(format_game_units(
-                                                            item.valor_total as f64,
-                                                        ))),
+                                                        egui::Label::new(egui::RichText::new(
+                                                            format_game_units(
+                                                                item.valor_total as f64,
+                                                            ),
+                                                        )),
                                                     );
 
                                                     let status = if !item.preco_input.is_empty()
-                                                        && parse_price_flag(&item.preco_input).is_err()
+                                                        && parse_price_flag(&item.preco_input)
+                                                            .is_err()
                                                     {
                                                         PriceStatus::Invalid
                                                     } else if item.valor_total > 0 {
@@ -200,16 +225,21 @@ pub(super) fn render_items_and_values(
                                                     };
 
                                                     let hover = match status {
-                                                        PriceStatus::Invalid => Some("Valor Inválido"),
+                                                        PriceStatus::Invalid => {
+                                                            Some("Valor Inválido")
+                                                        }
                                                         PriceStatus::Ok => Some("OK"),
                                                         PriceStatus::None => None,
                                                     };
 
                                                     ui.allocate_ui_with_layout(
                                                         egui::vec2(status_w, 22.0),
-                                                        egui::Layout::left_to_right(egui::Align::Center),
+                                                        egui::Layout::left_to_right(
+                                                            egui::Align::Center,
+                                                        ),
                                                         |ui| {
-                                                            let resp = paint_price_status(ui, status);
+                                                            let resp =
+                                                                paint_price_status(ui, status);
                                                             if let Some(text) = hover {
                                                                 resp.on_hover_text(text);
                                                             }
@@ -218,11 +248,26 @@ pub(super) fn render_items_and_values(
 
                                                     *total_cost += item.valor_total;
                                                 } else {
-                                                    ui.add_sized([item_w, 22.0], egui::Label::new(" "));
-                                                    ui.add_sized([qty_w, 22.0], egui::Label::new(" "));
-                                                    ui.add_sized([price_w, 22.0], egui::Label::new(" "));
-                                                    ui.add_sized([total_w, 22.0], egui::Label::new(" "));
-                                                    ui.add_sized([status_w, 22.0], egui::Label::new(" "));
+                                                    ui.add_sized(
+                                                        [item_w, 22.0],
+                                                        egui::Label::new(" "),
+                                                    );
+                                                    ui.add_sized(
+                                                        [qty_w, 22.0],
+                                                        egui::Label::new(" "),
+                                                    );
+                                                    ui.add_sized(
+                                                        [price_w, 22.0],
+                                                        egui::Label::new(" "),
+                                                    );
+                                                    ui.add_sized(
+                                                        [total_w, 22.0],
+                                                        egui::Label::new(" "),
+                                                    );
+                                                    ui.add_sized(
+                                                        [status_w, 22.0],
+                                                        egui::Label::new(" "),
+                                                    );
                                                 }
                                             }
                                             ui.end_row();
@@ -322,9 +367,15 @@ pub(super) fn render_closing(
                                                         let custo_por_ponto =
                                                             lucro_total as f64 / *res_qtd as f64;
 
-                                                        ui.label(format!("{} {}", res_qtd, res_name));
+                                                        ui.label(format!(
+                                                            "{} {}",
+                                                            res_qtd, res_name
+                                                        ));
                                                         ui.label("-");
-                                                        ui.label(format!("{:.1} por pt", custo_por_ponto));
+                                                        ui.label(format!(
+                                                            "{:.1} por pt",
+                                                            custo_por_ponto
+                                                        ));
                                                         ui.end_row();
                                                     }
                                                 }

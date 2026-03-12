@@ -47,6 +47,8 @@ pub struct MdcraftApp {
     pub saved_crafts: Vec<SavedCraft>,
     pub pending_craft_name: String,
     pub awaiting_craft_name: bool,
+    pub focus_craft_name_input: bool,
+    pub pending_delete_index: Option<usize>,
 }
 
 impl Default for MdcraftApp {
@@ -96,6 +98,8 @@ impl Default for MdcraftApp {
             saved_crafts: Vec::new(),
             pending_craft_name: String::new(),
             awaiting_craft_name: false,
+            focus_craft_name_input: false,
+            pending_delete_index: None,
         }
     }
 }

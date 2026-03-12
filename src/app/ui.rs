@@ -37,6 +37,7 @@ impl eframe::App for super::MdcraftApp {
             let padding = ((available_width - max_width) / 2.0).max(10.0) as i8;
 
             egui::Frame::NONE
+                .fill(ui.visuals().panel_fill)
                 .inner_margin(egui::Margin::symmetric(padding, 20))
                 .show(ui, |ui| {
                     egui::ScrollArea::vertical()
