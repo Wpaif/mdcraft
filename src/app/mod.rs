@@ -17,10 +17,11 @@ use crate::model::Item;
 // re-export the Theme type so callers can refer to `app::Theme`.
 pub use theme_state::Theme;
 
-mod theme_state;
-mod styles;
 mod price;
+mod styles;
+mod theme_state;
 mod ui;
+mod ui_sections;
 
 /// The application state that is passed to `eframe`.
 ///
