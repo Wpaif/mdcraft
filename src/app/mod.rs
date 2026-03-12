@@ -7,6 +7,7 @@
 //! * `theme_state` – theme enum and toggle button logic.
 //! * `styles` – custom egui styling and emoji font support.
 //! * `price` – price status indicator helpers.
+//! * `sidebar` – floating responsive left menu.
 //! * `ui` – the implementation of `eframe::App` and the main view.
 
 use crate::model::Item;
@@ -18,6 +19,7 @@ use crate::model::Item;
 pub use theme_state::Theme;
 
 mod price;
+mod sidebar;
 mod styles;
 mod theme_state;
 mod ui;
@@ -34,6 +36,7 @@ pub struct MdcraftApp {
     pub resource_list: Vec<String>,
     pub fonts_loaded: bool,
     pub theme: Theme,
+    pub sidebar_open: bool,
 }
 
 impl Default for MdcraftApp {
@@ -79,6 +82,7 @@ impl Default for MdcraftApp {
             ],
             fonts_loaded: false,
             theme: Theme::Dark,
+            sidebar_open: false,
         }
     }
 }

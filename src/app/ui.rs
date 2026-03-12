@@ -1,5 +1,6 @@
 use eframe::egui;
 
+use super::sidebar::render_sidebar;
 use super::styles::{setup_custom_styles, setup_emoji_support};
 use super::theme_state::theme_toggle_button;
 use super::ui_sections::{
@@ -8,6 +9,8 @@ use super::ui_sections::{
 
 impl eframe::App for super::MdcraftApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        render_sidebar(ctx, self);
+
         if !self.fonts_loaded {
             setup_custom_styles(ctx);
             setup_emoji_support(ctx);
