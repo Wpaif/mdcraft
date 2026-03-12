@@ -38,15 +38,18 @@ impl eframe::App for super::MdcraftApp {
             egui::Frame::NONE
                 .inner_margin(egui::Margin::symmetric(padding, 20))
                 .show(ui, |ui| {
-                    ui.vertical_centered(|ui| {
-                        ui.heading(egui::RichText::new("Mdcraft Calculator").strong());
-                    });
+                    egui::ScrollArea::vertical()
+                        .auto_shrink([false, false])
+                        .show(ui, |ui| {
+                            ui.vertical_centered(|ui| {
+                                ui.heading(egui::RichText::new("Mdcraft Calculator").strong());
+                            });
 
                     ui.add_space(20.0);
 
                     let content_width = ui.available_width();
 
-                    ui.group(|ui| {
+                            ui.group(|ui| {
                         ui.set_width(content_width);
                         egui::Frame::NONE
                             .inner_margin(egui::Margin::same(5))
@@ -111,12 +114,26 @@ impl eframe::App for super::MdcraftApp {
                                     // Keep columns inside the same content width used by the other blocks.
                                     let available_space_for_cols = (content_width - 10.0).max(300.0);
                                     let field_gap = 8.0;
-                                    let min_item_w = 120.0;
+                                    let indices_precificaveis: Vec<usize> = self
+                                        .items
+                                        .iter()
+                                        .enumerate()
+                                        .filter(|(_, res)| !res.is_resource)
+                                        .map(|(i, _)| i)
+                                        .collect();
+
                                     let min_qty_w = 46.0;
                                     let min_price_w = 96.0;
                                     let min_total_w = 78.0;
                                     let min_status_w = 56.0;
-                                    let min_col_width = min_item_w
+                                    let longest_name_chars = indices_precificaveis
+                                        .iter()
+                                        .map(|&idx| self.items[idx].nome.chars().count())
+                                        .max()
+                                        .unwrap_or(10);
+                                    let preferred_item_w = (longest_name_chars as f32 * 8.0 + 20.0)
+                                        .clamp(120.0, 360.0);
+                                    let min_col_width = preferred_item_w
                                         + min_qty_w
                                         + min_price_w
                                         + min_total_w
@@ -126,14 +143,6 @@ impl eframe::App for super::MdcraftApp {
                                         / (min_col_width + field_gap))
                                         .floor() as usize)
                                         .max(1);
-
-                                    let indices_precificaveis: Vec<usize> = self
-                                        .items
-                                        .iter()
-                                        .enumerate()
-                                        .filter(|(_, res)| !res.is_resource)
-                                        .map(|(i, _)| i)
-                                        .collect();
 
                                     let num_items = indices_precificaveis.len();
                                     let column_count = if num_items == 0 {
@@ -148,11 +157,13 @@ impl eframe::App for super::MdcraftApp {
                                     let per_col_width =
                                         ((available_space_for_cols - total_gaps) / column_count as f32)
                                             .max(min_col_width - (field_gap * 4.0));
-                                    let item_w = per_col_width * 0.38;
-                                    let qty_w = per_col_width * 0.12;
-                                    let price_w = per_col_width * 0.20;
-                                    let total_w = per_col_width * 0.20;
-                                    let status_w = per_col_width - item_w - qty_w - price_w - total_w;
+                                    let qty_w = min_qty_w;
+                                    let price_w = min_price_w;
+                                    let total_w = min_total_w;
+                                    let status_w = min_status_w;
+                                    let item_w =
+                                        (per_col_width - qty_w - price_w - total_w - status_w)
+                                            .max(120.0);
 
                                     egui::ScrollArea::vertical()
                                         .max_height(350.0)
@@ -220,25 +231,17 @@ impl eframe::App for super::MdcraftApp {
                                                                         let item = &mut self.items
                                                                             [real_idx];
 
-                                                                        let max_chars =
-                                                                            ((item_w - 10.0) / 7.0)
-                                                                                .clamp(10.0, 24.0)
-                                                                                as usize;
-                                                                        let nome_truncado = if item.nome.len() > max_chars {
-                                                                            let cut = max_chars.saturating_sub(3);
-                                                                            format!("{}...", &item.nome[..cut])
-                                                                        } else {
-                                                                            item.nome.clone()
-                                                                        };
+                                                                        let nome_completo = item.nome.clone();
 
                                                                         ui.add_sized(
-                                                                            [item_w, 22.0],
+                                                                            [item_w, 0.0],
                                                                             egui::Label::new(
-                                                                                egui::RichText::new(nome_truncado)
+                                                                                egui::RichText::new(&nome_completo)
                                                                                     .strong(),
-                                                                            ),
+                                                                            )
+                                                                            .wrap(),
                                                                         )
-                                                                        .on_hover_text(&item.nome);
+                                                                        .on_hover_text(&nome_completo);
 
                                                                         ui.add_sized(
                                                                             [qty_w, 22.0],
@@ -458,7 +461,8 @@ impl eframe::App for super::MdcraftApp {
                                     }
                                 });
                             });
-                    });
+                            });
+                        });
                 });
         });
     }
