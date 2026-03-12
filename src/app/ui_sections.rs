@@ -6,19 +6,50 @@ use crate::units::format_game_units;
 use super::MdcraftApp;
 use super::price::{PriceStatus, paint_price_status};
 
+fn placeholder(ui: &egui::Ui, text: &str) -> egui::RichText {
+    egui::RichText::new(text).color(ui.visuals().text_color().gamma_multiply(0.7))
+}
+
+fn capitalize_display_name(raw_name: &str) -> String {
+    raw_name
+        .split_whitespace()
+        .filter(|w| !w.is_empty())
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                Some(first) => {
+                    let first = first.to_uppercase().collect::<String>();
+                    let rest = chars.as_str().to_lowercase();
+                    format!("{}{}", first, rest)
+                }
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 pub(super) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, content_width: f32) {
     ui.group(|ui| {
         ui.set_width(content_width);
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(egui::RichText::new("📋 Cole a lista do craft do jogo:").strong());
+                ui.label(
+                    egui::RichText::new("Digite a receita...")
+                        .strong()
+                        .size(16.0),
+                );
                 ui.add_space(5.0);
 
                 let response = ui.add(
                     egui::TextEdit::multiline(&mut app.input_text)
                         .desired_width(f32::INFINITY)
                         .font(egui::TextStyle::Monospace)
+                        .hint_text(placeholder(
+                            ui,
+                            "1 Appricorn, 80 Screw, 80 Rubber Ball, 10 Iron Ore",
+                        ))
                         .margin(egui::vec2(10.0, 10.0)),
                 );
 
@@ -65,7 +96,11 @@ pub(super) fn render_items_and_values(
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(egui::RichText::new("\u{1F6D2}\u{FE0E} Itens e Valores").strong());
+                ui.label(
+                    egui::RichText::new("Itens e Valores")
+                        .strong()
+                        .size(16.0),
+                );
                 ui.add_space(10.0);
 
                 let available_space_for_cols = (content_width - 10.0).max(300.0);
@@ -168,17 +203,28 @@ pub(super) fn render_items_and_values(
                                                 if idx < indices_precificaveis.len() {
                                                     let real_idx = indices_precificaveis[idx];
                                                     let item = &mut app.items[real_idx];
-                                                    let nome_completo = item.nome.clone();
+                                                    let nome_exibido =
+                                                        capitalize_display_name(&item.nome);
 
-                                                    ui.add_sized(
-                                                        [item_w, 0.0],
-                                                        egui::Label::new(
-                                                            egui::RichText::new(&nome_completo)
-                                                                .strong(),
-                                                        )
-                                                        .wrap(),
-                                                    )
-                                                    .on_hover_text(&nome_completo);
+                                                    let name_resp = ui.allocate_ui_with_layout(
+                                                        egui::vec2(item_w, 22.0),
+                                                        egui::Layout::left_to_right(
+                                                            egui::Align::Center,
+                                                        ),
+                                                        |ui| {
+                                                            ui.add_sized(
+                                                                [item_w, 22.0],
+                                                                egui::Label::new(
+                                                                    egui::RichText::new(
+                                                                        &nome_exibido,
+                                                                    )
+                                                                    .strong(),
+                                                                )
+                                                                .wrap(),
+                                                            )
+                                                        },
+                                                    );
+                                                    name_resp.response.on_hover_text(&nome_exibido);
 
                                                     ui.add_sized(
                                                         [qty_w, 22.0],
@@ -190,6 +236,7 @@ pub(super) fn render_items_and_values(
                                                     let text_edit = egui::TextEdit::singleline(
                                                         &mut item.preco_input,
                                                     )
+                                                    .hint_text(placeholder(ui, "0"))
                                                     .desired_width(price_w - 8.0)
                                                     .margin(egui::vec2(8.0, 8.0));
 
@@ -291,13 +338,18 @@ pub(super) fn render_closing(
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(egui::RichText::new("💰 Fechamento").strong());
+                ui.label(
+                    egui::RichText::new("Fechamento")
+                        .strong()
+                        .size(16.0),
+                );
                 ui.add_space(10.0);
 
                 ui.horizontal(|ui| {
                     ui.add_sized([150.0, 32.0], egui::Label::new("Preço de Venda Final:"));
                     ui.add(
                         egui::TextEdit::singleline(&mut app.sell_price_input)
+                            .hint_text(placeholder(ui, "100k"))
                             .desired_width(180.0)
                             .margin(egui::vec2(12.0, 10.0)),
                     );

@@ -5,6 +5,10 @@ use super::{MdcraftApp, SavedCraft};
 const SIDEBAR_WIDTH_EXPANDED: f32 = 260.0;
 const SIDEBAR_WIDTH_COLLAPSED: f32 = 56.0;
 
+fn placeholder(ui: &egui::Ui, text: &str) -> egui::RichText {
+    egui::RichText::new(text).color(ui.visuals().text_color().gamma_multiply(0.7))
+}
+
 pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
     let width = if app.sidebar_open {
         SIDEBAR_WIDTH_EXPANDED
@@ -72,7 +76,7 @@ fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f3
                         let name_resp = ui.add_sized(
                             [input_width, 30.0],
                             egui::TextEdit::singleline(&mut app.pending_craft_name)
-                                .hint_text("Digite um nome ou pressione Enter"),
+                                .hint_text(placeholder(ui, "Digite um nome ou pressione Enter")),
                         );
                         name_resp_opt = Some(name_resp);
                     });
@@ -240,13 +244,13 @@ fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
                 ui.label(
                     egui::RichText::new("Deseja realmente apagar esta receita?")
                         .strong()
-                        .size(12.0),
+                        .size(16.0),
                 );
                 ui.add_space(4.0);
                 ui.label(
                     egui::RichText::new(format!("'{}'", recipe_name))
                         .weak()
-                        .size(11.0),
+                        .size(14.0),
                 );
             });
 
@@ -275,7 +279,12 @@ fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
                 if ui
                     .add_sized(
                         [button_width, row_height],
-                        egui::Button::new("Apagar").fill(delete_fill),
+                        egui::Button::new(
+                            egui::RichText::new("Apagar")
+                                .strong()
+                                .color(egui::Color32::WHITE),
+                        )
+                        .fill(delete_fill),
                     )
                     .clicked()
                 {
@@ -311,7 +320,7 @@ fn render_sidebar_header(ui: &mut egui::Ui, app: &mut MdcraftApp) {
         }
 
         if app.sidebar_open {
-            ui.label(egui::RichText::new("Menu lateral").strong());
+            ui.label(egui::RichText::new("RECEITAS").strong());
         }
     });
 }
