@@ -7,7 +7,7 @@
 //! * `theme_state` – theme enum and toggle button logic.
 //! * `styles` – custom egui styling and emoji font support.
 //! * `price` – price status indicator helpers.
-//! * `sidebar` – floating responsive left menu.
+//! * `sidebar` – docked collapsible left menu.
 //! * `ui` – the implementation of `eframe::App` and the main view.
 
 use crate::model::Item;
@@ -25,6 +25,13 @@ mod theme_state;
 mod ui;
 mod ui_sections;
 
+#[derive(Clone, Debug)]
+pub struct SavedCraft {
+    pub name: String,
+    pub recipe_text: String,
+    pub sell_price_input: String,
+}
+
 /// The application state that is passed to `eframe`.
 ///
 /// In GKT4 terms, this is the *model* for the main window; the view logic lives
@@ -37,6 +44,9 @@ pub struct MdcraftApp {
     pub fonts_loaded: bool,
     pub theme: Theme,
     pub sidebar_open: bool,
+    pub saved_crafts: Vec<SavedCraft>,
+    pub pending_craft_name: String,
+    pub awaiting_craft_name: bool,
 }
 
 impl Default for MdcraftApp {
@@ -83,6 +93,9 @@ impl Default for MdcraftApp {
             fonts_loaded: false,
             theme: Theme::Dark,
             sidebar_open: false,
+            saved_crafts: Vec::new(),
+            pending_craft_name: String::new(),
+            awaiting_craft_name: false,
         }
     }
 }
