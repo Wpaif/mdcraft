@@ -1,4 +1,7 @@
 use eframe::egui;
+use serde::Deserialize;
+
+use crate::parse::parse_clipboard;
 
 use super::{MdcraftApp, SavedCraft};
 
@@ -37,6 +40,7 @@ pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
         });
 
     render_delete_confirmation_popup(ctx, app);
+    render_import_recipes_popup(ctx, app);
 }
 
 fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f32) {
@@ -113,6 +117,7 @@ fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f3
                             sell_price_input: app.sell_price_input.clone(),
                         },
                     );
+                    app.active_saved_craft_index = app.active_saved_craft_index.map(|idx| idx + 1);
                     app.awaiting_craft_name = false;
                     app.pending_craft_name.clear();
                     app.focus_craft_name_input = false;
@@ -129,10 +134,12 @@ fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f3
                 ui.label(egui::RichText::new("Nenhuma receita salva ainda.").weak());
             } else {
                 let mut pending_click_delete: Option<usize> = None;
+                let mut pending_click_select: Option<usize> = None;
 
                 for (idx, craft) in app.saved_crafts.iter().enumerate() {
                     ui.group(|ui| {
                         ui.set_width(content_w);
+                        let is_active = app.active_saved_craft_index == Some(idx);
                         let name_text = normalize_craft_name(&craft.name);
                         let saved_lines = craft
                             .recipe_text
@@ -145,50 +152,64 @@ fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f3
                         } else {
                             format!("{} linhas salvas", saved_lines)
                         };
-                        let row_height = 24.0;
+                        let row_height = 26.0;
                         let icon_size = 22.0;
-                        ui.allocate_ui(egui::vec2(content_w, row_height), |ui| {
-                            ui.with_layout(
-                                egui::Layout::left_to_right(egui::Align::Center),
-                                |ui| {
-                                    let text_width =
-                                        (content_w - icon_size - ui.spacing().item_spacing.x - 8.0)
-                                            .max(80.0);
-                                    let (name_rect, name_resp) = ui.allocate_exact_size(
-                                        egui::vec2(text_width, row_height),
-                                        egui::Sense::hover(),
-                                    );
-                                    name_resp.on_hover_text(hover_details);
-                                    ui.painter().text(
-                                        egui::pos2(name_rect.left(), name_rect.center().y),
-                                        egui::Align2::LEFT_CENTER,
-                                        name_text,
-                                        egui::FontId::proportional(16.0),
-                                        ui.visuals().text_color(),
-                                    );
+                        ui.allocate_ui_with_layout(
+                            egui::vec2(content_w, row_height),
+                            egui::Layout::left_to_right(egui::Align::Center),
+                            |ui| {
+                                let text_width =
+                                    (content_w - icon_size - ui.spacing().item_spacing.x - 8.0)
+                                        .max(80.0);
 
-                                    let delete_btn = egui::Button::new(
-                                        egui::RichText::new("🗑")
-                                            .size(13.0)
-                                            .color(egui::Color32::from_rgb(220, 98, 98)),
-                                    )
-                                    .fill(egui::Color32::from_rgba_unmultiplied(220, 98, 98, 32))
-                                    .stroke(egui::Stroke::new(
-                                        1.0,
-                                        egui::Color32::from_rgb(180, 72, 72),
-                                    ));
+                                let name_fill = if is_active {
+                                    ui.visuals().faint_bg_color
+                                } else {
+                                    ui.visuals().widgets.inactive.bg_fill
+                                };
+                                let name_stroke = if is_active {
+                                    ui.visuals().widgets.active.bg_stroke
+                                } else {
+                                    ui.visuals().widgets.inactive.bg_stroke
+                                };
 
-                                    let delete_clicked = ui
-                                        .add_sized([icon_size, icon_size], delete_btn)
-                                        .on_hover_text("Excluir receita")
-                                        .clicked();
+                                let name_btn = egui::Button::new(
+                                    egui::RichText::new(name_text)
+                                        .size(16.0)
+                                        .color(ui.visuals().text_color()),
+                                )
+                                .fill(name_fill)
+                                .stroke(name_stroke);
 
-                                    if delete_clicked {
-                                        pending_click_delete = Some(idx);
-                                    }
-                                },
-                            );
-                        });
+                                let name_resp = ui
+                                    .add_sized([text_width, icon_size], name_btn)
+                                    .on_hover_text(hover_details);
+
+                                if name_resp.clicked() {
+                                    pending_click_select = Some(idx);
+                                }
+
+                                let delete_btn = egui::Button::new(
+                                    egui::RichText::new("🗑")
+                                        .size(13.0)
+                                        .color(egui::Color32::from_rgb(220, 98, 98)),
+                                )
+                                .fill(egui::Color32::from_rgba_unmultiplied(220, 98, 98, 32))
+                                .stroke(egui::Stroke::new(
+                                    1.0,
+                                    egui::Color32::from_rgb(180, 72, 72),
+                                ));
+
+                                let delete_clicked = ui
+                                    .add_sized([icon_size, icon_size], delete_btn)
+                                    .on_hover_text("Excluir receita")
+                                    .clicked();
+
+                                if delete_clicked {
+                                    pending_click_delete = Some(idx);
+                                }
+                            },
+                        );
                     });
                     ui.add_space(6.0);
                 }
@@ -196,8 +217,184 @@ fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f3
                 if let Some(idx) = pending_click_delete {
                     app.pending_delete_index = Some(idx);
                 }
+
+                if let Some(idx) = pending_click_select {
+                    load_saved_craft_for_edit(app, idx);
+                }
+            }
+
+            ui.add_space(12.0);
+            ui.separator();
+            ui.add_space(10.0);
+
+            let import_fill = ui.visuals().selection.bg_fill;
+            let import_stroke = ui.visuals().widgets.active.bg_stroke;
+            let import_text = ui.visuals().selection.stroke.color;
+
+            let import_clicked = ui
+                .add_sized(
+                    [content_w, 34.0],
+                    egui::Button::new(
+                        egui::RichText::new("Importar receitas (JSON)")
+                            .strong()
+                            .color(import_text),
+                    )
+                    .fill(import_fill)
+                    .stroke(import_stroke),
+                )
+                .on_hover_text("Cole um JSON com receitas salvas para importar em lote")
+                .clicked();
+
+            if import_clicked {
+                app.awaiting_import_json = true;
+                app.import_feedback = None;
             }
         });
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum ImportPayload {
+    List(Vec<SavedCraft>),
+    SavedCrafts { saved_crafts: Vec<SavedCraft> },
+    Recipes { recipes: Vec<SavedCraft> },
+}
+
+fn parse_imported_saved_crafts(raw_json: &str) -> Result<Vec<SavedCraft>, String> {
+    let payload: ImportPayload = serde_json::from_str(raw_json)
+        .map_err(|err| format!("JSON inválido para importação: {err}"))?;
+
+    let crafts = match payload {
+        ImportPayload::List(items) => items,
+        ImportPayload::SavedCrafts { saved_crafts } => saved_crafts,
+        ImportPayload::Recipes { recipes } => recipes,
+    };
+
+    Ok(crafts)
+}
+
+fn render_import_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
+    if !app.awaiting_import_json {
+        return;
+    }
+
+    egui::Window::new("Importar Receitas")
+        .id(egui::Id::new("import_saved_recipes_json"))
+        .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+        .collapsible(false)
+        .resizable(false)
+        .fixed_size(egui::vec2(560.0, 390.0))
+        .show(ctx, |ui| {
+            ui.label(
+                egui::RichText::new("Cole aqui o JSON no formato de receitas salvas")
+                    .strong()
+                    .size(15.0),
+            );
+            ui.add_space(6.0);
+            ui.label(
+                egui::RichText::new(
+                    "Aceita: lista direta (`[{...}]`) ou objeto com `saved_crafts`.",
+                )
+                .weak(),
+            );
+
+            ui.add_space(8.0);
+            ui.add_sized(
+                [ui.available_width(), 240.0],
+                egui::TextEdit::multiline(&mut app.import_json_input)
+                    .hint_text(placeholder(ui, "[{\"name\":\"Receita X\", ...}]"))
+                    .desired_width(f32::INFINITY)
+                    .margin(egui::vec2(10.0, 10.0)),
+            );
+
+            if let Some(feedback) = &app.import_feedback {
+                ui.add_space(6.0);
+                ui.label(feedback);
+            }
+
+            ui.add_space(10.0);
+            ui.horizontal(|ui| {
+                if ui
+                    .add_sized([120.0, 32.0], egui::Button::new("Cancelar"))
+                    .clicked()
+                {
+                    app.awaiting_import_json = false;
+                    app.import_feedback = None;
+                }
+
+                let import_clicked = ui
+                    .add_sized(
+                        [140.0, 32.0],
+                        egui::Button::new(egui::RichText::new("Importar").strong()),
+                    )
+                    .clicked();
+
+                if import_clicked {
+                    let raw_json = app.import_json_input.trim();
+                    if raw_json.is_empty() {
+                        app.import_feedback = Some("Cole um JSON antes de importar.".to_string());
+                        return;
+                    }
+
+                    match parse_imported_saved_crafts(raw_json) {
+                        Ok(crafts) => {
+                            if crafts.is_empty() {
+                                app.import_feedback =
+                                    Some("Nenhuma receita encontrada no JSON.".to_string());
+                                return;
+                            }
+
+                            let mut imported = 0usize;
+                            for craft in crafts.into_iter().rev() {
+                                let fallback_name =
+                                    format!("Receita {}", app.saved_crafts.len() + 1);
+                                let name = if craft.name.trim().is_empty() {
+                                    fallback_name
+                                } else {
+                                    normalize_craft_name(&craft.name)
+                                };
+
+                                app.saved_crafts.insert(
+                                    0,
+                                    SavedCraft {
+                                        name,
+                                        recipe_text: craft.recipe_text,
+                                        sell_price_input: craft.sell_price_input,
+                                    },
+                                );
+                                imported += 1;
+                            }
+
+                            if imported > 0 {
+                                app.active_saved_craft_index =
+                                    app.active_saved_craft_index.map(|idx| idx + imported);
+                            }
+
+                            app.import_feedback =
+                                Some(format!("{} receita(s) importada(s) com sucesso.", imported));
+                            app.awaiting_import_json = false;
+                            app.import_json_input.clear();
+                        }
+                        Err(err) => {
+                            app.import_feedback = Some(err);
+                        }
+                    }
+                }
+            });
+        });
+}
+
+fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {
+    let Some(craft) = app.saved_crafts.get(idx) else {
+        return;
+    };
+
+    app.input_text = craft.recipe_text.clone();
+    app.sell_price_input = craft.sell_price_input.clone();
+
+    let resources: Vec<&str> = app.resource_list.iter().map(AsRef::as_ref).collect();
+    app.items = parse_clipboard(&app.input_text, &resources);
+    app.active_saved_craft_index = Some(idx);
 }
 
 fn normalize_craft_name(raw_name: &str) -> String {
@@ -289,6 +486,17 @@ fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
                     .clicked()
                 {
                     app.saved_crafts.remove(idx);
+
+                    if let Some(active_idx) = app.active_saved_craft_index {
+                        app.active_saved_craft_index = if active_idx == idx {
+                            None
+                        } else if active_idx > idx {
+                            Some(active_idx - 1)
+                        } else {
+                            Some(active_idx)
+                        };
+                    }
+
                     app.pending_delete_index = None;
                 }
             });

@@ -29,6 +29,17 @@ fn capitalize_display_name(raw_name: &str) -> String {
         .join(" ")
 }
 
+fn autosave_active_craft(app: &mut MdcraftApp) {
+    let Some(idx) = app.active_saved_craft_index else {
+        return;
+    };
+
+    if let Some(craft) = app.saved_crafts.get_mut(idx) {
+        craft.recipe_text = app.input_text.clone();
+        craft.sell_price_input = app.sell_price_input.clone();
+    }
+}
+
 pub(super) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, content_width: f32) {
     ui.group(|ui| {
         ui.set_width(content_width);
@@ -68,6 +79,7 @@ pub(super) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                     }
 
                     app.items = new_items;
+                    autosave_active_craft(app);
                 }
             });
     });
@@ -96,11 +108,7 @@ pub(super) fn render_items_and_values(
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(
-                    egui::RichText::new("Itens e Valores")
-                        .strong()
-                        .size(16.0),
-                );
+                ui.label(egui::RichText::new("Itens e Valores").strong().size(16.0));
                 ui.add_space(10.0);
 
                 let available_space_for_cols = (content_width - 10.0).max(300.0);
@@ -338,21 +346,21 @@ pub(super) fn render_closing(
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(
-                    egui::RichText::new("Fechamento")
-                        .strong()
-                        .size(16.0),
-                );
+                ui.label(egui::RichText::new("Fechamento").strong().size(16.0));
                 ui.add_space(10.0);
 
                 ui.horizontal(|ui| {
                     ui.add_sized([150.0, 32.0], egui::Label::new("Preço de Venda Final:"));
-                    ui.add(
+                    let sell_resp = ui.add(
                         egui::TextEdit::singleline(&mut app.sell_price_input)
                             .hint_text(placeholder(ui, "100k"))
                             .desired_width(180.0)
                             .margin(egui::vec2(12.0, 10.0)),
                     );
+
+                    if sell_resp.changed() {
+                        autosave_active_craft(app);
+                    }
                 });
 
                 ui.add_space(15.0);

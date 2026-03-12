@@ -11,6 +11,7 @@
 //! * `ui` – the implementation of `eframe::App` and the main view.
 
 use crate::model::Item;
+use serde::{Deserialize, Serialize};
 
 // `Item` is needed for the application state. Parser functions and formatter are
 // now imported in `ui.rs` where the UI logic lives.
@@ -25,7 +26,7 @@ mod theme_state;
 mod ui;
 mod ui_sections;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SavedCraft {
     pub name: String,
     pub recipe_text: String,
@@ -49,6 +50,10 @@ pub struct MdcraftApp {
     pub awaiting_craft_name: bool,
     pub focus_craft_name_input: bool,
     pub pending_delete_index: Option<usize>,
+    pub active_saved_craft_index: Option<usize>,
+    pub awaiting_import_json: bool,
+    pub import_json_input: String,
+    pub import_feedback: Option<String>,
 }
 
 impl Default for MdcraftApp {
@@ -100,6 +105,10 @@ impl Default for MdcraftApp {
             awaiting_craft_name: false,
             focus_craft_name_input: false,
             pending_delete_index: None,
+            active_saved_craft_index: None,
+            awaiting_import_json: false,
+            import_json_input: String::new(),
+            import_feedback: None,
         }
     }
 }
