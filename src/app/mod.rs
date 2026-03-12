@@ -54,6 +54,9 @@ pub struct MdcraftApp {
     pub awaiting_import_json: bool,
     pub import_json_input: String,
     pub import_feedback: Option<String>,
+    pub awaiting_export_json: bool,
+    pub export_json_output: String,
+    pub export_feedback: Option<String>,
 }
 
 impl Default for MdcraftApp {
@@ -109,6 +112,9 @@ impl Default for MdcraftApp {
             awaiting_import_json: false,
             import_json_input: String::new(),
             import_feedback: None,
+            awaiting_export_json: false,
+            export_json_output: String::new(),
+            export_feedback: None,
         }
     }
 }
