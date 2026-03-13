@@ -640,7 +640,10 @@ mod tests {
     fn build_npc_price_lookup_includes_fixed_compressed_nightmare_gems() {
         let app = MdcraftApp::default();
         let lookup = build_npc_price_lookup(&app);
-        assert_eq!(lookup.get("compressed nightmare gems").copied(), Some(25_000.0));
+        assert_eq!(
+            lookup.get("compressed nightmare gems").copied(),
+            Some(25_000.0)
+        );
     }
 
     #[test]
@@ -656,7 +659,10 @@ mod tests {
             let item = make_item("Screw", 1, "", false);
             let lookup = HashMap::new();
             let stroke = price_input_stroke(ui, &item, &lookup);
-            assert_eq!(stroke, egui::Stroke::new(1.4, egui::Color32::from_rgb(235, 188, 90)));
+            assert_eq!(
+                stroke,
+                egui::Stroke::new(1.4, egui::Color32::from_rgb(235, 188, 90))
+            );
         });
     }
 

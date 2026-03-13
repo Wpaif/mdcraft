@@ -83,7 +83,10 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                         .color(egui::Color32::from_rgb(245, 251, 244)),
                 )
                 .fill(egui::Color32::from_rgb(48, 118, 78))
-                .stroke(egui::Stroke::new(1.0, egui::Color32::from_rgb(86, 168, 120)))
+                .stroke(egui::Stroke::new(
+                    1.0,
+                    egui::Color32::from_rgb(86, 168, 120),
+                ))
                 .corner_radius(egui::CornerRadius::same(8));
 
                 let save_clicked = ui
@@ -100,11 +103,22 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                 ui.label(egui::RichText::new("Nome da receita:").strong());
 
                 let mut name_resp_opt: Option<egui::Response> = None;
+                let accent = ui.visuals().hyperlink_color;
                 egui::Frame::NONE
-                    .fill(egui::Color32::from_rgba_unmultiplied(86, 156, 214, 18))
+                    .fill(egui::Color32::from_rgba_unmultiplied(
+                        accent.r(),
+                        accent.g(),
+                        accent.b(),
+                        18,
+                    ))
                     .stroke(egui::Stroke::new(
                         1.0,
-                        egui::Color32::from_rgba_unmultiplied(86, 156, 214, 90),
+                        egui::Color32::from_rgba_unmultiplied(
+                            accent.r(),
+                            accent.g(),
+                            accent.b(),
+                            96,
+                        ),
                     ))
                     .corner_radius(egui::CornerRadius::same(8))
                     .inner_margin(egui::Margin::symmetric(6, 4))
@@ -175,23 +189,40 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                 let mut pending_click_select: Option<usize> = None;
 
                 for (idx, craft) in app.saved_crafts.iter().enumerate() {
-                    ui.group(|ui| {
+                    let is_active = app.active_saved_craft_index == Some(idx);
+                    let name_text = normalize_craft_name(&craft.name);
+                    let saved_lines = craft
+                        .recipe_text
+                        .lines()
+                        .filter(|line| !line.trim().is_empty())
+                        .count();
+                    let has_saved_price = !craft.sell_price_input.trim().is_empty();
+                    let hover_details = if has_saved_price {
+                        format!("{} linhas salvas | com preco final", saved_lines)
+                    } else {
+                        format!("{} linhas salvas", saved_lines)
+                    };
+
+                    let item_fill = if is_active {
+                        ui.visuals().faint_bg_color
+                    } else {
+                        ui.visuals().widgets.inactive.bg_fill
+                    };
+                    let item_stroke = if is_active {
+                        ui.visuals().widgets.active.bg_stroke
+                    } else {
+                        ui.visuals().widgets.inactive.bg_stroke
+                    };
+
+                    egui::Frame::new()
+                        .fill(item_fill)
+                        .stroke(item_stroke)
+                        .corner_radius(egui::CornerRadius::same(4))
+                        .inner_margin(egui::Margin::symmetric(8, 5))
+                        .show(ui, |ui| {
                         ui.set_width(content_w);
-                        let is_active = app.active_saved_craft_index == Some(idx);
-                        let name_text = normalize_craft_name(&craft.name);
-                        let saved_lines = craft
-                            .recipe_text
-                            .lines()
-                            .filter(|line| !line.trim().is_empty())
-                            .count();
-                        let has_saved_price = !craft.sell_price_input.trim().is_empty();
-                        let hover_details = if has_saved_price {
-                            format!("{} linhas salvas | com preco final", saved_lines)
-                        } else {
-                            format!("{} linhas salvas", saved_lines)
-                        };
-                        let row_height = 26.0;
-                        let icon_size = 22.0;
+                        let row_height = 22.0;
+                        let icon_size = 20.0;
                         ui.allocate_ui_with_layout(
                             egui::vec2(content_w, row_height),
                             egui::Layout::left_to_right(egui::Align::Center),
@@ -200,24 +231,13 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                                     (content_w - icon_size - ui.spacing().item_spacing.x - 8.0)
                                         .max(80.0);
 
-                                let name_fill = if is_active {
-                                    ui.visuals().faint_bg_color
-                                } else {
-                                    ui.visuals().widgets.inactive.bg_fill
-                                };
-                                let name_stroke = if is_active {
-                                    ui.visuals().widgets.active.bg_stroke
-                                } else {
-                                    ui.visuals().widgets.inactive.bg_stroke
-                                };
-
                                 let name_btn = egui::Button::new(
-                                    egui::RichText::new(name_text)
-                                        .size(16.0)
+                                    egui::RichText::new(&name_text)
+                                        .size(14.0)
                                         .color(ui.visuals().text_color()),
                                 )
-                                .fill(name_fill)
-                                .stroke(name_stroke);
+                                .fill(egui::Color32::TRANSPARENT)
+                                .stroke(egui::Stroke::NONE);
 
                                 let name_resp = ui
                                     .add_sized([text_width, icon_size], name_btn)
@@ -248,18 +268,17 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                                     delete_rect.center(),
                                     egui::Align2::CENTER_CENTER,
                                     "🗑",
-                                    egui::TextStyle::Button.resolve(ui.style()),
+                                    egui::FontId::proportional(13.0),
                                     egui::Color32::from_rgb(220, 98, 98),
                                 );
 
-                                let delete_clicked = delete_resp
-                                    .on_hover_text("Excluir receita")
-                                    .clicked();
+                                let delete_clicked =
+                                    delete_resp.on_hover_text("Excluir receita").clicked();
                                 set_pending_action(&mut pending_click_delete, idx, delete_clicked);
                             },
                         );
                     });
-                    ui.add_space(6.0);
+                    ui.add_space(4.0);
                 }
 
                 apply_pending_sidebar_actions(app, pending_click_delete, pending_click_select);
@@ -319,9 +338,9 @@ mod tests {
     };
 
     use super::{
-        apply_pending_sidebar_actions, load_saved_craft_for_edit, render_sidebar_content,
-        render_sidebar_header, set_pending_action, sidebar_header_bg_color,
-        start_save_recipe_prompt, toggle_sidebar, infer_craft_name_from_items,
+        apply_pending_sidebar_actions, infer_craft_name_from_items, load_saved_craft_for_edit,
+        render_sidebar_content, render_sidebar_header, set_pending_action, sidebar_header_bg_color,
+        start_save_recipe_prompt, toggle_sidebar,
     };
 
     fn run_sidebar_content_with_events(
