@@ -7,15 +7,64 @@ use reqwest::blocking::Client;
 use reqwest::header::{ETAG, IF_MODIFIED_SINCE, IF_NONE_MATCH, LAST_MODIFIED};
 
 use super::{
-    ScrapeError, ScrapeRefreshData, WikiSource, items_parser, retain_items_with_npc_price,
+    ScrapeError, ScrapeRefreshData, WikiSource, items_parser, merge,
 };
 
 const DETAIL_FETCH_WORKERS: usize = 3;
 const DETAIL_FETCH_BASE_DELAY_MS: u64 = 220;
 const DETAIL_FETCH_JITTER_MS: u64 = 180;
 
+trait HttpCacheClient: Send + Sync {
+    fn fetch_url_with_cache(
+        &self,
+        url: &str,
+        etag: Option<&String>,
+        last_modified: Option<&String>,
+    ) -> Result<CachedFetch, String>;
+}
+
+struct ReqwestHttpCacheClient {
+    client: Client,
+}
+
+impl ReqwestHttpCacheClient {
+    fn new(client: &Client) -> Self {
+        Self {
+            client: client.clone(),
+        }
+    }
+}
+
+impl HttpCacheClient for ReqwestHttpCacheClient {
+    fn fetch_url_with_cache(
+        &self,
+        url: &str,
+        etag: Option<&String>,
+        last_modified: Option<&String>,
+    ) -> Result<CachedFetch, String> {
+        fetch_url_with_cache_reqwest(&self.client, url, etag, last_modified)
+            .map_err(|err| err.to_string())
+    }
+}
+
 pub(super) fn scrape_source_incremental_with_cache(
     client: &Client,
+    source: WikiSource,
+    existing_price_map: &HashMap<String, String>,
+    etag_cache: &HashMap<String, String>,
+    last_modified_cache: &HashMap<String, String>,
+) -> Result<ScrapeRefreshData, ScrapeError> {
+    scrape_source_incremental_with_http(
+        Arc::new(ReqwestHttpCacheClient::new(client)),
+        source,
+        existing_price_map,
+        etag_cache,
+        last_modified_cache,
+    )
+}
+
+fn scrape_source_incremental_with_http(
+    http_client: Arc<dyn HttpCacheClient>,
     source: WikiSource,
     existing_price_map: &HashMap<String, String>,
     etag_cache: &HashMap<String, String>,
@@ -25,28 +74,29 @@ pub(super) fn scrape_source_incremental_with_cache(
     let mut last_modified_updates = HashMap::new();
     let source_url = source.url().to_string();
 
-    let html = match fetch_url_with_cache(
-        client,
+    let html = match http_client.fetch_url_with_cache(
         &source_url,
         etag_cache.get(&source_url),
         last_modified_cache.get(&source_url),
-    )
-    .map_err(|err| ScrapeError::Request {
-        source,
-        message: err.to_string(),
-    })? {
-        CachedFetch::NotModified => {
+    ) {
+        Err(err) => {
+            return Err(ScrapeError::Request {
+                source,
+                message: err,
+            });
+        }
+        Ok(CachedFetch::NotModified) => {
             return Ok(ScrapeRefreshData {
                 items: Vec::new(),
                 etag_cache: etag_updates,
                 last_modified_cache: last_modified_updates,
             });
         }
-        CachedFetch::Modified {
+        Ok(CachedFetch::Modified {
             html,
             etag,
             last_modified,
-        } => {
+        }) => {
             if let Some(etag) = etag {
                 etag_updates.insert(source_url.clone(), etag);
             }
@@ -69,7 +119,7 @@ pub(super) fn scrape_source_incremental_with_cache(
     }
 
     fill_missing_prices_from_details(
-        client,
+        Arc::clone(&http_client),
         &mut rows,
         existing_price_map,
         etag_cache,
@@ -79,14 +129,14 @@ pub(super) fn scrape_source_incremental_with_cache(
     );
 
     Ok(ScrapeRefreshData {
-        items: retain_items_with_npc_price(rows.into_iter().map(|row| row.item).collect()),
+        items: merge::retain_items_with_npc_price(rows.into_iter().map(|row| row.item).collect()),
         etag_cache: etag_updates,
         last_modified_cache: last_modified_updates,
     })
 }
 
 fn fill_missing_prices_from_details(
-    client: &Client,
+    http_client: Arc<dyn HttpCacheClient>,
     rows: &mut [items_parser::ParsedItemRow],
     existing_price_map: &HashMap<String, String>,
     etag_cache: &HashMap<String, String>,
@@ -124,7 +174,7 @@ fn fill_missing_prices_from_details(
         let last_modified_cache = Arc::clone(&last_modified_cache);
         let detail_etag_updates = Arc::clone(&detail_etag_updates);
         let detail_last_modified_updates = Arc::clone(&detail_last_modified_updates);
-        let client = client.clone();
+        let http_client = Arc::clone(&http_client);
 
         workers.push(thread::spawn(move || {
             loop {
@@ -139,8 +189,7 @@ fn fill_missing_prices_from_details(
 
                 thread::sleep(polite_delay_for_path(&path));
 
-                let detail_fetch = fetch_url_with_cache(
-                    &client,
+                let detail_fetch = http_client.fetch_url_with_cache(
                     &path,
                     etag_cache.get(&path),
                     last_modified_cache.get(&path),
@@ -222,6 +271,7 @@ fn polite_delay_for_path(path: &str) -> Duration {
     Duration::from_millis(DETAIL_FETCH_BASE_DELAY_MS + jitter)
 }
 
+#[derive(Clone, Debug)]
 enum CachedFetch {
     NotModified,
     Modified {
@@ -231,7 +281,7 @@ enum CachedFetch {
     },
 }
 
-fn fetch_url_with_cache(
+fn fetch_url_with_cache_reqwest(
     client: &Client,
     url: &str,
     etag: Option<&String>,
@@ -276,5 +326,129 @@ fn resolve_wiki_url(path_or_url: &str) -> String {
         format!("https://wiki.pokexgames.com{path_or_url}")
     } else {
         format!("https://wiki.pokexgames.com/{path_or_url}")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        CachedFetch, HttpCacheClient, scrape_source_incremental_with_http,
+    };
+    use super::super::WikiSource;
+    use std::collections::HashMap;
+    use std::sync::Arc;
+
+    struct FakeHttpClient {
+        responses: HashMap<String, Result<CachedFetch, String>>,
+    }
+
+    impl HttpCacheClient for FakeHttpClient {
+        fn fetch_url_with_cache(
+            &self,
+            url: &str,
+            _etag: Option<&String>,
+            _last_modified: Option<&String>,
+        ) -> Result<CachedFetch, String> {
+            self.responses
+                .get(url)
+                .cloned()
+                .unwrap_or_else(|| Err(format!("missing fake response for {url}")))
+        }
+    }
+
+    #[test]
+    fn scrape_source_uses_existing_price_map_when_list_has_no_price() {
+        let list_url = WikiSource::Loot.url().to_string();
+        let html = r#"
+            <table>
+                <tr>
+                    <td><a title="Tech Data" href="/wiki/tech_data">Tech Data</a></td>
+                </tr>
+            </table>
+        "#;
+
+        let mut responses = HashMap::new();
+        responses.insert(
+            list_url,
+            Ok(CachedFetch::Modified {
+                html: html.to_string(),
+                etag: Some("etag-list".to_string()),
+                last_modified: Some("Wed, 21 Oct 2015 07:28:00 GMT".to_string()),
+            }),
+        );
+
+        let http = Arc::new(FakeHttpClient { responses });
+        let existing_price_map = HashMap::from([(String::from("tech data"), String::from("7k"))]);
+
+        let data = scrape_source_incremental_with_http(
+            http,
+            WikiSource::Loot,
+            &existing_price_map,
+            &HashMap::new(),
+            &HashMap::new(),
+        )
+        .expect("source scrape should succeed with fake list html");
+
+        assert_eq!(data.items.len(), 1);
+        assert_eq!(data.items[0].name, "Tech Data");
+        assert_eq!(data.items[0].npc_price.as_deref(), Some("7k"));
+        assert_eq!(data.items[0].sources, vec![WikiSource::Loot]);
+        assert_eq!(data.etag_cache.get(WikiSource::Loot.url()).map(String::as_str), Some("etag-list"));
+    }
+
+    #[test]
+    fn scrape_source_fetches_detail_price_when_missing_on_list() {
+        let list_url = WikiSource::Loot.url().to_string();
+        let detail_url = "https://wiki.pokexgames.com/wiki/ancient_wire".to_string();
+
+        let list_html = r#"
+            <table>
+                <tr>
+                    <td><a title="Ancient Wire" href="/wiki/ancient_wire">Ancient Wire</a></td>
+                </tr>
+            </table>
+        "#;
+
+        let detail_html = r#"
+            <table>
+                <tr><th>Preco NPC</th><td>12k</td></tr>
+            </table>
+        "#;
+
+        let mut responses = HashMap::new();
+        responses.insert(
+            list_url,
+            Ok(CachedFetch::Modified {
+                html: list_html.to_string(),
+                etag: None,
+                last_modified: None,
+            }),
+        );
+        responses.insert(
+            detail_url.clone(),
+            Ok(CachedFetch::Modified {
+                html: detail_html.to_string(),
+                etag: Some("etag-detail".to_string()),
+                last_modified: Some("Thu, 22 Oct 2015 07:28:00 GMT".to_string()),
+            }),
+        );
+
+        let http = Arc::new(FakeHttpClient { responses });
+        let data = scrape_source_incremental_with_http(
+            http,
+            WikiSource::Loot,
+            &HashMap::new(),
+            &HashMap::new(),
+            &HashMap::new(),
+        )
+        .expect("source scrape should resolve missing detail price");
+
+        assert_eq!(data.items.len(), 1);
+        assert_eq!(data.items[0].name, "Ancient Wire");
+        assert_eq!(data.items[0].npc_price.as_deref(), Some("12k"));
+        assert_eq!(
+            data.etag_cache.get(&detail_url).map(String::as_str),
+            Some("etag-detail")
+        );
     }
 }

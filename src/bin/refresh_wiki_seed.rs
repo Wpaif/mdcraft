@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 #[path = "../data/wiki_scraper.rs"]
+#[allow(dead_code)]
 mod wiki_scraper;
 
 fn main() {

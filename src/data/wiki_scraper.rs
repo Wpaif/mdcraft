@@ -1,206 +1,69 @@
 use std::collections::HashMap;
-use std::sync::mpsc;
-use std::thread;
 
 use reqwest::blocking::Client;
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub enum WikiSource {
-    Loot,
-    Nightmare,
-    DimensionalZone,
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum CraftProfession {
-    Engineer,
-    Professor,
-    Stylist,
-    Adventurer,
-}
-
-impl CraftProfession {
-    #[allow(dead_code)]
-    pub fn url(self) -> &'static str {
-        match self {
-            Self::Engineer => {
-                "https://wiki.pokexgames.com/index.php?title=Craft_Profiss%C3%B5es_-_Engenheiro&mobileaction=toggle_view_desktop"
-            }
-            Self::Professor => {
-                "https://wiki.pokexgames.com/index.php?title=Craft_Profiss%C3%B5es_-_Professor&mobileaction=toggle_view_desktop"
-            }
-            Self::Stylist => {
-                "https://wiki.pokexgames.com/index.php?title=Craft_Profiss%C3%B5es_-_Estilista&mobileaction=toggle_view_desktop"
-            }
-            Self::Adventurer => {
-                "https://wiki.pokexgames.com/index.php?title=Craft_Profiss%C3%B5es_-_Aventureiro&mobileaction=toggle_view_desktop"
-            }
-        }
-    }
-}
-
-#[allow(dead_code)]
-pub const ALL_CRAFT_PROFESSIONS: [CraftProfession; 4] = [
-    CraftProfession::Engineer,
-    CraftProfession::Professor,
-    CraftProfession::Stylist,
-    CraftProfession::Adventurer,
-];
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum CraftRank {
-    E,
-    D,
-    C,
-    B,
-    A,
-    S,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct CraftIngredient {
-    pub name: String,
-    pub quantity: f64,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ScrapedCraftRecipe {
-    pub profession: CraftProfession,
-    pub rank: CraftRank,
-    pub name: String,
-    pub ingredients: Vec<CraftIngredient>,
-}
-
-impl WikiSource {
-    pub fn url(self) -> &'static str {
-        match self {
-            Self::Loot => {
-                "https://wiki.pokexgames.com/index.php?title=Itens_de_Loot&mobileaction=toggle_view_desktop"
-            }
-            Self::Nightmare => {
-                "https://wiki.pokexgames.com/index.php/Nightmare_Itens#Itens_Comuns-0"
-            }
-            Self::DimensionalZone => "https://wiki.pokexgames.com/index.php/Dimensional_Zone_Itens",
-        }
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ScrapedItem {
-    pub name: String,
-    pub npc_price: Option<String>,
-    pub sources: Vec<WikiSource>,
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct ScrapeRefreshData {
-    pub items: Vec<ScrapedItem>,
-    pub etag_cache: HashMap<String, String>,
-    pub last_modified_cache: HashMap<String, String>,
-}
-
-fn has_npc_price(item: &ScrapedItem) -> bool {
-    item.npc_price
-        .as_deref()
-        .map(|p| !p.trim().is_empty())
-        .unwrap_or(false)
-}
-
-pub(super) fn retain_items_with_npc_price(items: Vec<ScrapedItem>) -> Vec<ScrapedItem> {
-    items.into_iter().filter(has_npc_price).collect()
-}
-
-const EMBEDDED_WIKI_ITEMS: &str = include_str!("wiki_items_seed.json");
-const EMBEDDED_CRAFT_RECIPES: &str = include_str!("wiki_crafts_seed.json");
-const EMBEDDED_RESOURCE_NAMES: &str = include_str!("resource_names_seed.json");
+// Visibility conventions:
+// - `pub`: scraper API and domain types consumed by app/data layers.
+// - `pub(crate)`: cross-module helpers inside this crate.
+// - `pub(super)`/private: submodule internals and implementation details.
 
 #[path = "wiki_scraper/crafts.rs"]
 mod crafts;
+#[path = "wiki_scraper/errors.rs"]
+mod errors;
 #[path = "wiki_scraper/items_parser.rs"]
 mod items_parser;
+#[path = "wiki_scraper/merge.rs"]
+mod merge;
+#[path = "wiki_scraper/pipeline.rs"]
+mod pipeline;
+#[path = "wiki_scraper/seeds.rs"]
+mod seeds;
 #[path = "wiki_scraper/source_scrape.rs"]
 mod source_scrape;
-pub use crafts::CraftScrapeError;
+#[path = "wiki_scraper/types.rs"]
+mod types;
+
+#[allow(unused_imports)]
+pub use crafts::{
+    CraftScrapeError, parse_profession_crafts_from_html, scrape_all_profession_crafts,
+    scrape_profession_crafts,
+};
+pub use errors::ScrapeError;
+pub use types::{
+    ALL_CRAFT_PROFESSIONS, ALL_WIKI_SOURCES, CraftIngredient, CraftProfession, CraftRank,
+    ScrapeRefreshData, ScrapedCraftRecipe, ScrapedItem, WikiSource,
+};
 
 pub fn embedded_wiki_items() -> Vec<ScrapedItem> {
-    let items = serde_json::from_str(EMBEDDED_WIKI_ITEMS).unwrap_or_default();
-    retain_items_with_npc_price(items)
+    seeds::embedded_wiki_items()
 }
 
 pub fn embedded_resource_names() -> Vec<String> {
-    serde_json::from_str(EMBEDDED_RESOURCE_NAMES).unwrap_or_default()
+    seeds::embedded_resource_names()
 }
 
 pub fn embedded_craft_recipes() -> Vec<ScrapedCraftRecipe> {
-    serde_json::from_str(EMBEDDED_CRAFT_RECIPES).unwrap_or_default()
-}
-
-pub fn parse_profession_crafts_from_html(
-    html: &str,
-    profession: CraftProfession,
-) -> Vec<ScrapedCraftRecipe> {
-    crafts::parse_profession_crafts_from_html(html, profession)
-}
-
-#[allow(dead_code)]
-pub fn scrape_profession_crafts(
-    client: &Client,
-    profession: CraftProfession,
-) -> Result<Vec<ScrapedCraftRecipe>, CraftScrapeError> {
-    crafts::scrape_profession_crafts(client, profession)
-}
-
-#[allow(dead_code)]
-pub fn scrape_all_profession_crafts(
-    client: &Client,
-) -> Result<Vec<ScrapedCraftRecipe>, CraftScrapeError> {
-    crafts::scrape_all_profession_crafts(client)
+    seeds::embedded_craft_recipes()
 }
 
 pub fn merge_item_lists(existing: &[ScrapedItem], incoming: &[ScrapedItem]) -> Vec<ScrapedItem> {
     let mut merged: HashMap<String, ScrapedItem> = HashMap::new();
-    merge_items(&mut merged, existing.to_vec());
-    merge_items(&mut merged, incoming.to_vec());
+    merge::merge_items(&mut merged, existing.iter().cloned());
+    merge::merge_items(&mut merged, incoming.iter().cloned());
 
-    let mut items: Vec<ScrapedItem> = retain_items_with_npc_price(merged.into_values().collect());
-    items.sort_by(|a, b| a.name.cmp(&b.name));
-    items
+    merge::finalize_scraped_items(merged.into_values().collect())
 }
 
+#[allow(dead_code)]
 pub fn normalized_resource_names(items: &[ScrapedItem]) -> Vec<String> {
-    let mut names: Vec<String> = items
-        .iter()
-        .map(|item| item.name.trim().to_lowercase())
-        .filter(|name| !name.is_empty())
-        .collect();
-
-    names.sort();
-    names.dedup();
-    names
+    merge::normalized_resource_names(items)
 }
-
-#[derive(Debug)]
-pub enum ScrapeError {
-    Request { source: WikiSource, message: String },
-}
-
-impl std::fmt::Display for ScrapeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Request { source, message } => {
-                write!(f, "failed to fetch {:?} source: {}", source, message)
-            }
-        }
-    }
-}
-
-impl std::error::Error for ScrapeError {}
 
 #[allow(dead_code)]
 pub fn scrape_all_sources(client: &Client) -> Result<Vec<ScrapedItem>, ScrapeError> {
     scrape_all_sources_incremental(client, &[], &HashMap::new(), &HashMap::new())
-        .map(|data| retain_items_with_npc_price(data.items))
+        .map(|data| merge::finalize_scraped_items(data.items))
 }
 
 pub fn scrape_all_sources_incremental(
@@ -209,75 +72,26 @@ pub fn scrape_all_sources_incremental(
     etag_cache: &HashMap<String, String>,
     last_modified_cache: &HashMap<String, String>,
 ) -> Result<ScrapeRefreshData, ScrapeError> {
-    let sources = [
-        WikiSource::Loot,
-        WikiSource::Nightmare,
-        WikiSource::DimensionalZone,
-    ];
-
-    let existing_price_map: HashMap<String, String> = existing
-        .iter()
-        .filter_map(|item| {
-            item.npc_price
-                .as_ref()
-                .map(|price| (items_parser::normalize_key(&item.name), price.clone()))
-        })
-        .collect();
-
-    let (tx, rx) = mpsc::channel();
-    for source in sources {
-        let tx = tx.clone();
-        let client = client.clone();
-        let existing_price_map = existing_price_map.clone();
-        let etag_cache = etag_cache.clone();
-        let last_modified_cache = last_modified_cache.clone();
-
-        thread::spawn(move || {
-            let result = scrape_source_incremental_with_cache(
-                &client,
-                source,
-                &existing_price_map,
-                &etag_cache,
-                &last_modified_cache,
-            );
-            let _ = tx.send(result);
-        });
-    }
-    drop(tx);
-
-    let mut merged: HashMap<String, ScrapedItem> = HashMap::new();
-    let mut merged_etags = etag_cache.clone();
-    let mut merged_last_modified = last_modified_cache.clone();
-    for _ in 0..sources.len() {
-        let source_data = rx.recv().map_err(|err| ScrapeError::Request {
-            source: WikiSource::Loot,
-            message: format!("parallel scrape channel error: {err}"),
-        })??;
-        merge_items(&mut merged, source_data.items);
-        merged_etags.extend(source_data.etag_cache);
-        merged_last_modified.extend(source_data.last_modified_cache);
-    }
-
-    let mut items: Vec<ScrapedItem> = merged.into_values().collect();
-    items = retain_items_with_npc_price(items);
-    items.sort_by(|a, b| a.name.cmp(&b.name));
-    Ok(ScrapeRefreshData {
-        items,
-        etag_cache: merged_etags,
-        last_modified_cache: merged_last_modified,
-    })
+    let existing_price_map = merge::build_existing_price_map(existing);
+    pipeline::scrape_all_sources_parallel(
+        client,
+        &ALL_WIKI_SOURCES,
+        &existing_price_map,
+        etag_cache,
+        last_modified_cache,
+    )
 }
 
 #[allow(dead_code)]
 pub fn scrape_source(client: &Client, source: WikiSource) -> Result<Vec<ScrapedItem>, ScrapeError> {
-    scrape_source_incremental_with_cache(
+    source_scrape::scrape_source_incremental_with_cache(
         client,
         source,
         &HashMap::new(),
         &HashMap::new(),
         &HashMap::new(),
     )
-    .map(|data| retain_items_with_npc_price(data.items))
+    .map(|data| merge::finalize_scraped_items(data.items))
 }
 
 #[allow(dead_code)]
@@ -286,55 +100,20 @@ pub fn scrape_source_incremental(
     source: WikiSource,
     existing_price_map: &HashMap<String, String>,
 ) -> Result<ScrapeRefreshData, ScrapeError> {
-    scrape_source_incremental_with_cache(
-        client,
-        source,
-        existing_price_map,
-        &HashMap::new(),
-        &HashMap::new(),
-    )
-}
-
-fn scrape_source_incremental_with_cache(
-    client: &Client,
-    source: WikiSource,
-    existing_price_map: &HashMap<String, String>,
-    etag_cache: &HashMap<String, String>,
-    last_modified_cache: &HashMap<String, String>,
-) -> Result<ScrapeRefreshData, ScrapeError> {
     source_scrape::scrape_source_incremental_with_cache(
         client,
         source,
         existing_price_map,
-        etag_cache,
-        last_modified_cache,
+        &HashMap::new(),
+        &HashMap::new(),
     )
-}
-
-fn merge_items(merged: &mut HashMap<String, ScrapedItem>, new_items: Vec<ScrapedItem>) {
-    for item in new_items {
-        let key = items_parser::normalize_key(&item.name);
-
-        if let Some(existing) = merged.get_mut(&key) {
-            if existing.npc_price.is_none() && item.npc_price.is_some() {
-                existing.npc_price = item.npc_price.clone();
-            }
-            for source in item.sources {
-                if !existing.sources.contains(&source) {
-                    existing.sources.push(source);
-                }
-            }
-        } else {
-            merged.insert(key, item);
-        }
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        ScrapedItem, WikiSource, embedded_resource_names, embedded_wiki_items, merge_item_lists,
-        merge_items, normalized_resource_names,
+        ScrapedItem, WikiSource, embedded_resource_names, embedded_wiki_items, merge,
+        merge_item_lists, normalized_resource_names,
     };
     use std::collections::HashMap;
 
@@ -342,7 +121,7 @@ mod tests {
     fn merge_items_deduplicates_and_merges_sources() {
         let mut merged = HashMap::new();
 
-        merge_items(
+        merge::merge_items(
             &mut merged,
             vec![ScrapedItem {
                 name: "Ancient Wire".to_string(),
@@ -351,7 +130,7 @@ mod tests {
             }],
         );
 
-        merge_items(
+        merge::merge_items(
             &mut merged,
             vec![ScrapedItem {
                 name: "Ancient Wire".to_string(),
@@ -427,5 +206,4 @@ mod tests {
         assert!(merged[0].sources.contains(&WikiSource::Loot));
         assert!(merged[0].sources.contains(&WikiSource::Nightmare));
     }
-
 }

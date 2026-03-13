@@ -11,6 +11,7 @@ pub(super) fn normalize_key(name: &str) -> String {
     name.trim().to_lowercase()
 }
 
+#[allow(dead_code)]
 pub(super) fn parse_items_from_html(html: &str, source: WikiSource) -> Vec<ScrapedItem> {
     parse_item_rows_from_html(html, source)
         .into_iter()
@@ -75,6 +76,7 @@ pub(super) fn parse_item_rows_from_html(html: &str, source: WikiSource) -> Vec<P
     result
 }
 
+#[allow(dead_code)]
 pub(super) fn extract_name_from_row(cells: &[ElementRef<'_>]) -> Option<String> {
     extract_name_and_detail_path_from_row(cells).map(|(name, _)| name)
 }
