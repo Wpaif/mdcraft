@@ -17,11 +17,11 @@ pub(crate) fn render_closing(
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(egui::RichText::new("Fechamento").strong().size(16.0));
+                ui.label(egui::RichText::new("Fechamento").strong().size(20.0));
                 ui.add_space(10.0);
 
                 ui.horizontal(|ui| {
-                    ui.add_sized([150.0, 32.0], egui::Label::new("Preço de Venda Final:"));
+                    ui.add_sized([150.0, 32.0], egui::Label::new(egui::RichText::new("Preço de Venda Final:").size(14.0)));
                     let sell_resp = ui.add(
                         egui::TextEdit::singleline(&mut app.sell_price_input)
                             .hint_text(placeholder(ui, "100k"))
@@ -36,10 +36,17 @@ pub(crate) fn render_closing(
 
                 ui.add_space(15.0);
 
+                let caption = |text: &str, ui: &egui::Ui| -> egui::RichText {
+                    egui::RichText::new(text)
+                        .size(11.0)
+                        .strong()
+                        .color(ui.visuals().weak_text_color())
+                };
+
                 ui.horizontal_top(|ui| {
                     ui.vertical(|ui| {
-                        ui.label("CUSTO TOTAL");
-                        ui.heading(egui::RichText::new(format_game_units(total_cost)));
+                        ui.label(caption("CUSTO TOTAL", ui));
+                        ui.label(egui::RichText::new(format_game_units(total_cost)).strong().size(22.0));
                     });
 
                     ui.add_space(40.0);
@@ -49,22 +56,22 @@ pub(crate) fn render_closing(
                         let lucro_total = sell_price - total_cost;
                         let is_profit = lucro_total >= 0.0;
                         let color = if is_profit {
-                            egui::Color32::GREEN
+                            ui.visuals().widgets.active.bg_stroke.color
                         } else {
-                            egui::Color32::RED
+                            ui.visuals().error_fg_color
                         };
 
                         ui.vertical(|ui| {
-                            ui.label("RECEITA TOTAL");
-                            ui.heading(egui::RichText::new(format_game_units(sell_price)));
+                            ui.label(caption("RECEITA TOTAL", ui));
+                            ui.label(egui::RichText::new(format_game_units(sell_price)).strong().size(22.0));
                         });
 
                         ui.add_space(40.0);
 
                         ui.vertical(|ui| {
-                            ui.label("LUCRO LÍQUIDO");
-                            ui.heading(
-                                egui::RichText::new(format_game_units(lucro_total)).color(color),
+                            ui.label(caption("LUCRO LÍQUIDO", ui));
+                            ui.label(
+                                egui::RichText::new(format_game_units(lucro_total)).strong().size(22.0).color(color),
                             );
                         });
 
@@ -79,6 +86,7 @@ pub(crate) fn render_closing(
 
                             ui.label(
                                 egui::RichText::new(format!("MARGEM: {:.1}%", margem))
+                                    .size(13.0)
                                     .strong()
                                     .color(color),
                             );

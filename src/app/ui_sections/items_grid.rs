@@ -207,7 +207,7 @@ pub(crate) fn render_items_and_values(
         egui::Frame::NONE
             .inner_margin(egui::Margin::same(5))
             .show(ui, |ui| {
-                ui.label(egui::RichText::new("Itens e Valores").strong().size(16.0));
+                ui.label(egui::RichText::new("Itens e Valores").strong().size(20.0));
                 ui.add_space(10.0);
 
                 let available_space_for_cols = (ui.available_width() - 10.0).max(300.0);
@@ -276,31 +276,31 @@ pub(crate) fn render_items_and_values(
                                             ui.add_sized(
                                                 [item_w, 20.0],
                                                 egui::Label::new(
-                                                    egui::RichText::new("Item").size(14.0),
+                                                    egui::RichText::new("Item").size(13.0).strong(),
                                                 ),
                                             );
                                             ui.add_sized(
                                                 [qty_w, 20.0],
                                                 egui::Label::new(
-                                                    egui::RichText::new("Qtd").size(14.0),
+                                                    egui::RichText::new("Qtd").size(13.0).strong(),
                                                 ),
                                             );
                                             ui.add_sized(
                                                 [price_w, 20.0],
                                                 egui::Label::new(
-                                                    egui::RichText::new("Preço").size(14.0),
+                                                    egui::RichText::new("Preço").size(13.0).strong(),
                                                 ),
                                             );
                                             ui.add_sized(
                                                 [total_w, 20.0],
                                                 egui::Label::new(
-                                                    egui::RichText::new("Total").size(14.0),
+                                                    egui::RichText::new("Total").size(13.0).strong(),
                                                 ),
                                             );
                                             ui.add_sized(
                                                 [status_w, 20.0],
                                                 egui::Label::new(
-                                                    egui::RichText::new("Status").size(14.0),
+                                                    egui::RichText::new("Status").size(13.0).strong(),
                                                 ),
                                             );
                                         }
