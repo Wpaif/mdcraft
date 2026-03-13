@@ -96,3 +96,69 @@ fn main() -> eframe::Result<()> {
         Box::new(|cc| Ok(Box::new(MdcraftApp::from_creation_context(cc)))),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+    use std::sync::{Mutex, OnceLock};
+
+    use super::{ensure_linux_desktop_integration, load_app_icon, APP_ID};
+
+    #[test]
+    fn load_app_icon_produces_rgba_data() {
+        let icon = load_app_icon().expect("icon should load from embedded SVG");
+        assert!(icon.width > 0);
+        assert!(icon.height > 0);
+        assert_eq!(icon.rgba.len(), (icon.width * icon.height * 4) as usize);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn ensure_linux_desktop_integration_writes_files_to_xdg_data_home() {
+        static ENV_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        let lock = ENV_LOCK.get_or_init(|| Mutex::new(()));
+        let _guard = lock.lock().expect("env lock should not be poisoned");
+
+        let old_xdg = std::env::var_os("XDG_DATA_HOME");
+
+        let temp_root = std::env::temp_dir().join(format!(
+            "mdcraft-test-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock should be monotonic against epoch")
+                .as_nanos()
+        ));
+
+        std::fs::create_dir_all(&temp_root).expect("temp data dir should be created");
+        unsafe {
+            std::env::set_var("XDG_DATA_HOME", &temp_root);
+        }
+
+        ensure_linux_desktop_integration();
+
+        let icon_path: PathBuf = temp_root.join(format!("icons/hicolor/scalable/apps/{APP_ID}.svg"));
+        let desktop_path: PathBuf = temp_root.join(format!("applications/{APP_ID}.desktop"));
+
+        assert!(icon_path.exists());
+        assert!(desktop_path.exists());
+
+        let desktop_content =
+            std::fs::read_to_string(&desktop_path).expect("desktop file should be readable");
+        assert!(desktop_content.contains("[Desktop Entry]"));
+        assert!(desktop_content.contains("Name=Mdcraft"));
+        assert!(desktop_content.contains("Icon=mdcraft"));
+
+        if let Some(value) = old_xdg {
+            unsafe {
+                std::env::set_var("XDG_DATA_HOME", value);
+            }
+        } else {
+            unsafe {
+                std::env::remove_var("XDG_DATA_HOME");
+            }
+        }
+
+        let _ = std::fs::remove_dir_all(temp_root);
+    }
+}

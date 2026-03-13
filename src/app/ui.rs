@@ -109,3 +109,39 @@ impl eframe::App for super::MdcraftApp {
         self.save_app_settings(storage);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use eframe::{App, Storage};
+
+    use super::super::{APP_SETTINGS_KEY, MdcraftApp};
+
+    #[derive(Default)]
+    struct MemoryStorage {
+        values: HashMap<String, String>,
+    }
+
+    impl Storage for MemoryStorage {
+        fn get_string(&self, key: &str) -> Option<String> {
+            self.values.get(key).cloned()
+        }
+
+        fn set_string(&mut self, key: &str, value: String) {
+            self.values.insert(key.to_string(), value);
+        }
+
+        fn flush(&mut self) {}
+    }
+
+    #[test]
+    fn save_persists_app_settings_key() {
+        let mut app = MdcraftApp::default();
+        let mut storage = MemoryStorage::default();
+
+        App::save(&mut app, &mut storage);
+
+        assert!(storage.get_string(APP_SETTINGS_KEY).is_some());
+    }
+}
