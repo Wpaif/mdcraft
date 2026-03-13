@@ -63,3 +63,24 @@ pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
     json_io::render_import_recipes_popup(ctx, app);
     json_io::render_export_recipes_popup(ctx, app);
 }
+
+#[cfg(test)]
+mod tests {
+    use eframe::egui;
+
+    use super::{normalize_craft_name, placeholder};
+
+    #[test]
+    fn normalize_craft_name_capitalizes_words_and_trims_spaces() {
+        assert_eq!(normalize_craft_name("  iron  ore  "), "Iron Ore");
+        assert_eq!(normalize_craft_name("sUPER   PoTiOn"), "Super Potion");
+    }
+
+    #[test]
+    fn placeholder_can_be_used_in_ui_without_panicking() {
+        egui::__run_test_ui(|ui| {
+            let hint = placeholder(ui, "abc");
+            ui.label(hint);
+        });
+    }
+}

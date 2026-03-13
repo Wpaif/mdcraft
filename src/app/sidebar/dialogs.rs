@@ -88,3 +88,51 @@ pub(super) fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut Md
             });
         });
 }
+
+#[cfg(test)]
+mod tests {
+    use eframe::egui;
+
+    use crate::app::{MdcraftApp, SavedCraft};
+
+    use super::render_delete_confirmation_popup;
+
+    #[test]
+    fn delete_popup_returns_early_when_no_pending_index() {
+        let mut app = MdcraftApp::default();
+        egui::__run_test_ctx(|ctx| {
+            render_delete_confirmation_popup(ctx, &mut app);
+        });
+        assert_eq!(app.pending_delete_index, None);
+    }
+
+    #[test]
+    fn delete_popup_clears_invalid_pending_index() {
+        let mut app = MdcraftApp::default();
+        app.pending_delete_index = Some(0);
+
+        egui::__run_test_ctx(|ctx| {
+            render_delete_confirmation_popup(ctx, &mut app);
+        });
+
+        assert_eq!(app.pending_delete_index, None);
+    }
+
+    #[test]
+    fn delete_popup_keeps_state_when_waiting_user_action() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "Receita X".to_string(),
+            recipe_text: "1 Iron Ore".to_string(),
+            sell_price_input: "2k".to_string(),
+        });
+        app.pending_delete_index = Some(0);
+
+        egui::__run_test_ctx(|ctx| {
+            render_delete_confirmation_popup(ctx, &mut app);
+        });
+
+        assert_eq!(app.saved_crafts.len(), 1);
+        assert_eq!(app.pending_delete_index, Some(0));
+    }
+}

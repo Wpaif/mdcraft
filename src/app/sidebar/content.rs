@@ -236,3 +236,64 @@ pub(super) fn render_sidebar_header(ui: &mut egui::Ui, app: &mut MdcraftApp) {
         }
     });
 }
+
+#[cfg(test)]
+mod tests {
+    use eframe::egui;
+
+    use crate::app::{MdcraftApp, SavedCraft};
+
+    use super::{load_saved_craft_for_edit, render_sidebar_content, render_sidebar_header};
+
+    fn make_saved_craft(name: &str, recipe_text: &str, sell_price_input: &str) -> SavedCraft {
+        SavedCraft {
+            name: name.to_string(),
+            recipe_text: recipe_text.to_string(),
+            sell_price_input: sell_price_input.to_string(),
+        }
+    }
+
+    #[test]
+    fn load_saved_craft_for_edit_updates_active_data() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(make_saved_craft(
+            "teste",
+            "2 Iron Ore, 3 Screw",
+            "12k",
+        ));
+
+        load_saved_craft_for_edit(&mut app, 0);
+
+        assert_eq!(app.active_saved_craft_index, Some(0));
+        assert_eq!(app.sell_price_input, "12k");
+        assert!(!app.items.is_empty());
+    }
+
+    #[test]
+    fn load_saved_craft_for_edit_ignores_out_of_bounds_index() {
+        let mut app = MdcraftApp::default();
+        app.input_text = "unchanged".to_string();
+        app.saved_crafts
+            .push(make_saved_craft("teste", "1 Iron Ore", "1k"));
+
+        load_saved_craft_for_edit(&mut app, 9);
+
+        assert_eq!(app.input_text, "unchanged");
+        assert_eq!(app.active_saved_craft_index, None);
+    }
+
+    #[test]
+    fn render_sidebar_header_and_content_do_not_panic() {
+        let mut app = MdcraftApp::default();
+        app.input_text = "1 Iron Ore".to_string();
+        app.items = vec![];
+
+        let ctx = egui::Context::default();
+        let _ = ctx.run(egui::RawInput::default(), |ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                render_sidebar_header(ui, &mut app);
+                render_sidebar_content(ui, &mut app, 220.0);
+            });
+        });
+    }
+}

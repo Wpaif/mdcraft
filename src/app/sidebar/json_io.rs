@@ -501,3 +501,64 @@ pub(super) fn render_export_recipes_popup(ctx: &egui::Context, app: &mut Mdcraft
             });
         });
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{build_export_json, parse_imported_saved_crafts};
+    use crate::app::SavedCraft;
+
+    fn sample_craft(name: &str) -> SavedCraft {
+        SavedCraft {
+            name: name.to_string(),
+            recipe_text: "1 Iron Ore".to_string(),
+            sell_price_input: "10k".to_string(),
+        }
+    }
+
+    #[test]
+    fn build_export_json_outputs_saved_crafts_object() {
+        let json = build_export_json(&[sample_craft("Receita A")]).expect("export should work");
+        assert!(json.contains("saved_crafts"));
+        assert!(json.contains("Receita A"));
+    }
+
+    #[test]
+    fn parse_imported_saved_crafts_accepts_direct_list() {
+        let raw = r#"[
+            {"name":"A","recipe_text":"1 X","sell_price_input":"2k"}
+        ]"#;
+        let crafts = parse_imported_saved_crafts(raw).expect("list payload should parse");
+        assert_eq!(crafts.len(), 1);
+        assert_eq!(crafts[0].name, "A");
+    }
+
+    #[test]
+    fn parse_imported_saved_crafts_accepts_saved_crafts_object() {
+        let raw = r#"{
+            "saved_crafts": [
+                {"name":"B","recipe_text":"1 Y","sell_price_input":"3k"}
+            ]
+        }"#;
+        let crafts = parse_imported_saved_crafts(raw).expect("saved_crafts payload should parse");
+        assert_eq!(crafts.len(), 1);
+        assert_eq!(crafts[0].name, "B");
+    }
+
+    #[test]
+    fn parse_imported_saved_crafts_accepts_recipes_object() {
+        let raw = r#"{
+            "recipes": [
+                {"name":"C","recipe_text":"1 Z","sell_price_input":"4k"}
+            ]
+        }"#;
+        let crafts = parse_imported_saved_crafts(raw).expect("recipes payload should parse");
+        assert_eq!(crafts.len(), 1);
+        assert_eq!(crafts[0].name, "C");
+    }
+
+    #[test]
+    fn parse_imported_saved_crafts_rejects_invalid_json() {
+        let err = parse_imported_saved_crafts("{invalid").expect_err("invalid JSON must fail");
+        assert!(err.contains("JSON inválido"));
+    }
+}
