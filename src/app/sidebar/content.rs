@@ -77,8 +77,18 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
         .show(ui, |ui| {
             let has_recipe = !app.input_text.trim().is_empty() && !app.items.is_empty();
             if has_recipe {
+                let save_button = egui::Button::new(
+                    egui::RichText::new("Salvar receita atual")
+                        .strong()
+                        .color(egui::Color32::from_rgb(245, 251, 244)),
+                )
+                .fill(egui::Color32::from_rgb(48, 118, 78))
+                .stroke(egui::Stroke::new(1.0, egui::Color32::from_rgb(86, 168, 120)))
+                .corner_radius(egui::CornerRadius::same(8));
+
                 let save_clicked = ui
-                    .add_sized([content_w, 32.0], egui::Button::new("Salvar receita atual"))
+                    .add_sized([content_w, 34.0], save_button)
+                    .on_hover_text("Salvar a receita atual com nome automático ou manual")
                     .clicked();
                 start_save_recipe_prompt(app, save_clicked);
             } else {
@@ -91,12 +101,21 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
 
                 let mut name_resp_opt: Option<egui::Response> = None;
                 egui::Frame::NONE
+                    .fill(egui::Color32::from_rgba_unmultiplied(86, 156, 214, 18))
+                    .stroke(egui::Stroke::new(
+                        1.0,
+                        egui::Color32::from_rgba_unmultiplied(86, 156, 214, 90),
+                    ))
+                    .corner_radius(egui::CornerRadius::same(8))
                     .inner_margin(egui::Margin::symmetric(6, 4))
                     .show(ui, |ui| {
                         let input_width = (content_w - 12.0).max(80.0);
                         let name_resp = ui.add_sized(
                             [input_width, 30.0],
                             egui::TextEdit::singleline(&mut app.pending_craft_name)
+                                .font(egui::TextStyle::Button)
+                                .horizontal_align(egui::Align::Center)
+                                .vertical_align(egui::Align::Center)
                                 .hint_text(placeholder(ui, "Digite um nome ou pressione Enter")),
                         );
                         name_resp_opt = Some(name_resp);
@@ -209,19 +228,31 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                                     name_resp.clicked(),
                                 );
 
-                                let delete_btn = egui::Button::new(
-                                    egui::RichText::new("🗑")
-                                        .size(13.0)
-                                        .color(egui::Color32::from_rgb(220, 98, 98)),
-                                )
-                                .fill(egui::Color32::from_rgba_unmultiplied(220, 98, 98, 32))
-                                .stroke(egui::Stroke::new(
-                                    1.0,
-                                    egui::Color32::from_rgb(180, 72, 72),
-                                ));
+                                let (delete_rect, delete_resp) = ui.allocate_exact_size(
+                                    egui::vec2(icon_size, icon_size),
+                                    egui::Sense::click(),
+                                );
+                                let delete_fill = if delete_resp.hovered() {
+                                    egui::Color32::from_rgba_unmultiplied(220, 98, 98, 44)
+                                } else {
+                                    egui::Color32::from_rgba_unmultiplied(220, 98, 98, 32)
+                                };
+                                ui.painter().rect(
+                                    delete_rect,
+                                    egui::CornerRadius::same(4),
+                                    delete_fill,
+                                    egui::Stroke::new(1.0, egui::Color32::from_rgb(180, 72, 72)),
+                                    egui::StrokeKind::Middle,
+                                );
+                                ui.painter().text(
+                                    delete_rect.center(),
+                                    egui::Align2::CENTER_CENTER,
+                                    "🗑",
+                                    egui::TextStyle::Button.resolve(ui.style()),
+                                    egui::Color32::from_rgb(220, 98, 98),
+                                );
 
-                                let delete_clicked = ui
-                                    .add_sized([icon_size, icon_size], delete_btn)
+                                let delete_clicked = delete_resp
                                     .on_hover_text("Excluir receita")
                                     .clicked();
                                 set_pending_action(&mut pending_click_delete, idx, delete_clicked);
