@@ -7,6 +7,7 @@ use resvg::{tiny_skia, usvg};
 use std::path::{Path, PathBuf};
 
 mod app;
+mod data;
 mod model;
 mod parse;
 mod theme;

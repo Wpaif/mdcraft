@@ -1,0 +1,3449 @@
+[
+  {
+    "name": "Air Tank",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Alolan Electric Rat Tail",
+    "npc_price": "45k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ancient Stone",
+    "npc_price": "50k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ancient Wire",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Apple Leftovers",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Arachnid Legs",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Armadillo Claw",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Armor Fossil",
+    "npc_price": "60k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Automaton Seal",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Azure Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bag Of Pollen",
+    "npc_price": "40",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bagworm Green Leaves",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bagworm Pink Leaves",
+    "npc_price": "45k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bagworm Stone",
+    "npc_price": "45k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Balloon Arm",
+    "npc_price": "132",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Band Aid",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bat Wing",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bear Arm",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bear Feet",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bear Paw",
+    "npc_price": "204",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Beautiful Scales",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bee Sting",
+    "npc_price": "54",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Belt Of Champion",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Big Boss Hat",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Big Crystal",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Big Eagle Feather",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Big Eater Fur",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Big Hands",
+    "npc_price": "200",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Big Ice Ball",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Big Mount Horn",
+    "npc_price": "66.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Big Red Hand",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Big Seed",
+    "npc_price": "120",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Big Yellow Mount Horn",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bird Beak",
+    "npc_price": "30",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bitten Apple",
+    "npc_price": "6.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Black Feather",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Black Fins",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Black Hull",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Black Link",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Black Lucky Charm",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Black Spiky Tail",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Black Venom Flute",
+    "npc_price": "53k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Black Wool Ball",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Blade Horn",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Blaze Topknot",
+    "npc_price": "100k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Blue Ball",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Blue Fins",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Blue Fish Fin",
+    "npc_price": "200",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Blue Gem Star",
+    "npc_price": "200",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Blue Greens",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Blue Topknot",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Blue Vines",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bone",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bone Shield",
+    "npc_price": "30k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Branch of Stone",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Brown Ear",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Brown Krooko Scale",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Brush",
+    "npc_price": "90",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Brutal Fin",
+    "npc_price": "31k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bucket of Honey",
+    "npc_price": "102",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Bug Antenna",
+    "npc_price": "96",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bug Gosme",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bug Legs",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bug Venom",
+    "npc_price": "371",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bulb",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Bull Tail",
+    "npc_price": "102",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Butterfly Wing",
+    "npc_price": "66",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Cactus Head",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Cat Ear",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Catfish Tail",
+    "npc_price": "45k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Catfish Whiskers",
+    "npc_price": "66.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Cave Nail",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Cerise Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Chicken Feet",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Claw Fossil",
+    "npc_price": "8k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Cloud",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Cocoon Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Colored Feather",
+    "npc_price": "168",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Colored Wings",
+    "npc_price": "68",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Comb",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Continent Thorn",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Black Hull",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Champion Belt",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Cow Tail",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Doll Star",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Dragon Tooth",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Feather",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Gem Star",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Ice Orb",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Ice Piece",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Lizard Tail",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Magnet",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Miss Trace",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Pinsir Horn",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Poisonous Tail",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Pot of Lava",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Pot of Moss Bug",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Scizor Claw",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Steelix Tail",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Streak Tail",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Tree Branch",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Venom Flute",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Corrupted Vines",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Cow Tail",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Crab Claw",
+    "npc_price": "90",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Creepy Eye",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Crimson Feather",
+    "npc_price": "120",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Crystal Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Crystal Shard",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Crystal Stone",
+    "npc_price": "50k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Crystal Tail",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Cure Flower",
+    "npc_price": "150",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Curly Pig Tail",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Cute Ball",
+    "npc_price": "50",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Cyan Fins",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Cyan Fox Tail",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Damson Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Dark Beak",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dark Ear",
+    "npc_price": "350",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dark Gem",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dark Moon",
+    "npc_price": "1.2k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Darkness Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dawn Stone",
+    "npc_price": "55k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Diving Mask",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dodo Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dodrio Feather",
+    "npc_price": "102",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dog Ear",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Doll Star",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dome Fossil",
+    "npc_price": "8k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Double Links",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Dragon Goo",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Dragon Remains",
+    "npc_price": "50k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Dragon Scale",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dragon Slime",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Dragon Tail",
+    "npc_price": "450",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dragon Tooth",
+    "npc_price": "610",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Dragon Wings",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Earth Ball",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Earth Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Eggshell",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Electric Box",
+    "npc_price": "20",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Electric Fish Tail",
+    "npc_price": "45k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Electric Pink Box",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Electric Rat Tail",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Electric Tail",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Electronic Components",
+    "npc_price": "500",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Electronic Junk",
+    "npc_price": "500",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Elefish Fin",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Elephant Foot",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Emperor Trident",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Enchanted Gem",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Enigma Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Eruption Ears",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Essence Of Fire",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Eyeball Wings",
+    "npc_price": "132",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Fairy Flower",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Farfetch'D Stick",
+    "npc_price": "300",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Feather",
+    "npc_price": "7.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Feather Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Feline Fur",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Feline Tail",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Female Ear",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fins",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fire Ear",
+    "npc_price": "135",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fire Feather",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fire Horse Foot",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fire Monkey Hair",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Fire Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fire Tail",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fish Fin",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Flame Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Flame Tail",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Flower Hat",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Fluffy Lycan Tail",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Fluffy Purple Fur",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Fox Tail",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Frosty Hand",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Frosty Tail",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Fur",
+    "npc_price": "13",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Fur Ball",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Future Orb",
+    "npc_price": "15.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Galarian Farfetch'D Leek",
+    "npc_price": "300",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Gardestrike Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Gear Nose",
+    "npc_price": "31k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Gem Star",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ghost Candle",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ghost Essence",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ghost Skull",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Giant Bat Wing",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Giant Dragon Pearl",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Giant Fin",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Giant Piece Of Fur",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Giant Ruby",
+    "npc_price": "200",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Giant Tusk",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Gift Bag",
+    "npc_price": "90",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Gleam Tail",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Gligar Claw",
+    "npc_price": "90",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Goggles",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Golden Drill",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Golden Nuggets",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Golden Steelix Tail",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Gosme",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Grabber Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Gray Blade Horn",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Great Petal",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Green Hair",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Green Piece Of Coral",
+    "npc_price": "200",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Greens",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Gyarados Tail",
+    "npc_price": "800",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Harlequin Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Heart Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Helicopter Leaves",
+    "npc_price": "69",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Helix Fossil",
+    "npc_price": "8k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Hoodlum Crest",
+    "npc_price": "132",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Horn",
+    "npc_price": "25",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Horn Drill",
+    "npc_price": "168",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Hot Fur",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Hyena Tail",
+    "npc_price": "168",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ice Blocks",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ice Bra",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ice Crystal",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ice Orb",
+    "npc_price": "32.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ice Shard",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ice Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Illusion Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Illusion Horns",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Indigo Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Inhibitor Chip",
+    "npc_price": "500",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Insect Claw",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Insect Tail",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Insectoid Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Iron Bracelet",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Ironhard Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ivory Tusk",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare",
+      "Loot"
+    ]
+  },
+  {
+    "name": "Kanga Ear",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Karate Duck",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Kermes Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Kick Machine",
+    "npc_price": "135",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Kite Antenna",
+    "npc_price": "132",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Krok Scale",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ladybug Wing",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Land Shark Horn",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Leaf Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Leaves",
+    "npc_price": "8.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Leek Lance",
+    "npc_price": "25k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Leek Shield",
+    "npc_price": "25k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Leftover Garbage",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Linearly Guided Hypnosis",
+    "npc_price": "410",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Link Remains",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Lizard Tail",
+    "npc_price": "450",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Lobster Claw",
+    "npc_price": "150",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Locksmith Of Shell",
+    "npc_price": "24",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Long Antenna",
+    "npc_price": "102",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Lovely Topknot",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Luchador Mask",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Luck Medallion",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mach Nail",
+    "npc_price": "53k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Magikarp Fin",
+    "npc_price": "3",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Magma Foot",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Magnet",
+    "npc_price": "90",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Magnet Remains",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Magnetic Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Male Ear",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Malefic Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Martial Arts Scroll",
+    "npc_price": "185",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Martial Tail",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Massive Vines",
+    "npc_price": "100k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Max Volt Paw",
+    "npc_price": "100k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mecha Reactor",
+    "npc_price": "500k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Mediling",
+    "npc_price": "112",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Metal Hull",
+    "npc_price": "232",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Metal Jaw",
+    "npc_price": "232",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Metal Pink Jaw",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Metal Scraps",
+    "npc_price": "2k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Metal Stone",
+    "npc_price": "50k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Metal Trunk",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Microphone",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mimic Clothes",
+    "npc_price": "450",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mineral Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mini Volcano",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mini Wings",
+    "npc_price": "3.2k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Miss Trace",
+    "npc_price": "310",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mole Big Hair",
+    "npc_price": "66.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Mole Hair",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Monkey Paw",
+    "npc_price": "90",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Moon Piece",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Moonlight Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Moonlight Ear",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Motherboard",
+    "npc_price": "500",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Mount Horn",
+    "npc_price": "53k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Mushroom",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mystic Flower",
+    "npc_price": "450",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Mystic Petal",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Nail",
+    "npc_price": "10",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Naturia Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Neodymium Magnet",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Nightmare Gem",
+    "npc_price": "216",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Nu Ball",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Onix Tail",
+    "npc_price": "371",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Orebound Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Owl Feather",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Palm Leaves",
+    "npc_price": "802",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Pawn",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Pelican Wing",
+    "npc_price": "150",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Petite Leaves",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Piece Of Coral",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Piece Of Diglett",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Piece Of Shell",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Piece Of Steel",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Piece of Blimp",
+    "npc_price": "132",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pieces of Rare Stone",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pieces of Stone",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pig Ear",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pink Fins",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pink Flower Hat",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pink Fur",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pink Hair",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pink Red Insectoid Wing",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pink Small Tail",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Pink Topknot",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pink Toxic Spike",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pinsir Horn",
+    "npc_price": "102",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Plant Foot",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Plant Tail",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Point Of Light",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Pointy Beak",
+    "npc_price": "120",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Poison Moth Wings",
+    "npc_price": "68",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Poisonous Tail",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Pond Skater Legs",
+    "npc_price": "118",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Pot Of Lava",
+    "npc_price": "18",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Pot Of Moss Bug",
+    "npc_price": "7.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Pot of Dark Lava",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Psychic Ear",
+    "npc_price": "350",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Psychic Mustache",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Psychic Spoon",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Psycraft Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Psyduck Mug",
+    "npc_price": "129",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Punch Machine",
+    "npc_price": "135",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Punch Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Purple Cocoon Thorn",
+    "npc_price": "60",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Purple Fur",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Purple Hair",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Purple Leftover Garbage",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Purple Shell",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Purple Toxic Spike",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Rabbit Ear",
+    "npc_price": "21",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Rabbit Eyebrows",
+    "npc_price": "265",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Rabbit Fur",
+    "npc_price": "7",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Raccoon Tail",
+    "npc_price": "56",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Raibolt Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Rainbow Tail",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Rat Tail",
+    "npc_price": "54",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Razor Claw",
+    "npc_price": "37.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Red Flame Tail",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Red Insectoid Wing",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Red Krooko Scale",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Red Scale",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Red Spike",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Red Wing",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Reddish Continent Thorn",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Reindeer Horn",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Remains of Gears",
+    "npc_price": "66.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Rock Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Royal Mane",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Royal Tail",
+    "npc_price": "66.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ruby",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Samurai Hair",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sand Pouch",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Sand Tail",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sandbag",
+    "npc_price": "15",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sandy Remains",
+    "npc_price": "130",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Savage Fin",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Scarlet Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Scary Smile",
+    "npc_price": "100k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Scizor Claw",
+    "npc_price": "2k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Screw",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Scythe",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Seahorse Tail",
+    "npc_price": "204",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Seal Mustache",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Seal Tail",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Seavell Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Seed",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sentry Remains",
+    "npc_price": "25k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Shadow Fox Tail",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Sharp Leaves",
+    "npc_price": "120",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Shed Scale",
+    "npc_price": "132",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Sheep Wool",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Shell Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Shiny Aegislash Shield",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Shiny Feather",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Shiny Gleam Tail",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Shiny Stone",
+    "npc_price": "100k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Shock Topknot",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Short Lycan Tail",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Ski Poles",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Slate Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Slice of Apple",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Slow Tail",
+    "npc_price": "225",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Small Antenna",
+    "npc_price": "66",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Small Bird Beak",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Small Blue Fins",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Small Crown",
+    "npc_price": "32",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Small Eagle Feather",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Small Shell",
+    "npc_price": "69",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Small Shovel",
+    "npc_price": "130",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Small Stone",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Small Tail",
+    "npc_price": "123",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Small Wing",
+    "npc_price": "69",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Snake Tail",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Snow Blocks",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Snow Skis",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Snowball",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Solid Head",
+    "npc_price": "31k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Solid Red Head",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Solid Rock Paw",
+    "npc_price": "100k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Spider Leg",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Spiked Lycan Tail",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Spiky Tail",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Spin Machine",
+    "npc_price": "135",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Springs",
+    "npc_price": "100",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Squirrel Tail",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Squirtle Hull",
+    "npc_price": "132",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Star Remains",
+    "npc_price": "50k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Steel Wing",
+    "npc_price": "192",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Steelix Tail",
+    "npc_price": "2k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sticky Hand",
+    "npc_price": "120",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Stone Orb",
+    "npc_price": "16.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Antenna",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Ball",
+    "npc_price": "52",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Bone",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Flower",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Fur",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Strange Rock",
+    "npc_price": "159",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Spike",
+    "npc_price": "135",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Tail",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Thing",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Strange Wing",
+    "npc_price": "168",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Straw",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Streak Tail",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sun Piece",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Sunflower Shard",
+    "npc_price": "150k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Sunlight Cube",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sunlight Ear",
+    "npc_price": "2.5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Sweet Apple Pie",
+    "npc_price": "8k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Talon",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Tech Ball",
+    "npc_price": "5.02k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Tentacle",
+    "npc_price": "159",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Tentacruel Tentacle",
+    "npc_price": "1k",
+    "sources": [
+      "DimensionalZone",
+      "Loot"
+    ]
+  },
+  {
+    "name": "Thunder Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Tiny Raccoon Fur",
+    "npc_price": "5",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Titanium Imam",
+    "npc_price": "10k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Tongue",
+    "npc_price": "410",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Tooth",
+    "npc_price": "8",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Topknot",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Toxic Gosme",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Toxic Mustache",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Toxic Thing",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Toxic Topknot",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Traces Of Ghost",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Traces of Voodoo Doll",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Trash Limbs",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Tribe Mark",
+    "npc_price": "112",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Tusk",
+    "npc_price": "180",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Twin Stings",
+    "npc_price": "50k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Unicorn Horn",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Venom Flute",
+    "npc_price": "78",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Venom Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Violet Luchador Mask",
+    "npc_price": "50k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Virtual Body",
+    "npc_price": "37.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Virtual Head",
+    "npc_price": "180k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Virtual Tail",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Volcanic Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Volt Wing",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare",
+      "Loot"
+    ]
+  },
+  {
+    "name": "Water Gem",
+    "npc_price": "0.5",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Water Pendant",
+    "npc_price": "10",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Water Plant",
+    "npc_price": "120",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Water Stone",
+    "npc_price": "5k",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Whiskers Fin",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "White Cocoon Thorn",
+    "npc_price": "60",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "White Emperor Trident",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "White Hair",
+    "npc_price": "4.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "White Krooko Scale",
+    "npc_price": "2.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "White Link",
+    "npc_price": "200",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Wingeon Essence",
+    "npc_price": "1k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Wolf Tail",
+    "npc_price": "3.5k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Wool Ball",
+    "npc_price": "69",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Wooper Horn",
+    "npc_price": "147",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Worm Horn",
+    "npc_price": "55",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Yellow Big Boss Hat",
+    "npc_price": "100k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Yellow Eyebrows",
+    "npc_price": "6k",
+    "sources": [
+      "Nightmare"
+    ]
+  },
+  {
+    "name": "Yellow Flower",
+    "npc_price": "114",
+    "sources": [
+      "Loot"
+    ]
+  },
+  {
+    "name": "Zap",
+    "npc_price": "1k",
+    "sources": [
+      "Loot"
+    ]
+  }
+]
