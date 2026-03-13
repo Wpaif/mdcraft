@@ -12,3 +12,11 @@ Thumbs.db
 # Runtime logs/temp files
 *.log
 *.tmp
+
+# Coverage/test artifacts
+*.profraw
+*.profdata
+lcov.info
+cobertura.xml
+tarpaulin-report.html
+tarpaulin-report.json
