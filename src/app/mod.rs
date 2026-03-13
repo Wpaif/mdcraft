@@ -22,8 +22,8 @@ use eframe::egui;
 // now imported in `ui.rs` where the UI logic lives.
 
 // re-export the Theme type so callers can refer to `app::Theme`.
-pub use theme_state::Theme;
 pub use state::MdcraftApp;
+pub use theme_state::Theme;
 
 // re-export craft inference helpers used across the app.
 pub(crate) use craft_inference::{build_craft_recipe_name_index, infer_craft_name_from_items};
@@ -52,18 +52,30 @@ pub(crate) fn placeholder(ui: &egui::Ui, text: &str) -> egui::RichText {
     egui::RichText::new(text).color(ui.visuals().text_color().gamma_multiply(0.7))
 }
 
+#[path = "domain/craft_inference.rs"]
 mod craft_inference;
+#[path = "domain/npc_price_rules.rs"]
 pub(crate) mod npc_price_rules;
+#[path = "presentation/price.rs"]
 mod price;
+#[path = "core/saved_craft.rs"]
 mod saved_craft;
+#[path = "core/saved_prices.rs"]
 mod saved_prices;
+#[path = "core/settings.rs"]
 mod settings;
 mod sidebar;
+#[path = "core/sqlite.rs"]
 mod sqlite;
+#[path = "core/state.rs"]
 mod state;
+#[path = "presentation/styles.rs"]
 mod styles;
+#[path = "presentation/theme_state.rs"]
 mod theme_state;
+#[path = "presentation/theme_toggle.rs"]
 mod theme_toggle;
+#[path = "presentation/ui.rs"]
 mod ui;
 mod ui_sections;
 
