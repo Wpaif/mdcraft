@@ -20,10 +20,12 @@ pub(super) fn capitalize_display_name(raw_name: &str) -> String {
         .filter(|w| !w.is_empty())
         .map(|word| {
             let mut chars = word.chars();
-                let first = chars.next().expect("split_whitespace yields non-empty words");
-                let first = first.to_uppercase().collect::<String>();
-                let rest = chars.as_str().to_lowercase();
-                format!("{}{}", first, rest)
+            let first = chars
+                .next()
+                .expect("split_whitespace yields non-empty words");
+            let first = first.to_uppercase().collect::<String>();
+            let rest = chars.as_str().to_lowercase();
+            format!("{}{}", first, rest)
         })
         .collect::<Vec<_>>()
         .join(" ")

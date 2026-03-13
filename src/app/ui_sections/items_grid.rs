@@ -1,4 +1,5 @@
 use eframe::egui;
+use std::collections::HashMap;
 
 use crate::parse::parse_price_flag;
 use crate::units::format_game_units;
@@ -35,6 +36,114 @@ fn item_status_hover(status: PriceStatus) -> Option<&'static str> {
         PriceStatus::Ok => Some("OK"),
         PriceStatus::None => None,
     }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum NpcPriceComparison {
+    Equal,
+    HigherThanNpc,
+    LowerThanNpc,
+}
+
+fn build_npc_price_lookup(app: &MdcraftApp) -> HashMap<String, f64> {
+    let mut lookup = HashMap::new();
+
+    for entry in &app.wiki_cached_items {
+        let Some(raw_price) = &entry.npc_price else {
+            continue;
+        };
+
+        let Ok(parsed) = parse_price_flag(raw_price) else {
+            continue;
+        };
+
+        lookup.insert(entry.name.trim().to_lowercase(), parsed);
+    }
+
+    lookup
+}
+
+fn compare_item_price_with_npc(
+    item: &crate::model::Item,
+    npc_lookup: &HashMap<String, f64>,
+) -> Option<NpcPriceComparison> {
+    let entered = parse_price_flag(&item.preco_input).ok()?;
+    let npc_price = npc_lookup.get(&item.nome.trim().to_lowercase()).copied()?;
+
+    let eps = 1e-9;
+    if (entered - npc_price).abs() < eps {
+        Some(NpcPriceComparison::Equal)
+    } else if entered > npc_price {
+        Some(NpcPriceComparison::HigherThanNpc)
+    } else {
+        Some(NpcPriceComparison::LowerThanNpc)
+    }
+}
+
+fn price_input_stroke(
+    ui: &egui::Ui,
+    item: &crate::model::Item,
+    npc_lookup: &HashMap<String, f64>,
+) -> egui::Stroke {
+    let default = ui.visuals().widgets.inactive.bg_stroke;
+
+    match compare_item_price_with_npc(item, npc_lookup) {
+        Some(NpcPriceComparison::HigherThanNpc) => {
+            egui::Stroke::new(1.4, egui::Color32::from_rgb(74, 201, 126))
+        }
+        Some(NpcPriceComparison::LowerThanNpc) => {
+            egui::Stroke::new(1.4, egui::Color32::from_rgb(220, 98, 98))
+        }
+        _ => default,
+    }
+}
+
+fn npc_price_for_item(item: &crate::model::Item, npc_lookup: &HashMap<String, f64>) -> Option<f64> {
+    npc_lookup.get(&item.nome.trim().to_lowercase()).copied()
+}
+
+fn paint_npc_price_icon(ui: &mut egui::Ui, has_npc_price: bool, is_equal_to_npc: bool) -> egui::Response {
+    let size = egui::vec2(18.0, 18.0);
+    let (rect, response) = ui.allocate_exact_size(size, egui::Sense::click());
+
+    if !ui.is_rect_visible(rect) {
+        return response;
+    }
+
+    let painter = ui.painter();
+    let center = rect.center();
+    let radius = rect.width().min(rect.height()) * 0.45;
+
+    let (fill, stroke, text_color) = if !has_npc_price {
+        (
+            egui::Color32::from_rgba_unmultiplied(120, 120, 120, 24),
+            egui::Stroke::new(1.0, egui::Color32::from_rgb(130, 130, 130)),
+            egui::Color32::from_rgb(130, 130, 130),
+        )
+    } else if is_equal_to_npc {
+        (
+            egui::Color32::from_rgb(29, 155, 240),
+            egui::Stroke::new(1.2, egui::Color32::from_rgb(180, 225, 255)),
+            egui::Color32::WHITE,
+        )
+    } else {
+        (
+            egui::Color32::from_rgba_unmultiplied(29, 155, 240, 36),
+            egui::Stroke::new(1.2, egui::Color32::from_rgb(29, 155, 240)),
+            egui::Color32::from_rgb(29, 155, 240),
+        )
+    };
+
+    painter.circle(center, radius, fill, stroke);
+    painter.text(
+        center,
+        egui::Align2::CENTER_CENTER,
+        "N",
+        egui::FontId::proportional(10.0),
+        text_color,
+    );
+
+    response
 }
 
 fn render_empty_item_cells(
@@ -79,6 +188,7 @@ pub(crate) fn render_items_and_values(
                     .filter(|(_, res)| !res.is_resource)
                     .map(|(i, _)| i)
                     .collect();
+                let npc_lookup = build_npc_price_lookup(app);
 
                 let min_qty_w = 46.0;
                 let min_price_w = 96.0;
@@ -200,10 +310,17 @@ pub(crate) fn render_items_and_values(
                                                         ),
                                                     );
 
+                                                    let stroke = price_input_stroke(
+                                                        ui,
+                                                        item,
+                                                        &npc_lookup,
+                                                    );
+
                                                     let text_edit = egui::TextEdit::singleline(
                                                         &mut item.preco_input,
                                                     )
                                                     .hint_text(placeholder(ui, "0"))
+                                                    .frame(false)
                                                     .desired_width(price_w - 8.0);
 
                                                     let price_changed = ui
@@ -213,11 +330,27 @@ pub(crate) fn render_items_and_values(
                                                                 egui::Align::Center,
                                                             ),
                                                             |ui| {
-                                                                ui.add_sized(
-                                                                    [price_w, 24.0],
-                                                                    text_edit,
-                                                                )
-                                                                .changed()
+                                                                egui::Frame::NONE
+                                                                    .stroke(stroke)
+                                                                    .corner_radius(
+                                                                        egui::CornerRadius::same(
+                                                                            4,
+                                                                        ),
+                                                                    )
+                                                                    .inner_margin(
+                                                                        egui::Margin::symmetric(
+                                                                            4,
+                                                                            2,
+                                                                        ),
+                                                                    )
+                                                                    .show(ui, |ui| {
+                                                                        ui.add_sized(
+                                                                            [price_w - 8.0, 20.0],
+                                                                            text_edit,
+                                                                        )
+                                                                        .changed()
+                                                                    })
+                                                                    .inner
                                                             },
                                                         )
                                                         .inner;
@@ -233,6 +366,14 @@ pub(crate) fn render_items_and_values(
 
                                                     let status = item_price_status(item);
                                                     let hover = item_status_hover(status);
+                                                    let npc_price = npc_price_for_item(item, &npc_lookup);
+                                                    let npc_equal = matches!(
+                                                        compare_item_price_with_npc(
+                                                            item,
+                                                            &npc_lookup,
+                                                        ),
+                                                        Some(NpcPriceComparison::Equal)
+                                                    );
 
                                                     ui.allocate_ui_with_layout(
                                                         egui::vec2(status_w, 22.0),
@@ -240,6 +381,42 @@ pub(crate) fn render_items_and_values(
                                                             egui::Align::Center,
                                                         ),
                                                         |ui| {
+                                                            let npc_resp = paint_npc_price_icon(
+                                                                ui,
+                                                                npc_price.is_some(),
+                                                                npc_equal,
+                                                            );
+                                                            let npc_clicked = npc_resp.clicked();
+
+                                                            if let Some(npc_value) = npc_price {
+                                                                let npc_text = format_game_units(
+                                                                    npc_value,
+                                                                );
+                                                                let hover_text = if npc_equal {
+                                                                    format!(
+                                                                        "Preco NPC aplicado ({npc_text}). Clique para reaplicar."
+                                                                    )
+                                                                } else {
+                                                                    format!(
+                                                                        "Preco NPC: {npc_text}. Clique para usar no campo."
+                                                                    )
+                                                                };
+                                                                npc_resp.on_hover_text(
+                                                                    hover_text,
+                                                                );
+
+                                                                if npc_clicked {
+                                                                    item.preco_input = npc_text;
+                                                                    apply_item_price_from_input(
+                                                                        item,
+                                                                    );
+                                                                }
+                                                            } else {
+                                                                npc_resp.on_hover_text(
+                                                                    "Sem preco NPC para este item",
+                                                                );
+                                                            }
+
                                                             let resp =
                                                                 paint_price_status(ui, status);
                                                             if let Some(text) = hover {
@@ -272,15 +449,18 @@ pub(crate) fn render_items_and_values(
 #[cfg(test)]
 mod tests {
     use eframe::egui;
+    use std::collections::HashMap;
 
     use crate::app::MdcraftApp;
     use crate::model::Item;
 
     use super::{
-        apply_item_price_from_input, apply_item_price_if_changed, item_price_status,
-        item_status_hover, render_empty_item_cells, render_items_and_values,
+        NpcPriceComparison, apply_item_price_from_input, apply_item_price_if_changed,
+        build_npc_price_lookup, compare_item_price_with_npc, item_price_status, item_status_hover,
+        npc_price_for_item, price_input_stroke, render_empty_item_cells, render_items_and_values,
     };
     use crate::app::price::PriceStatus;
+    use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
 
     fn make_item(nome: &str, quantidade: u64, preco_input: &str, is_resource: bool) -> Item {
         Item {
@@ -376,5 +556,59 @@ mod tests {
         egui::__run_test_ui(|ui| {
             render_empty_item_cells(ui, 120.0, 46.0, 96.0, 78.0, 56.0);
         });
+    }
+
+    #[test]
+    fn compare_item_price_with_npc_covers_equal_cheaper_and_expensive() {
+        let mut app = MdcraftApp::default();
+        app.wiki_cached_items.push(ScrapedItem {
+            name: "Screw".to_string(),
+            npc_price: Some("1k".to_string()),
+            sources: vec![WikiSource::Loot],
+        });
+
+        let lookup = build_npc_price_lookup(&app);
+
+        let equal = make_item("Screw", 1, "1k", false);
+        assert_eq!(
+            compare_item_price_with_npc(&equal, &lookup),
+            Some(NpcPriceComparison::Equal)
+        );
+
+        let cheaper = make_item("Screw", 1, "800", false);
+        assert_eq!(
+            compare_item_price_with_npc(&cheaper, &lookup),
+            Some(NpcPriceComparison::LowerThanNpc)
+        );
+
+        let expensive = make_item("Screw", 1, "2k", false);
+        assert_eq!(
+            compare_item_price_with_npc(&expensive, &lookup),
+            Some(NpcPriceComparison::HigherThanNpc)
+        );
+    }
+
+    #[test]
+    fn price_input_stroke_uses_default_when_comparison_not_available() {
+        egui::__run_test_ui(|ui| {
+            let item = make_item("Screw", 1, "", false);
+            let lookup = HashMap::new();
+            let stroke = price_input_stroke(ui, &item, &lookup);
+            assert_eq!(stroke, ui.visuals().widgets.inactive.bg_stroke);
+        });
+    }
+
+    #[test]
+    fn npc_price_for_item_returns_lookup_value() {
+        let mut app = MdcraftApp::default();
+        app.wiki_cached_items.push(ScrapedItem {
+            name: "Screw".to_string(),
+            npc_price: Some("1k".to_string()),
+            sources: vec![WikiSource::Loot],
+        });
+
+        let lookup = build_npc_price_lookup(&app);
+        let item = make_item("Screw", 1, "", false);
+        assert_eq!(npc_price_for_item(&item, &lookup), Some(1000.0));
     }
 }
