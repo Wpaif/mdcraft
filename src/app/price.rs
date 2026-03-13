@@ -19,8 +19,7 @@ pub fn paint_price_status(ui: &mut egui::Ui, status: PriceStatus) -> egui::Respo
     }
 
     let p = ui.painter();
-    match status {
-        PriceStatus::Ok => {
+    if status == PriceStatus::Ok {
             let center = rect.center();
             let r = rect.width().min(rect.height()) * 0.45;
             p.circle_filled(center, r, egui::Color32::from_rgb(26, 127, 55));
@@ -31,8 +30,8 @@ pub fn paint_price_status(ui: &mut egui::Ui, status: PriceStatus) -> egui::Respo
             let c = center + egui::vec2(r * 0.55, -r * 0.35);
             p.line_segment([a, b], egui::Stroke::new(2.0, egui::Color32::WHITE));
             p.line_segment([b, c], egui::Stroke::new(2.0, egui::Color32::WHITE));
-        }
-        PriceStatus::Invalid => {
+    } else {
+        debug_assert_eq!(status, PriceStatus::Invalid);
             let center = rect.center();
             let r = rect.width().min(rect.height()) * 0.5;
 
@@ -60,8 +59,6 @@ pub fn paint_price_status(ui: &mut egui::Ui, status: PriceStatus) -> egui::Respo
                 1.6,
                 egui::Color32::from_rgb(36, 41, 47),
             );
-        }
-        PriceStatus::None => {}
     }
 
     response

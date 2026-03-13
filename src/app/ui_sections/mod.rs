@@ -20,14 +20,10 @@ pub(super) fn capitalize_display_name(raw_name: &str) -> String {
         .filter(|w| !w.is_empty())
         .map(|word| {
             let mut chars = word.chars();
-            match chars.next() {
-                Some(first) => {
-                    let first = first.to_uppercase().collect::<String>();
-                    let rest = chars.as_str().to_lowercase();
-                    format!("{}{}", first, rest)
-                }
-                None => String::new(),
-            }
+                let first = chars.next().expect("split_whitespace yields non-empty words");
+                let first = first.to_uppercase().collect::<String>();
+                let rest = chars.as_str().to_lowercase();
+                format!("{}{}", first, rest)
         })
         .collect::<Vec<_>>()
         .join(" ")
@@ -58,9 +54,11 @@ mod tests {
 
     use crate::model::Item;
 
+    use crate::app::SavedCraft;
+
     use super::{
-        MdcraftApp, capitalize_display_name, collect_found_resources, render_closing,
-        render_craft_input, render_items_and_values,
+        MdcraftApp, autosave_active_craft, capitalize_display_name, collect_found_resources,
+        render_closing, render_craft_input, render_items_and_values,
     };
 
     fn run_ui_frame(mut f: impl FnMut(&egui::Context)) {
@@ -71,6 +69,7 @@ mod tests {
     fn capitalize_display_name_normalizes_words() {
         assert_eq!(capitalize_display_name("iron ORE"), "Iron Ore");
         assert_eq!(capitalize_display_name("  pure   grass  "), "Pure Grass");
+        assert_eq!(capitalize_display_name("   "), "");
     }
 
     #[test]
@@ -176,5 +175,40 @@ mod tests {
         });
 
         assert_eq!(app.sell_price_input, "10k");
+    }
+
+    #[test]
+    fn autosave_active_craft_updates_selected_entry() {
+        let mut app = MdcraftApp::default();
+        app.input_text = "1 Iron Ore".to_string();
+        app.sell_price_input = "7k".to_string();
+        app.saved_crafts.push(SavedCraft {
+            name: "A".to_string(),
+            recipe_text: String::new(),
+            sell_price_input: String::new(),
+        });
+        app.active_saved_craft_index = Some(0);
+
+        autosave_active_craft(&mut app);
+
+        assert_eq!(app.saved_crafts[0].recipe_text, "1 Iron Ore");
+        assert_eq!(app.saved_crafts[0].sell_price_input, "7k");
+    }
+
+    #[test]
+    fn autosave_active_craft_noop_without_active_index() {
+        let mut app = MdcraftApp::default();
+        app.input_text = "2 Screw".to_string();
+        app.sell_price_input = "3k".to_string();
+        app.saved_crafts.push(SavedCraft {
+            name: "A".to_string(),
+            recipe_text: "old".to_string(),
+            sell_price_input: "old".to_string(),
+        });
+
+        autosave_active_craft(&mut app);
+
+        assert_eq!(app.saved_crafts[0].recipe_text, "old");
+        assert_eq!(app.saved_crafts[0].sell_price_input, "old");
     }
 }
