@@ -256,11 +256,8 @@ mod tests {
     #[test]
     fn load_saved_craft_for_edit_updates_active_data() {
         let mut app = MdcraftApp::default();
-        app.saved_crafts.push(make_saved_craft(
-            "teste",
-            "2 Iron Ore, 3 Screw",
-            "12k",
-        ));
+        app.saved_crafts
+            .push(make_saved_craft("teste", "2 Iron Ore, 3 Screw", "12k"));
 
         load_saved_craft_for_edit(&mut app, 0);
 
