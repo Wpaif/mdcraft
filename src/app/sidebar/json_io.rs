@@ -267,26 +267,30 @@ pub(super) fn render_sidebar_json_actions(
     let (action_fill, action_stroke, action_text) = action_button_colors(ui);
 
     let refresh_label = if app.wiki_refresh_in_progress {
-        "Sincronizando preços..."
+        "Sincronizando..."
     } else {
-        "Sincronizar preços"
+        "Sincronizar Preços NPC"
     };
 
     let refresh_clicked = ui
-        .add_enabled(
-            !app.wiki_refresh_in_progress,
-            egui::Button::new(
-                egui::RichText::new(refresh_label)
-                    .strong()
-                    .color(action_text),
-            )
-            .min_size(egui::vec2(action_w, 34.0))
-            .fill(action_fill)
-            .stroke(action_stroke),
-        )
-        .on_hover_text(
-            "Faz scraping dos itens no wiki e atualiza a base usada para detectar resources",
-        )
+        .scope(|inner| {
+            inner.set_enabled(!app.wiki_refresh_in_progress);
+            inner
+                .add_sized(
+                    [action_w, 34.0],
+                    egui::Button::new(
+                        egui::RichText::new(refresh_label)
+                            .strong()
+                            .color(action_text),
+                    )
+                    .fill(action_fill)
+                    .stroke(action_stroke),
+                )
+                .on_hover_text(
+                    "Consulta o wiki e atualiza os preços NPC usados como referência",
+                )
+        })
+        .inner
         .clicked();
 
     handle_sidebar_wiki_refresh_click(app, refresh_clicked);
@@ -302,7 +306,7 @@ pub(super) fn render_sidebar_json_actions(
         .add_sized(
             [action_w, 34.0],
             egui::Button::new(
-                egui::RichText::new("Importar receitas (JSON)")
+                egui::RichText::new("Importar Receitas (JSON)")
                     .strong()
                     .color(action_text),
             )
@@ -321,14 +325,14 @@ pub(super) fn render_sidebar_json_actions(
             .add_sized(
                 [action_w, 34.0],
                 egui::Button::new(
-                    egui::RichText::new("Exportar receitas (JSON)")
+                    egui::RichText::new("Exportar Receitas (JSON)")
                         .strong()
                         .color(action_text),
                 )
                 .fill(action_fill)
                 .stroke(action_stroke),
             )
-            .on_hover_text("Gerar JSON com todas as receitas salvas")
+            .on_hover_text("Gera um JSON com todas as receitas salvas")
             .clicked();
 
         handle_sidebar_export_click(app, export_clicked);
