@@ -5,6 +5,8 @@ use super::MdcraftApp;
 mod content;
 mod dialogs;
 mod json_io;
+mod json_viewer;
+mod wiki_sync;
 
 const SIDEBAR_WIDTH_EXPANDED: f32 = 260.0;
 const SIDEBAR_WIDTH_COLLAPSED: f32 = 56.0;
@@ -61,8 +63,8 @@ pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
 }
 
 pub(super) fn poll_sidebar_background_tasks(app: &mut MdcraftApp) {
-    json_io::ensure_wiki_refresh_started(app);
-    json_io::poll_wiki_refresh_result(app);
+    wiki_sync::ensure_wiki_refresh_started(app);
+    wiki_sync::poll_wiki_refresh_result(app);
 }
 
 #[cfg(test)]
