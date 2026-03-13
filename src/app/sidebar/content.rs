@@ -61,12 +61,16 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
     ui.separator();
     ui.add_space(10.0);
 
-    let footer_h = if has_saved_crafts { 126.0 } else { 86.0 };
-    let scroll_h = (ui.available_height() - footer_h).max(120.0);
+    egui::TopBottomPanel::bottom(egui::Id::new("sidebar_json_actions_bottom"))
+        .show_separator_line(false)
+        .resizable(false)
+        .show_inside(ui, |ui| {
+            json_io::render_sidebar_json_actions(ui, app, content_w, has_saved_crafts);
+        });
 
     egui::ScrollArea::vertical()
         .auto_shrink([false, false])
-        .max_height(scroll_h)
+        .max_height(ui.available_height().max(120.0))
         .show(ui, |ui| {
             let has_recipe = !app.input_text.trim().is_empty() && !app.items.is_empty();
             if has_recipe {
@@ -226,8 +230,6 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                 apply_pending_sidebar_actions(app, pending_click_delete, pending_click_select);
             }
         });
-
-    json_io::render_sidebar_json_actions(ui, app, content_w, has_saved_crafts);
 }
 
 fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {

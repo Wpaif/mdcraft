@@ -168,8 +168,21 @@ fn render_wiki_sync_success_toast(app: &mut super::MdcraftApp, ctx: &egui::Conte
     ctx.request_repaint();
 }
 
+fn apply_sidebar_toggle_shortcut(app: &mut super::MdcraftApp, ctx: &egui::Context) {
+    let toggle_pressed = ctx.input_mut(|i| {
+        i.consume_shortcut(&egui::KeyboardShortcut::new(
+            egui::Modifiers::CTRL,
+            egui::Key::E,
+        ))
+    });
+    if toggle_pressed {
+        app.sidebar_open = !app.sidebar_open;
+    }
+}
+
 impl super::MdcraftApp {
     fn render_main_ui(&mut self, ctx: &egui::Context) {
+        apply_sidebar_toggle_shortcut(self, ctx);
         poll_sidebar_background_tasks(self);
         render_sidebar(ctx, self);
 
@@ -245,6 +258,7 @@ mod tests {
 
     use super::super::{APP_SETTINGS_KEY, MdcraftApp, Theme};
     use super::{
+        apply_sidebar_toggle_shortcut,
         apply_follow_system_theme_if_changed, apply_manual_theme_toggle,
         apply_manual_toggle_if_clicked, close_ui_if_requested, content_padding, manual_toggle_label,
         render_theme_toggle_area, render_theme_toggle_button, render_theme_toggle_menu,
@@ -549,5 +563,56 @@ mod tests {
         apply_follow_system_theme_if_changed(&mut app, &ctx, true);
 
         assert_eq!(app.theme, expected);
+    }
+
+    #[test]
+    fn apply_sidebar_toggle_shortcut_toggles_with_ctrl_e() {
+        let mut app = MdcraftApp::default();
+        app.sidebar_open = true;
+
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.modifiers = egui::Modifiers {
+            ctrl: true,
+            ..Default::default()
+        };
+        input.events.push(egui::Event::Key {
+            key: egui::Key::E,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers {
+                ctrl: true,
+                ..Default::default()
+            },
+        });
+
+        let _ = ctx.run(input, |ctx| {
+            apply_sidebar_toggle_shortcut(&mut app, ctx);
+        });
+
+        assert!(!app.sidebar_open);
+    }
+
+    #[test]
+    fn apply_sidebar_toggle_shortcut_ignores_plain_e() {
+        let mut app = MdcraftApp::default();
+        app.sidebar_open = true;
+
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.events.push(egui::Event::Key {
+            key: egui::Key::E,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers::NONE,
+        });
+
+        let _ = ctx.run(input, |ctx| {
+            apply_sidebar_toggle_shortcut(&mut app, ctx);
+        });
+
+        assert!(app.sidebar_open);
     }
 }

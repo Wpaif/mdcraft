@@ -1,12 +1,12 @@
+use chrono::{Datelike, Local, TimeZone, Timelike};
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use chrono::{Datelike, Local, TimeZone, Timelike};
 
-use crate::app::{MdcraftApp, SavedCraft};
 use crate::app::fixed_npc_price_input;
+use crate::app::{MdcraftApp, SavedCraft};
 use crate::data::wiki_scraper::{
     ScrapeRefreshData, ScrapedItem, merge_item_lists, scrape_all_sources_incremental,
 };
@@ -40,7 +40,8 @@ fn has_reached_auto_sync_window(unix_seconds: u64) -> bool {
 }
 
 fn is_same_local_day(left_unix_seconds: u64, right_unix_seconds: u64) -> bool {
-    let Some((left_year, left_ordinal, _)) = local_timestamp_to_day_and_minute(left_unix_seconds) else {
+    let Some((left_year, left_ordinal, _)) = local_timestamp_to_day_and_minute(left_unix_seconds)
+    else {
         return false;
     };
     let Some((right_year, right_ordinal, _)) =
@@ -245,6 +246,8 @@ pub(super) fn render_sidebar_json_actions(
 ) {
     poll_wiki_refresh_result(app);
 
+    let action_w = content_w.min(ui.available_width()).max(1.0);
+
     ui.add_space(10.0);
     ui.separator();
     ui.add_space(10.0);
@@ -252,9 +255,9 @@ pub(super) fn render_sidebar_json_actions(
     let (action_fill, action_stroke, action_text) = action_button_colors(ui);
 
     let refresh_label = if app.wiki_refresh_in_progress {
-        "Atualizando base de itens (Wiki)..."
+        "Sincronizando preços..."
     } else {
-        "Atualizar base de itens (Wiki)"
+        "Sincronizar preços"
     };
 
     let refresh_clicked = ui
@@ -265,11 +268,13 @@ pub(super) fn render_sidebar_json_actions(
                     .strong()
                     .color(action_text),
             )
-            .min_size(egui::vec2(content_w, 34.0))
+            .min_size(egui::vec2(action_w, 34.0))
             .fill(action_fill)
             .stroke(action_stroke),
         )
-        .on_hover_text("Faz scraping dos itens no wiki e atualiza a base usada para detectar resources")
+        .on_hover_text(
+            "Faz scraping dos itens no wiki e atualiza a base usada para detectar resources",
+        )
         .clicked();
 
     handle_sidebar_wiki_refresh_click(app, refresh_clicked);
@@ -283,7 +288,7 @@ pub(super) fn render_sidebar_json_actions(
 
     let import_clicked = ui
         .add_sized(
-            [content_w, 34.0],
+            [action_w, 34.0],
             egui::Button::new(
                 egui::RichText::new("Importar receitas (JSON)")
                     .strong()
@@ -302,7 +307,7 @@ pub(super) fn render_sidebar_json_actions(
 
         let export_clicked = ui
             .add_sized(
-                [content_w, 34.0],
+                [action_w, 34.0],
                 egui::Button::new(
                     egui::RichText::new("Exportar receitas (JSON)")
                         .strong()
@@ -351,10 +356,8 @@ fn parse_imported_saved_crafts(raw_json: &str) -> Result<Vec<SavedCraft>, String
 }
 
 fn format_json_pretty(raw_json: &str) -> Result<String, String> {
-    let value =
-        serde_json::from_str::<serde_json::Value>(raw_json).map_err(|err| {
-            format!("JSON inválido para formatação: {err}")
-        })?;
+    let value = serde_json::from_str::<serde_json::Value>(raw_json)
+        .map_err(|err| format!("JSON inválido para formatação: {err}"))?;
 
     serde_json::to_string_pretty(&value).map_err(|err| format!("Erro ao formatar JSON: {err}"))
 }
@@ -550,7 +553,7 @@ fn refresh_resource_list_from_wiki(
         existing_etags,
         existing_last_modified,
     )
-        .map_err(|err| format!("Falha ao coletar itens do wiki: {err}"))?;
+    .map_err(|err| format!("Falha ao coletar itens do wiki: {err}"))?;
 
     if data.items.is_empty() && existing_cache.is_empty() {
         return Err("Nenhum item foi encontrado nas páginas do wiki.".to_string());
@@ -634,7 +637,8 @@ fn handle_import_confirm_click(app: &mut MdcraftApp, import_clicked: bool) {
 
             let imported = insert_imported_crafts(app, crafts);
 
-            app.import_feedback = Some(format!("{} receita(s) importada(s) com sucesso.", imported));
+            app.import_feedback =
+                Some(format!("{} receita(s) importada(s) com sucesso.", imported));
             app.awaiting_import_json = false;
             app.import_json_input.clear();
         }
@@ -665,6 +669,11 @@ fn handle_export_close_click(app: &mut MdcraftApp, close_clicked: bool) {
 
 pub(super) fn render_import_recipes_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
     if !app.awaiting_import_json {
+        return;
+    }
+
+    if ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+        close_import_popup(app);
         return;
     }
 
@@ -753,12 +762,23 @@ pub(super) fn render_export_recipes_popup(ctx: &egui::Context, app: &mut Mdcraft
         return;
     }
 
+    if ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+        close_export_popup(app);
+        return;
+    }
+
+    let screen_size = ctx.content_rect().size();
+    let popup_size = egui::vec2(
+        (screen_size.x * 0.9).clamp(420.0, 760.0),
+        (screen_size.y * 0.9).clamp(320.0, 620.0),
+    );
+
     egui::Window::new("Exportar Receitas")
         .id(egui::Id::new("export_saved_recipes_json"))
         .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
         .collapsible(false)
         .resizable(false)
-        .fixed_size(egui::vec2(560.0, 390.0))
+        .fixed_size(popup_size)
         .show(ctx, |ui| {
             let mut json_layouter =
                 |ui: &egui::Ui, text: &dyn egui::TextBuffer, wrap_width: f32| {
@@ -769,75 +789,92 @@ pub(super) fn render_export_recipes_popup(ctx: &egui::Context, app: &mut Mdcraft
 
             let (action_fill, action_stroke, action_text) = action_button_colors(ui);
 
-            ui.label(
-                egui::RichText::new("JSON de exportação das receitas salvas")
-                    .strong()
-                    .size(15.0),
-            );
-            ui.add_space(6.0);
-            ui.label(egui::RichText::new("Copie o conteúdo abaixo.").weak());
-            ui.add_space(8.0);
+            egui::TopBottomPanel::top(egui::Id::new("export_popup_header"))
+                .show_separator_line(false)
+                .resizable(false)
+                .show_inside(ui, |ui| {
+                    ui.label(
+                        egui::RichText::new("JSON de exportação das receitas salvas")
+                            .strong()
+                            .size(15.0),
+                    );
+                    ui.add_space(6.0);
+                    ui.label(egui::RichText::new("Copie o conteúdo abaixo.").weak());
 
-            if let Some(feedback) = &app.export_feedback {
-                ui.label(feedback);
-            }
+                    if let Some(feedback) = &app.export_feedback {
+                        ui.add_space(6.0);
+                        ui.label(feedback);
+                    }
 
-            ui.add_sized(
-                [ui.available_width(), 270.0],
-                egui::TextEdit::multiline(&mut app.export_json_output)
-                    .font(egui::TextStyle::Monospace)
-                    .desired_width(f32::INFINITY)
-                    .margin(egui::vec2(10.0, 10.0))
-                    .layouter(&mut json_layouter)
-                    .interactive(false),
-            );
+                    ui.add_space(8.0);
+                });
 
-            ui.add_space(10.0);
-            ui.horizontal(|ui| {
-                let copied = ui
-                    .add_sized(
-                        [120.0, 32.0],
-                        egui::Button::new(
-                            egui::RichText::new("Copiar").strong().color(action_text),
-                        )
-                        .fill(action_fill)
-                        .stroke(action_stroke),
-                    )
-                    .on_hover_text("Copiar JSON para a area de transferencia")
-                    .clicked();
+            egui::TopBottomPanel::bottom(egui::Id::new("export_popup_actions"))
+                .show_separator_line(false)
+                .resizable(false)
+                .show_inside(ui, |ui| {
+                    ui.add_space(8.0);
+                    ui.horizontal(|ui| {
+                        let copied = ui
+                            .add_sized(
+                                [120.0, 32.0],
+                                egui::Button::new(
+                                    egui::RichText::new("Copiar").strong().color(action_text),
+                                )
+                                .fill(action_fill)
+                                .stroke(action_stroke),
+                            )
+                            .on_hover_text("Copiar JSON para a area de transferencia")
+                            .clicked();
 
-                handle_export_copy_click(ui.ctx(), app, copied);
+                        handle_export_copy_click(ui.ctx(), app, copied);
 
-                let close_clicked = ui
-                    .add_sized([120.0, 32.0], egui::Button::new("Fechar"))
-                    .clicked();
-                handle_export_close_click(app, close_clicked);
+                        let close_clicked = ui
+                            .add_sized([120.0, 32.0], egui::Button::new("Fechar"))
+                            .clicked();
+                        handle_export_close_click(app, close_clicked);
+                    });
+                });
+
+            egui::CentralPanel::default().show_inside(ui, |ui| {
+                egui::ScrollArea::both()
+                    .auto_shrink([false, false])
+                    .show(ui, |ui| {
+                        ui.add_sized(
+                            [ui.available_width().max(240.0), ui.available_height().max(160.0)],
+                            egui::TextEdit::multiline(&mut app.export_json_output)
+                                .font(egui::TextStyle::Monospace)
+                                .desired_width(f32::INFINITY)
+                                .margin(egui::vec2(10.0, 10.0))
+                                .layouter(&mut json_layouter)
+                                .interactive(false),
+                        );
+                    });
             });
         });
 }
 
 #[cfg(test)]
 mod tests {
+    use chrono::{Datelike, Duration as ChronoDuration, Local, TimeZone};
     use eframe::egui;
     use std::sync::mpsc;
-    use chrono::{Datelike, Duration as ChronoDuration, Local, TimeZone};
 
-    use crate::app::MdcraftApp;
-    use crate::data::wiki_scraper::{ScrapeRefreshData, ScrapedItem};
     use super::{
-        action_button_colors, apply_export_popup_result, apply_resource_refresh_result,
-        apply_cached_npc_prices_to_existing_items,
-        build_export_json, close_export_popup, close_import_popup,
-        did_sync_today_after_window, ensure_wiki_refresh_started,
-        ensure_wiki_refresh_started_at,
-        format_json_pretty, handle_export_close_click,
-        handle_export_copy_click, handle_import_cancel_click, handle_import_confirm_click,
-        handle_import_format_click, handle_sidebar_export_click, handle_sidebar_import_click,
-        handle_sidebar_wiki_refresh_click, has_reached_auto_sync_window, insert_imported_crafts, json_layout_job,
-        mark_export_copied, open_export_popup, open_import_popup, parse_imported_saved_crafts,
-        poll_wiki_refresh_result, push_json_text, should_start_auto_wiki_sync,
+        action_button_colors, apply_cached_npc_prices_to_existing_items, apply_export_popup_result,
+        apply_resource_refresh_result, build_export_json, close_export_popup, close_import_popup,
+        did_sync_today_after_window, ensure_wiki_refresh_started, ensure_wiki_refresh_started_at,
+        format_json_pretty, handle_export_close_click, handle_export_copy_click,
+        handle_import_cancel_click, handle_import_confirm_click, handle_import_format_click,
+        handle_sidebar_export_click, handle_sidebar_import_click,
+        handle_sidebar_wiki_refresh_click, has_reached_auto_sync_window, insert_imported_crafts,
+        json_layout_job, mark_export_copied, open_export_popup, open_import_popup,
+        parse_imported_saved_crafts, poll_wiki_refresh_result, push_json_text,
+        should_start_auto_wiki_sync,
     };
+    use crate::app::MdcraftApp;
     use crate::app::SavedCraft;
+    use crate::data::wiki_scraper::{ScrapeRefreshData, ScrapedItem};
 
     fn sample_craft(name: &str) -> SavedCraft {
         SavedCraft {
@@ -931,7 +968,8 @@ mod tests {
     fn render_import_popup_open_state_runs_without_panicking() {
         let mut app = MdcraftApp::default();
         app.awaiting_import_json = true;
-        app.import_json_input = "[{\"name\":\"A\",\"recipe_text\":\"1 X\",\"sell_price_input\":\"2k\"}]".to_string();
+        app.import_json_input =
+            "[{\"name\":\"A\",\"recipe_text\":\"1 X\",\"sell_price_input\":\"2k\"}]".to_string();
 
         egui::__run_test_ctx(|ctx| {
             super::render_import_recipes_popup(ctx, &mut app);
@@ -941,16 +979,61 @@ mod tests {
     }
 
     #[test]
+    fn render_import_popup_closes_on_escape() {
+        let mut app = MdcraftApp::default();
+        app.awaiting_import_json = true;
+
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.events.push(egui::Event::Key {
+            key: egui::Key::Escape,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers::NONE,
+        });
+
+        let _ = ctx.run(input, |ctx| {
+            super::render_import_recipes_popup(ctx, &mut app);
+        });
+
+        assert!(!app.awaiting_import_json);
+    }
+
+    #[test]
     fn render_export_popup_open_state_runs_without_panicking() {
         let mut app = MdcraftApp::default();
         app.awaiting_export_json = true;
-        app.export_json_output = build_export_json(&[sample_craft("A")]).expect("export should work");
+        app.export_json_output =
+            build_export_json(&[sample_craft("A")]).expect("export should work");
 
         egui::__run_test_ctx(|ctx| {
             super::render_export_recipes_popup(ctx, &mut app);
         });
 
         assert!(app.awaiting_export_json);
+    }
+
+    #[test]
+    fn render_export_popup_closes_on_escape() {
+        let mut app = MdcraftApp::default();
+        app.awaiting_export_json = true;
+
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.events.push(egui::Event::Key {
+            key: egui::Key::Escape,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers::NONE,
+        });
+
+        let _ = ctx.run(input, |ctx| {
+            super::render_export_recipes_popup(ctx, &mut app);
+        });
+
+        assert!(!app.awaiting_export_json);
     }
 
     #[test]
@@ -1122,15 +1205,19 @@ mod tests {
         let mut app = MdcraftApp::default();
 
         handle_import_format_click(&mut app, true);
-        assert_eq!(app.import_feedback.as_deref(), Some("Cole um JSON antes de formatar."));
+        assert_eq!(
+            app.import_feedback.as_deref(),
+            Some("Cole um JSON antes de formatar.")
+        );
 
         app.import_json_input = "{invalid".to_string();
         handle_import_format_click(&mut app, true);
-        assert!(app
-            .import_feedback
-            .as_deref()
-            .expect("feedback should exist")
-            .contains("JSON inválido para formatação"));
+        assert!(
+            app.import_feedback
+                .as_deref()
+                .expect("feedback should exist")
+                .contains("JSON inválido para formatação")
+        );
 
         app.import_json_input = "{\"a\":1}".to_string();
         handle_import_format_click(&mut app, true);
@@ -1147,15 +1234,19 @@ mod tests {
         app.awaiting_import_json = true;
 
         handle_import_confirm_click(&mut app, true);
-        assert_eq!(app.import_feedback.as_deref(), Some("Cole um JSON antes de importar."));
+        assert_eq!(
+            app.import_feedback.as_deref(),
+            Some("Cole um JSON antes de importar.")
+        );
 
         app.import_json_input = "{invalid".to_string();
         handle_import_confirm_click(&mut app, true);
-        assert!(app
-            .import_feedback
-            .as_deref()
-            .expect("feedback should exist")
-            .contains("JSON inválido para importação"));
+        assert!(
+            app.import_feedback
+                .as_deref()
+                .expect("feedback should exist")
+                .contains("JSON inválido para importação")
+        );
 
         app.import_json_input = "[]".to_string();
         handle_import_confirm_click(&mut app, true);
@@ -1165,8 +1256,7 @@ mod tests {
         );
 
         app.import_json_input =
-            "[{\"name\":\"R\",\"recipe_text\":\"1 X\",\"sell_price_input\":\"2k\"}]"
-                .to_string();
+            "[{\"name\":\"R\",\"recipe_text\":\"1 X\",\"sell_price_input\":\"2k\"}]".to_string();
         handle_import_confirm_click(&mut app, true);
         assert_eq!(
             app.import_feedback.as_deref(),
@@ -1229,11 +1319,12 @@ mod tests {
 
         assert_eq!(app.resource_list, initial_resources);
         assert!(app.wiki_cached_items.len() >= initial_len);
-        assert!(app
-            .wiki_sync_feedback
-            .as_deref()
-            .expect("feedback should be set")
-            .contains("sincronizada"));
+        assert!(
+            app.wiki_sync_feedback
+                .as_deref()
+                .expect("feedback should be set")
+                .contains("sincronizada")
+        );
     }
 
     #[test]
@@ -1294,11 +1385,12 @@ mod tests {
 
         assert!(!app.wiki_refresh_in_progress);
         assert!(app.wiki_refresh_rx.is_none());
-        assert!(app
-            .wiki_sync_feedback
-            .as_deref()
-            .expect("feedback should exist")
-            .contains("interrompida"));
+        assert!(
+            app.wiki_sync_feedback
+                .as_deref()
+                .expect("feedback should exist")
+                .contains("interrompida")
+        );
     }
 
     fn local_timestamp_at(hour: u32, minute: u32) -> u64 {
@@ -1365,8 +1457,14 @@ mod tests {
         let today_before_window = local_timestamp_at(7, 0);
         let today_after_window = local_timestamp_at(8, 0);
 
-        assert!(!did_sync_today_after_window(today_before_window, now_after_window));
-        assert!(did_sync_today_after_window(today_after_window, now_after_window));
+        assert!(!did_sync_today_after_window(
+            today_before_window,
+            now_after_window
+        ));
+        assert!(did_sync_today_after_window(
+            today_after_window,
+            now_after_window
+        ));
     }
 
     #[test]
