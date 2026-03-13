@@ -62,10 +62,12 @@ fn build_npc_price_lookup(app: &MdcraftApp) -> HashMap<String, f64> {
         lookup.insert(entry.name.trim().to_lowercase(), parsed);
     }
 
-    if let Some(raw_price) = fixed_npc_price_input("Compressed Nightmare Gems")
-        && let Ok(parsed) = parse_price_flag(raw_price)
-    {
-        lookup.insert("compressed nightmare gems".to_string(), parsed);
+    for fixed_name in ["Compressed Nightmare Gems", "Neutral Essence"] {
+        if let Some(raw_price) = fixed_npc_price_input(fixed_name)
+            && let Ok(parsed) = parse_price_flag(raw_price)
+        {
+            lookup.insert(fixed_name.trim().to_lowercase(), parsed);
+        }
     }
 
     lookup
@@ -617,6 +619,13 @@ mod tests {
         let app = MdcraftApp::default();
         let lookup = build_npc_price_lookup(&app);
         assert_eq!(lookup.get("compressed nightmare gems").copied(), Some(25_000.0));
+    }
+
+    #[test]
+    fn build_npc_price_lookup_includes_fixed_neutral_essence() {
+        let app = MdcraftApp::default();
+        let lookup = build_npc_price_lookup(&app);
+        assert_eq!(lookup.get("neutral essence").copied(), Some(1000.0));
     }
 
     #[test]

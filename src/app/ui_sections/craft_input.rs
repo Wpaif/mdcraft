@@ -184,6 +184,13 @@ mod tests {
     }
 
     #[test]
+    fn lookup_cached_npc_price_input_uses_fixed_rule_for_neutral_essence() {
+        let app = MdcraftApp::default();
+        let found = lookup_cached_npc_price_input(&app, "Neutral Essence");
+        assert_eq!(found.as_deref(), Some("1k"));
+    }
+
+    #[test]
     fn apply_cached_npc_price_if_available_sets_item_values() {
         let mut app = MdcraftApp::default();
         app.wiki_cached_items.push(ScrapedItem {

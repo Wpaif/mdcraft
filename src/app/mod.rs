@@ -59,13 +59,14 @@ pub struct SavedCraft {
 }
 
 const FIXED_NPC_PRICE_COMPRESSED_NIGHTMARE_GEMS: &str = "25k";
+const FIXED_NPC_PRICE_NEUTRAL_ESSENCE: &str = "1k";
 
 pub fn fixed_npc_price_input(item_name: &str) -> Option<&'static str> {
     let normalized = item_name.trim().to_lowercase();
-    if normalized == "compressed nightmare gems" {
-        Some(FIXED_NPC_PRICE_COMPRESSED_NIGHTMARE_GEMS)
-    } else {
-        None
+    match normalized.as_str() {
+        "compressed nightmare gems" => Some(FIXED_NPC_PRICE_COMPRESSED_NIGHTMARE_GEMS),
+        "neutral essence" => Some(FIXED_NPC_PRICE_NEUTRAL_ESSENCE),
+        _ => None,
     }
 }
 
