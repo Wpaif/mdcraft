@@ -95,6 +95,11 @@ fn price_input_stroke(
     item: &crate::model::Item,
     npc_lookup: &HashMap<String, f64>,
 ) -> egui::Stroke {
+    if item.preco_input.trim().is_empty() {
+        // Missing price gets a warm border to draw attention without looking like an error.
+        return egui::Stroke::new(1.4, egui::Color32::from_rgb(235, 188, 90));
+    }
+
     let default = ui.visuals().widgets.inactive.bg_stroke;
 
     match compare_item_price_with_npc(item, npc_lookup) {
@@ -105,6 +110,14 @@ fn price_input_stroke(
             egui::Stroke::new(1.4, egui::Color32::from_rgb(220, 98, 98))
         }
         _ => default,
+    }
+}
+
+fn price_input_fill_color(item: &crate::model::Item) -> egui::Color32 {
+    if item.preco_input.trim().is_empty() {
+        egui::Color32::from_rgba_unmultiplied(235, 188, 90, 22)
+    } else {
+        egui::Color32::TRANSPARENT
     }
 }
 
@@ -334,6 +347,7 @@ pub(crate) fn render_items_and_values(
                                                         item,
                                                         &npc_lookup,
                                                     );
+                                                    let fill = price_input_fill_color(item);
 
                                                     let text_edit = egui::TextEdit::singleline(
                                                         &mut item.preco_input,
@@ -350,6 +364,7 @@ pub(crate) fn render_items_and_values(
                                                             ),
                                                             |ui| {
                                                                 egui::Frame::NONE
+                                                                    .fill(fill)
                                                                     .stroke(stroke)
                                                                     .corner_radius(
                                                                         egui::CornerRadius::same(
@@ -486,8 +501,8 @@ mod tests {
     use super::{
         NpcPriceComparison, apply_item_price_from_input, apply_item_price_if_changed,
         build_npc_price_lookup, compare_item_price_with_npc, item_price_status, item_status_hover,
-        npc_price_for_item, price_input_stroke, render_empty_item_cells, render_items_and_values,
-        should_show_npc_price_icon,
+        npc_price_for_item, price_input_fill_color, price_input_stroke, render_empty_item_cells,
+        render_items_and_values, should_show_npc_price_icon,
     };
     use crate::app::price::PriceStatus;
     use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
@@ -636,13 +651,25 @@ mod tests {
     }
 
     #[test]
-    fn price_input_stroke_uses_default_when_comparison_not_available() {
+    fn price_input_stroke_highlights_missing_value() {
         egui::__run_test_ui(|ui| {
             let item = make_item("Screw", 1, "", false);
             let lookup = HashMap::new();
             let stroke = price_input_stroke(ui, &item, &lookup);
-            assert_eq!(stroke, ui.visuals().widgets.inactive.bg_stroke);
+            assert_eq!(stroke, egui::Stroke::new(1.4, egui::Color32::from_rgb(235, 188, 90)));
         });
+    }
+
+    #[test]
+    fn price_input_fill_color_marks_only_missing_value() {
+        let missing = make_item("Screw", 1, "", false);
+        assert_eq!(
+            price_input_fill_color(&missing),
+            egui::Color32::from_rgba_unmultiplied(235, 188, 90, 22)
+        );
+
+        let present = make_item("Screw", 1, "1k", false);
+        assert_eq!(price_input_fill_color(&present), egui::Color32::TRANSPARENT);
     }
 
     #[test]
