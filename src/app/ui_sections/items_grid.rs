@@ -1,19 +1,16 @@
 use eframe::egui;
-use std::collections::HashMap;
 
-use crate::app::fixed_npc_price_input;
 use crate::parse::parse_price_flag;
 use crate::units::format_game_units;
 
 use super::super::price::{PriceStatus, paint_price_status};
-use super::npc_price::{
-    NpcPriceComparison, build_npc_price_lookup, compare_item_price_with_npc,
-    npc_price_for_item, paint_npc_price_icon, price_input_fill_color, price_input_stroke,
-    should_show_npc_price_icon,
-};
 use super::MdcraftApp;
 use super::autosave_active_craft;
 use super::capitalize_display_name;
+use super::npc_price::{
+    NpcPriceComparison, build_npc_price_lookup, compare_item_price_with_npc, npc_price_for_item,
+    paint_npc_price_icon, price_input_fill_color, price_input_stroke, should_show_npc_price_icon,
+};
 use super::placeholder;
 
 fn apply_item_price_from_input(item: &mut crate::model::Item) {
@@ -470,4 +467,3 @@ mod tests {
         });
     }
 }
-

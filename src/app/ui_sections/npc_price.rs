@@ -1,7 +1,8 @@
 use eframe::egui;
 use std::collections::HashMap;
 
-use crate::app::{MdcraftApp, fixed_npc_price_input};
+use crate::app::MdcraftApp;
+use crate::app::npc_price_rules::fixed_npc_price_entries;
 use crate::parse::parse_price_flag;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -26,10 +27,8 @@ pub(super) fn build_npc_price_lookup(app: &MdcraftApp) -> HashMap<String, f64> {
         lookup.insert(entry.name.trim().to_lowercase(), parsed);
     }
 
-    for fixed_name in ["Compressed Nightmare Gems", "Neutral Essence"] {
-        if let Some(raw_price) = fixed_npc_price_input(fixed_name)
-            && let Ok(parsed) = parse_price_flag(raw_price)
-        {
+    for (fixed_name, raw_price) in fixed_npc_price_entries() {
+        if let Ok(parsed) = parse_price_flag(raw_price) {
             lookup.insert(fixed_name.trim().to_lowercase(), parsed);
         }
     }

@@ -3,8 +3,8 @@ use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use crate::app::fixed_npc_price_input;
 use crate::app::MdcraftApp;
+use crate::app::npc_price_rules::fixed_npc_price_input;
 use crate::data::wiki_scraper::{
     ScrapeRefreshData, ScrapedItem, merge_item_lists, scrape_all_sources_incremental,
 };

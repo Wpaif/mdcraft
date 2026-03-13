@@ -3,7 +3,7 @@ use eframe::egui;
 use crate::app::{MdcraftApp, SavedCraft, apply_saved_item_prices, capture_saved_item_prices};
 use crate::parse::parse_clipboard;
 
-use super::{json_io, normalize_craft_name, placeholder};
+use super::{capitalize_display_name, json_io, placeholder};
 
 fn apply_pending_sidebar_actions(
     app: &mut MdcraftApp,
@@ -45,7 +45,7 @@ fn infer_craft_name_from_items(app: &MdcraftApp) -> Option<String> {
         &app.craft_recipes_cache,
         &app.craft_recipe_name_by_signature,
     )
-    .map(|name| normalize_craft_name(&name))
+    .map(|name| capitalize_display_name(&name))
 }
 
 fn sidebar_header_bg_color(
@@ -158,7 +158,7 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                     } else {
                         app.pending_craft_name.clone()
                     };
-                    let normalized_name = normalize_craft_name(&raw_name);
+                    let normalized_name = capitalize_display_name(&raw_name);
                     app.saved_crafts.insert(
                         0,
                         SavedCraft {
@@ -190,7 +190,7 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
 
                 for (idx, craft) in app.saved_crafts.iter().enumerate() {
                     let is_active = app.active_saved_craft_index == Some(idx);
-                    let name_text = normalize_craft_name(&craft.name);
+                    let name_text = capitalize_display_name(&craft.name);
                     let saved_lines = craft
                         .recipe_text
                         .lines()
@@ -220,64 +220,71 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                         .corner_radius(egui::CornerRadius::same(4))
                         .inner_margin(egui::Margin::symmetric(8, 5))
                         .show(ui, |ui| {
-                        ui.set_width(content_w);
-                        let row_height = 22.0;
-                        let icon_size = 20.0;
-                        ui.allocate_ui_with_layout(
-                            egui::vec2(content_w, row_height),
-                            egui::Layout::left_to_right(egui::Align::Center),
-                            |ui| {
-                                let text_width =
-                                    (content_w - icon_size - ui.spacing().item_spacing.x - 8.0)
-                                        .max(80.0);
+                            ui.set_width(content_w);
+                            let row_height = 22.0;
+                            let icon_size = 20.0;
+                            ui.allocate_ui_with_layout(
+                                egui::vec2(content_w, row_height),
+                                egui::Layout::left_to_right(egui::Align::Center),
+                                |ui| {
+                                    let text_width =
+                                        (content_w - icon_size - ui.spacing().item_spacing.x - 8.0)
+                                            .max(80.0);
 
-                                let name_btn = egui::Button::new(
-                                    egui::RichText::new(&name_text)
-                                        .size(14.0)
-                                        .color(ui.visuals().text_color()),
-                                )
-                                .fill(egui::Color32::TRANSPARENT)
-                                .stroke(egui::Stroke::NONE);
+                                    let name_btn = egui::Button::new(
+                                        egui::RichText::new(&name_text)
+                                            .size(14.0)
+                                            .color(ui.visuals().text_color()),
+                                    )
+                                    .fill(egui::Color32::TRANSPARENT)
+                                    .stroke(egui::Stroke::NONE);
 
-                                let name_resp = ui
-                                    .add_sized([text_width, icon_size], name_btn)
-                                    .on_hover_text(hover_details);
-                                set_pending_action(
-                                    &mut pending_click_select,
-                                    idx,
-                                    name_resp.clicked(),
-                                );
+                                    let name_resp = ui
+                                        .add_sized([text_width, icon_size], name_btn)
+                                        .on_hover_text(hover_details);
+                                    set_pending_action(
+                                        &mut pending_click_select,
+                                        idx,
+                                        name_resp.clicked(),
+                                    );
 
-                                let (delete_rect, delete_resp) = ui.allocate_exact_size(
-                                    egui::vec2(icon_size, icon_size),
-                                    egui::Sense::click(),
-                                );
-                                let delete_fill = if delete_resp.hovered() {
-                                    egui::Color32::from_rgba_unmultiplied(220, 98, 98, 44)
-                                } else {
-                                    egui::Color32::from_rgba_unmultiplied(220, 98, 98, 32)
-                                };
-                                ui.painter().rect(
-                                    delete_rect,
-                                    egui::CornerRadius::same(4),
-                                    delete_fill,
-                                    egui::Stroke::new(1.0, egui::Color32::from_rgb(180, 72, 72)),
-                                    egui::StrokeKind::Middle,
-                                );
-                                ui.painter().text(
-                                    delete_rect.center(),
-                                    egui::Align2::CENTER_CENTER,
-                                    "🗑",
-                                    egui::FontId::proportional(13.0),
-                                    egui::Color32::from_rgb(220, 98, 98),
-                                );
+                                    let (delete_rect, delete_resp) = ui.allocate_exact_size(
+                                        egui::vec2(icon_size, icon_size),
+                                        egui::Sense::click(),
+                                    );
+                                    let delete_fill = if delete_resp.hovered() {
+                                        egui::Color32::from_rgba_unmultiplied(220, 98, 98, 44)
+                                    } else {
+                                        egui::Color32::from_rgba_unmultiplied(220, 98, 98, 32)
+                                    };
+                                    ui.painter().rect(
+                                        delete_rect,
+                                        egui::CornerRadius::same(4),
+                                        delete_fill,
+                                        egui::Stroke::new(
+                                            1.0,
+                                            egui::Color32::from_rgb(180, 72, 72),
+                                        ),
+                                        egui::StrokeKind::Middle,
+                                    );
+                                    ui.painter().text(
+                                        delete_rect.center(),
+                                        egui::Align2::CENTER_CENTER,
+                                        "🗑",
+                                        egui::FontId::proportional(13.0),
+                                        egui::Color32::from_rgb(220, 98, 98),
+                                    );
 
-                                let delete_clicked =
-                                    delete_resp.on_hover_text("Excluir receita").clicked();
-                                set_pending_action(&mut pending_click_delete, idx, delete_clicked);
-                            },
-                        );
-                    });
+                                    let delete_clicked =
+                                        delete_resp.on_hover_text("Excluir receita").clicked();
+                                    set_pending_action(
+                                        &mut pending_click_delete,
+                                        idx,
+                                        delete_clicked,
+                                    );
+                                },
+                            );
+                        });
                     ui.add_space(4.0);
                 }
 

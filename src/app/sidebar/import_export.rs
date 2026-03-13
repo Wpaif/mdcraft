@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::{MdcraftApp, SavedCraft};
 
-use super::normalize_craft_name;
+use super::capitalize_display_name;
 
 #[derive(Serialize)]
 pub(super) struct ExportPayload<'a> {
@@ -52,7 +52,7 @@ pub(super) fn insert_imported_crafts(app: &mut MdcraftApp, crafts: Vec<SavedCraf
         let name = if craft.name.trim().is_empty() {
             fallback_name
         } else {
-            normalize_craft_name(&craft.name)
+            capitalize_display_name(&craft.name)
         };
 
         app.saved_crafts.insert(

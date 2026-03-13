@@ -1,6 +1,6 @@
 use eframe::egui;
 
-use crate::app::fixed_npc_price_input;
+use crate::app::npc_price_rules::fixed_npc_price_input;
 use crate::parse::parse_clipboard;
 use crate::parse::parse_price_flag;
 

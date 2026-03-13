@@ -54,22 +54,20 @@ pub(super) fn render_sidebar_json_actions(
     };
 
     let refresh_clicked = ui
-        .scope(|inner| {
-            inner.set_enabled(!app.wiki_refresh_in_progress);
-            inner
-                .add_sized(
-                    [action_w, 34.0],
-                    egui::Button::new(
-                        egui::RichText::new(refresh_label)
-                            .strong()
-                            .color(action_text),
-                    )
-                    .fill(action_fill)
-                    .stroke(action_stroke),
+        .add_enabled_ui(!app.wiki_refresh_in_progress, |ui| {
+            ui.add_sized(
+                [action_w, 34.0],
+                egui::Button::new(
+                    egui::RichText::new(refresh_label)
+                        .strong()
+                        .color(action_text),
                 )
-                .on_hover_text(
-                    "Consulta o wiki e atualiza os preços NPC usados como referência",
-                )
+                .fill(action_fill)
+                .stroke(action_stroke),
+            )
+            .on_hover_text(
+                "Consulta o wiki e atualiza os preços NPC usados como referência",
+            )
         })
         .inner
         .clicked();
