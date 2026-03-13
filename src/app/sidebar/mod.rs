@@ -4,6 +4,7 @@ use super::MdcraftApp;
 
 mod content;
 mod dialogs;
+mod import_export;
 mod json_io;
 mod json_viewer;
 mod wiki_sync;
