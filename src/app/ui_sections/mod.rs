@@ -1,7 +1,7 @@
 use eframe::egui;
 
-use crate::app::capture_saved_item_prices;
 use super::MdcraftApp;
+use crate::app::capture_saved_item_prices;
 
 mod closing;
 mod craft_input;

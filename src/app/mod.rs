@@ -10,10 +10,10 @@
 //! * `sidebar` – docked collapsible left menu.
 //! * `ui` – the implementation of `eframe::App` and the main view.
 
-use crate::model::Item;
 use crate::data::wiki_scraper::{
     ScrapeRefreshData, ScrapedItem, embedded_resource_names, embedded_wiki_items,
 };
+use crate::model::Item;
 use crate::parse::parse_price_flag;
 use dark_light::Mode;
 use serde::{Deserialize, Serialize};
@@ -97,7 +97,12 @@ pub fn capture_saved_item_prices(items: &[Item]) -> Vec<SavedItemPrice> {
 pub fn apply_saved_item_prices(items: &mut [Item], saved_prices: &[SavedItemPrice]) {
     let lookup: HashMap<String, &str> = saved_prices
         .iter()
-        .map(|saved| (normalized_item_key(&saved.item_name), saved.price_input.as_str()))
+        .map(|saved| {
+            (
+                normalized_item_key(&saved.item_name),
+                saved.price_input.as_str(),
+            )
+        })
         .collect();
 
     for item in items {
@@ -256,7 +261,9 @@ mod tests {
 
     use eframe::{CreationContext, Storage, egui};
 
-    use super::{APP_SETTINGS_KEY, AppSettings, MdcraftApp, SavedCraft, Theme, detect_system_theme};
+    use super::{
+        APP_SETTINGS_KEY, AppSettings, MdcraftApp, SavedCraft, Theme, detect_system_theme,
+    };
     use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
 
     #[derive(Default)]
@@ -405,7 +412,10 @@ mod tests {
                     sources: vec![WikiSource::Nightmare],
                 },
             ],
-            wiki_http_etag_cache: HashMap::from([(String::from("https://wiki"), String::from("etag1"))]),
+            wiki_http_etag_cache: HashMap::from([(
+                String::from("https://wiki"),
+                String::from("etag1"),
+            )]),
             wiki_http_last_modified_cache: HashMap::from([(
                 String::from("https://wiki"),
                 String::from("Wed, 21 Oct 2015 07:28:00 GMT"),
@@ -426,7 +436,12 @@ mod tests {
         assert_eq!(app.wiki_cached_items.len(), 2);
         assert!(app.resource_list.contains(&"tech data".to_string()));
         assert!(!app.resource_list.contains(&"ancient wire".to_string()));
-        assert_eq!(app.wiki_http_etag_cache.get("https://wiki").map(String::as_str), Some("etag1"));
+        assert_eq!(
+            app.wiki_http_etag_cache
+                .get("https://wiki")
+                .map(String::as_str),
+            Some("etag1")
+        );
         assert_eq!(
             app.wiki_http_last_modified_cache
                 .get("https://wiki")

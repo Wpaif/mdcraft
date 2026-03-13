@@ -85,8 +85,8 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
 
 #[cfg(test)]
 mod tests {
-    use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
     use crate::app::{MdcraftApp, SavedCraft};
+    use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
     use crate::model::Item;
 
     use super::{
