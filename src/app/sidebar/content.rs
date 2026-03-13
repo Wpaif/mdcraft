@@ -34,9 +34,18 @@ fn set_pending_action(slot: &mut Option<usize>, idx: usize, clicked: bool) {
 fn start_save_recipe_prompt(app: &mut MdcraftApp, save_clicked: bool) {
     if save_clicked {
         app.awaiting_craft_name = true;
-        app.pending_craft_name.clear();
+        app.pending_craft_name = infer_craft_name_from_items(app).unwrap_or_default();
         app.focus_craft_name_input = true;
     }
+}
+
+fn infer_craft_name_from_items(app: &MdcraftApp) -> Option<String> {
+    crate::app::infer_craft_name_from_items(
+        &app.items,
+        &app.craft_recipes_cache,
+        &app.craft_recipe_name_by_signature,
+    )
+    .map(|name| normalize_craft_name(&name))
 }
 
 fn sidebar_header_bg_color(
@@ -274,11 +283,14 @@ mod tests {
     use eframe::egui;
 
     use crate::app::{MdcraftApp, SavedCraft, SavedItemPrice};
+    use crate::data::wiki_scraper::{
+        CraftIngredient, CraftProfession, CraftRank, ScrapedCraftRecipe,
+    };
 
     use super::{
         apply_pending_sidebar_actions, load_saved_craft_for_edit, render_sidebar_content,
         render_sidebar_header, set_pending_action, sidebar_header_bg_color,
-        start_save_recipe_prompt, toggle_sidebar,
+        start_save_recipe_prompt, toggle_sidebar, infer_craft_name_from_items,
     };
 
     fn run_sidebar_content_with_events(
@@ -540,7 +552,146 @@ mod tests {
 
         start_save_recipe_prompt(&mut app, true);
         assert!(app.awaiting_craft_name);
-        assert!(app.pending_craft_name.is_empty());
+        assert_eq!(app.pending_craft_name, "");
+        assert!(app.focus_craft_name_input);
+    }
+
+    #[test]
+    fn infer_craft_name_from_items_returns_exact_match() {
+        let mut app = MdcraftApp::default();
+        app.items = vec![
+            crate::model::Item {
+                nome: "Apricorn".to_string(),
+                quantidade: 1,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: false,
+                preco_input: String::new(),
+            },
+            crate::model::Item {
+                nome: "Screw".to_string(),
+                quantidade: 80,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: false,
+                preco_input: String::new(),
+            },
+        ];
+
+        app.craft_recipes_cache = vec![ScrapedCraftRecipe {
+            profession: CraftProfession::Engineer,
+            rank: CraftRank::E,
+            name: "poke ball (100x)".to_string(),
+            ingredients: vec![
+                CraftIngredient {
+                    name: "Apricorn".to_string(),
+                    quantity: 1.0,
+                },
+                CraftIngredient {
+                    name: "Screw".to_string(),
+                    quantity: 80.0,
+                },
+            ],
+        }];
+        app.rebuild_craft_recipe_name_index();
+
+        let inferred = infer_craft_name_from_items(&app);
+        assert_eq!(inferred.as_deref(), Some("Poke Ball (100x)"));
+    }
+
+    #[test]
+    fn infer_craft_name_from_items_accepts_multiple_recipe_units() {
+        let mut app = MdcraftApp::default();
+        app.items = vec![
+            crate::model::Item {
+                nome: "Tech Data".to_string(),
+                quantidade: 720,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: false,
+                preco_input: String::new(),
+            },
+            crate::model::Item {
+                nome: "Wolf Tail".to_string(),
+                quantidade: 24,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: false,
+                preco_input: String::new(),
+            },
+            crate::model::Item {
+                nome: "Black Wool Ball".to_string(),
+                quantidade: 12,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: false,
+                preco_input: String::new(),
+            },
+            crate::model::Item {
+                nome: "Compressed Nightmare Gem".to_string(),
+                quantidade: 2,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: false,
+                preco_input: String::new(),
+            },
+        ];
+
+        app.craft_recipes_cache = vec![ScrapedCraftRecipe {
+            profession: CraftProfession::Engineer,
+            rank: CraftRank::S,
+            name: "Enhancement Kit".to_string(),
+            ingredients: vec![
+                CraftIngredient {
+                    name: "Tech Data".to_string(),
+                    quantity: 360.0,
+                },
+                CraftIngredient {
+                    name: "Wolf Tail".to_string(),
+                    quantity: 12.0,
+                },
+                CraftIngredient {
+                    name: "Black Wool Ball".to_string(),
+                    quantity: 6.0,
+                },
+                CraftIngredient {
+                    name: "Compressed Nightmare Gem".to_string(),
+                    quantity: 1.0,
+                },
+            ],
+        }];
+        app.rebuild_craft_recipe_name_index();
+
+        let inferred = infer_craft_name_from_items(&app);
+        assert_eq!(inferred.as_deref(), Some("Enhancement Kit"));
+    }
+
+    #[test]
+    fn start_save_recipe_prompt_prefills_inferred_craft_name() {
+        let mut app = MdcraftApp::default();
+        app.items = vec![crate::model::Item {
+            nome: "Diamond".to_string(),
+            quantidade: 1,
+            preco_unitario: 0.0,
+            valor_total: 0.0,
+            is_resource: false,
+            preco_input: String::new(),
+        }];
+        app.craft_recipes_cache = vec![ScrapedCraftRecipe {
+            profession: CraftProfession::Stylist,
+            rank: CraftRank::E,
+            name: "Diamond Dust (20x)".to_string(),
+            ingredients: vec![CraftIngredient {
+                name: "Diamond".to_string(),
+                quantity: 1.0,
+            }],
+        }];
+        app.rebuild_craft_recipe_name_index();
+
+        start_save_recipe_prompt(&mut app, true);
+
+        assert!(app.awaiting_craft_name);
+        assert_eq!(app.pending_craft_name, "Diamond Dust (20x)");
         assert!(app.focus_craft_name_input);
     }
 }
