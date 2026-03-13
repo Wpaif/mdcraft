@@ -11,8 +11,14 @@
 //! * `ui` – the implementation of `eframe::App` and the main view.
 
 use crate::model::Item;
+use crate::data::wiki_scraper::{
+    ScrapeRefreshData, ScrapedItem, embedded_resource_names, embedded_wiki_items,
+};
 use dark_light::Mode;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::mpsc::Receiver;
+use std::time::Instant;
 
 // `Item` is needed for the application state. Parser functions and formatter are
 // now imported in `ui.rs` where the UI logic lives.
@@ -68,6 +74,15 @@ pub struct MdcraftApp {
     pub awaiting_export_json: bool,
     pub export_json_output: String,
     pub export_feedback: Option<String>,
+    pub wiki_sync_feedback: Option<String>,
+    pub wiki_cached_items: Vec<ScrapedItem>,
+    pub wiki_http_etag_cache: HashMap<String, String>,
+    pub wiki_http_last_modified_cache: HashMap<String, String>,
+    pub wiki_refresh_in_progress: bool,
+    pub wiki_refresh_rx: Option<Receiver<Result<ScrapeRefreshData, String>>>,
+    pub wiki_sync_success_anim_started_at: Option<Instant>,
+    pub wiki_refresh_started_on_launch: bool,
+    pub wiki_last_sync_unix_seconds: Option<u64>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -76,6 +91,13 @@ struct AppSettings {
     follow_system_theme: Option<bool>,
     #[serde(default)]
     saved_crafts: Vec<SavedCraft>,
+    #[serde(default)]
+    wiki_cached_items: Vec<ScrapedItem>,
+    #[serde(default)]
+    wiki_http_etag_cache: HashMap<String, String>,
+    #[serde(default)]
+    wiki_http_last_modified_cache: HashMap<String, String>,
+    wiki_last_sync_unix_seconds: Option<u64>,
 }
 
 impl MdcraftApp {
@@ -93,6 +115,12 @@ impl MdcraftApp {
                 app.follow_system_theme = follow_system_theme;
             }
             app.saved_crafts = settings.saved_crafts;
+            if !settings.wiki_cached_items.is_empty() {
+                app.wiki_cached_items = settings.wiki_cached_items;
+            }
+            app.wiki_http_etag_cache = settings.wiki_http_etag_cache;
+            app.wiki_http_last_modified_cache = settings.wiki_http_last_modified_cache;
+            app.wiki_last_sync_unix_seconds = settings.wiki_last_sync_unix_seconds;
         }
 
         app
@@ -103,6 +131,10 @@ impl MdcraftApp {
             theme: Some(self.theme),
             follow_system_theme: Some(self.follow_system_theme),
             saved_crafts: self.saved_crafts.clone(),
+            wiki_cached_items: self.wiki_cached_items.clone(),
+            wiki_http_etag_cache: self.wiki_http_etag_cache.clone(),
+            wiki_http_last_modified_cache: self.wiki_http_last_modified_cache.clone(),
+            wiki_last_sync_unix_seconds: self.wiki_last_sync_unix_seconds,
         };
 
         if let Ok(raw) = serde_json::to_string(&settings) {
@@ -114,46 +146,14 @@ impl MdcraftApp {
 impl Default for MdcraftApp {
     fn default() -> Self {
         let system_theme = detect_system_theme();
+        let wiki_cached_items = embedded_wiki_items();
+        let resource_list = embedded_resource_names();
 
         Self {
             input_text: String::new(),
             items: Vec::new(),
             sell_price_input: String::new(),
-            resource_list: vec![
-                "tech data".to_string(),
-                "iron ore".to_string(),
-                "iron bar".to_string(),
-                "platinum bar".to_string(),
-                "platinum ore".to_string(),
-                "pure grass".to_string(),
-                "minor seed bag".to_string(),
-                "condensed grass".to_string(),
-                "nature energy".to_string(),
-                "major seed bag".to_string(),
-                "pure strong grass".to_string(),
-                "condensed strong grass".to_string(),
-                "strong nature energy".to_string(),
-                "darkrai essence".to_string(),
-                "dew becker".to_string(),
-                "study note".to_string(),
-                "log".to_string(),
-                "style point".to_string(),
-                "refined style point".to_string(),
-                "planks".to_string(),
-                "refined fashion point".to_string(),
-                "oak planks".to_string(),
-                "fashion point".to_string(),
-                "purpleheart log".to_string(),
-                "nightmare style point".to_string(),
-                "drawing clipboard".to_string(),
-                "Gold Coins".to_string(),
-                "Gold Bar".to_string(),
-                "Cooking Token".to_string(),
-                "Hidden Relic".to_string(),
-                "Corrupted Gold Bar".to_string(),
-                "Food Bag".to_string(),
-                "Strange Gold Bar".to_string(),
-            ],
+            resource_list,
             fonts_loaded: false,
             theme: system_theme,
             follow_system_theme: true,
@@ -170,6 +170,15 @@ impl Default for MdcraftApp {
             awaiting_export_json: false,
             export_json_output: String::new(),
             export_feedback: None,
+            wiki_sync_feedback: None,
+            wiki_cached_items,
+            wiki_http_etag_cache: HashMap::new(),
+            wiki_http_last_modified_cache: HashMap::new(),
+            wiki_refresh_in_progress: false,
+            wiki_refresh_rx: None,
+            wiki_sync_success_anim_started_at: None,
+            wiki_refresh_started_on_launch: false,
+            wiki_last_sync_unix_seconds: None,
         }
     }
 }
@@ -181,6 +190,7 @@ mod tests {
     use eframe::{CreationContext, Storage, egui};
 
     use super::{APP_SETTINGS_KEY, AppSettings, MdcraftApp, SavedCraft, Theme, detect_system_theme};
+    use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
 
     #[derive(Default)]
     struct MemoryStorage {
@@ -242,6 +252,10 @@ mod tests {
                 recipe_text: "2 Screw".to_string(),
                 sell_price_input: "4k".to_string(),
             }],
+            wiki_cached_items: vec![],
+            wiki_http_etag_cache: HashMap::new(),
+            wiki_http_last_modified_cache: HashMap::new(),
+            wiki_last_sync_unix_seconds: None,
         };
 
         let mut storage = MemoryStorage::default();
@@ -284,6 +298,10 @@ mod tests {
             theme: Some(Theme::Dark),
             follow_system_theme: None,
             saved_crafts: vec![],
+            wiki_cached_items: vec![],
+            wiki_http_etag_cache: HashMap::new(),
+            wiki_http_last_modified_cache: HashMap::new(),
+            wiki_last_sync_unix_seconds: None,
         };
 
         let mut storage = MemoryStorage::default();
@@ -298,5 +316,54 @@ mod tests {
         let app = MdcraftApp::from_creation_context(&cc);
         assert_eq!(app.theme, Theme::Dark);
         assert!(app.follow_system_theme);
+    }
+
+    #[test]
+    fn from_creation_context_restores_wiki_cache_and_keeps_resource_seed() {
+        let settings = AppSettings {
+            theme: None,
+            follow_system_theme: None,
+            saved_crafts: vec![],
+            wiki_cached_items: vec![
+                ScrapedItem {
+                    name: "Ancient Wire".to_string(),
+                    npc_price: Some("12k".to_string()),
+                    sources: vec![WikiSource::Loot],
+                },
+                ScrapedItem {
+                    name: "Gear Nose".to_string(),
+                    npc_price: None,
+                    sources: vec![WikiSource::Nightmare],
+                },
+            ],
+            wiki_http_etag_cache: HashMap::from([(String::from("https://wiki"), String::from("etag1"))]),
+            wiki_http_last_modified_cache: HashMap::from([(
+                String::from("https://wiki"),
+                String::from("Wed, 21 Oct 2015 07:28:00 GMT"),
+            )]),
+            wiki_last_sync_unix_seconds: Some(1_700_000_000),
+        };
+
+        let mut storage = MemoryStorage::default();
+        storage.set_string(
+            APP_SETTINGS_KEY,
+            serde_json::to_string(&settings).expect("settings should serialize"),
+        );
+
+        let mut cc = CreationContext::_new_kittest(egui::Context::default());
+        cc.storage = Some(&storage);
+
+        let app = MdcraftApp::from_creation_context(&cc);
+        assert_eq!(app.wiki_cached_items.len(), 2);
+        assert!(app.resource_list.contains(&"tech data".to_string()));
+        assert!(!app.resource_list.contains(&"ancient wire".to_string()));
+        assert_eq!(app.wiki_http_etag_cache.get("https://wiki").map(String::as_str), Some("etag1"));
+        assert_eq!(
+            app.wiki_http_last_modified_cache
+                .get("https://wiki")
+                .map(String::as_str),
+            Some("Wed, 21 Oct 2015 07:28:00 GMT")
+        );
+        assert_eq!(app.wiki_last_sync_unix_seconds, Some(1_700_000_000));
     }
 }

@@ -1,9 +1,37 @@
 use eframe::egui;
 use serde::{Deserialize, Serialize};
+use std::sync::mpsc::{self, TryRecvError};
+use std::thread;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::app::{MdcraftApp, SavedCraft};
+use crate::data::wiki_scraper::{
+    ScrapeRefreshData, ScrapedItem, merge_item_lists, scrape_all_sources_incremental,
+};
+use crate::parse::parse_price_flag;
 
 use super::{normalize_craft_name, placeholder};
+
+const AUTO_WIKI_SYNC_STALE_AFTER_SECONDS: u64 = 60 * 60 * 24;
+
+fn now_unix_seconds() -> Option<u64> {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .ok()
+        .map(|d| d.as_secs())
+}
+
+fn is_wiki_sync_stale(app: &MdcraftApp) -> bool {
+    let Some(last_sync) = app.wiki_last_sync_unix_seconds else {
+        return true;
+    };
+
+    let Some(now) = now_unix_seconds() else {
+        return true;
+    };
+
+    now.saturating_sub(last_sync) >= AUTO_WIKI_SYNC_STALE_AFTER_SECONDS
+}
 
 fn action_button_colors(ui: &egui::Ui) -> (egui::Color32, egui::Stroke, egui::Color32) {
     let accent = ui.visuals().hyperlink_color;
@@ -176,11 +204,43 @@ pub(super) fn render_sidebar_json_actions(
     content_w: f32,
     has_saved_crafts: bool,
 ) {
+    poll_wiki_refresh_result(app);
+
     ui.add_space(10.0);
     ui.separator();
     ui.add_space(10.0);
 
     let (action_fill, action_stroke, action_text) = action_button_colors(ui);
+
+    let refresh_label = if app.wiki_refresh_in_progress {
+        "Atualizando base de itens (Wiki)..."
+    } else {
+        "Atualizar base de itens (Wiki)"
+    };
+
+    let refresh_clicked = ui
+        .add_enabled(
+            !app.wiki_refresh_in_progress,
+            egui::Button::new(
+                egui::RichText::new(refresh_label)
+                    .strong()
+                    .color(action_text),
+            )
+            .min_size(egui::vec2(content_w, 34.0))
+            .fill(action_fill)
+            .stroke(action_stroke),
+        )
+        .on_hover_text("Faz scraping dos itens no wiki e atualiza a base usada para detectar resources")
+        .clicked();
+
+    handle_sidebar_wiki_refresh_click(app, refresh_clicked);
+
+    if let Some(feedback) = &app.wiki_sync_feedback {
+        ui.add_space(6.0);
+        ui.label(feedback);
+    }
+
+    ui.add_space(8.0);
 
     let import_clicked = ui
         .add_sized(
@@ -326,6 +386,148 @@ fn handle_sidebar_export_click(app: &mut MdcraftApp, export_clicked: bool) {
     if export_clicked {
         let result = open_export_popup(app);
         apply_export_popup_result(app, result);
+    }
+}
+
+fn handle_sidebar_wiki_refresh_click(app: &mut MdcraftApp, refresh_clicked: bool) {
+    if !refresh_clicked {
+        return;
+    }
+
+    if app.wiki_refresh_in_progress {
+        return;
+    }
+
+    app.wiki_refresh_in_progress = true;
+    app.wiki_sync_feedback = Some("Atualizando base de itens em segundo plano...".to_string());
+
+    let existing_cache = app.wiki_cached_items.clone();
+    let existing_etags = app.wiki_http_etag_cache.clone();
+    let existing_last_modified = app.wiki_http_last_modified_cache.clone();
+    let (tx, rx) = mpsc::channel();
+    app.wiki_refresh_rx = Some(rx);
+
+    thread::spawn(move || {
+        let result = refresh_resource_list_from_wiki(
+            &existing_cache,
+            &existing_etags,
+            &existing_last_modified,
+        );
+        let _ = tx.send(result);
+    });
+}
+
+pub(super) fn ensure_wiki_refresh_started(app: &mut MdcraftApp) {
+    if app.wiki_refresh_started_on_launch {
+        return;
+    }
+
+    app.wiki_refresh_started_on_launch = true;
+    if is_wiki_sync_stale(app) {
+        handle_sidebar_wiki_refresh_click(app, true);
+    }
+}
+
+fn apply_cached_npc_prices_to_existing_items(app: &mut MdcraftApp) {
+    for item in &mut app.items {
+        if !item.preco_input.trim().is_empty() {
+            continue;
+        }
+
+        let Some(cached) = app
+            .wiki_cached_items
+            .iter()
+            .find(|entry| entry.name.trim().eq_ignore_ascii_case(item.nome.trim()))
+            .and_then(|entry| entry.npc_price.as_deref())
+        else {
+            continue;
+        };
+
+        let Ok(parsed) = parse_price_flag(cached) else {
+            continue;
+        };
+
+        item.preco_input = cached.to_string();
+        item.preco_unitario = parsed;
+        item.valor_total = parsed * item.quantidade as f64;
+    }
+}
+
+pub(super) fn poll_wiki_refresh_result(app: &mut MdcraftApp) {
+    if !app.wiki_refresh_in_progress {
+        return;
+    }
+
+    let recv_state = app
+        .wiki_refresh_rx
+        .as_ref()
+        .map(|rx| rx.try_recv())
+        .unwrap_or(Err(TryRecvError::Disconnected));
+
+    match recv_state {
+        Ok(result) => {
+            apply_resource_refresh_result(app, result);
+        }
+        Err(TryRecvError::Empty) => {}
+        Err(TryRecvError::Disconnected) => {
+            app.wiki_refresh_in_progress = false;
+            app.wiki_refresh_rx = None;
+            app.wiki_sync_feedback =
+                Some("Sincronização da wiki foi interrompida antes de concluir.".to_string());
+        }
+    }
+}
+
+fn refresh_resource_list_from_wiki(
+    existing_cache: &[ScrapedItem],
+    existing_etags: &std::collections::HashMap<String, String>,
+    existing_last_modified: &std::collections::HashMap<String, String>,
+) -> Result<ScrapeRefreshData, String> {
+    let client = reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(20))
+        .user_agent("mdcraft-wiki-scraper/0.1")
+        .build()
+        .map_err(|err| format!("Falha ao criar cliente HTTP: {err}"))?;
+
+    let data = scrape_all_sources_incremental(
+        &client,
+        existing_cache,
+        existing_etags,
+        existing_last_modified,
+    )
+        .map_err(|err| format!("Falha ao coletar itens do wiki: {err}"))?;
+
+    if data.items.is_empty() && existing_cache.is_empty() {
+        return Err("Nenhum item foi encontrado nas páginas do wiki.".to_string());
+    }
+
+    Ok(data)
+}
+
+fn apply_resource_refresh_result(app: &mut MdcraftApp, result: Result<ScrapeRefreshData, String>) {
+    app.wiki_refresh_in_progress = false;
+    app.wiki_refresh_rx = None;
+
+    match result {
+        Ok(data) => {
+            let merged = merge_item_lists(&app.wiki_cached_items, &data.items);
+            let total = merged.len();
+            let updated_count = data.items.len();
+            app.wiki_cached_items = merged;
+            app.wiki_http_etag_cache = data.etag_cache;
+            app.wiki_http_last_modified_cache = data.last_modified_cache;
+            apply_cached_npc_prices_to_existing_items(app);
+            app.wiki_sync_feedback = Some(format!(
+                "Base de itens sincronizada ({} total, {} atualizados nesta rodada).",
+                total, updated_count
+            ));
+            app.wiki_sync_success_anim_started_at = Some(std::time::Instant::now());
+            app.wiki_last_sync_unix_seconds = now_unix_seconds();
+        }
+        Err(err) => {
+            app.wiki_sync_feedback = Some(err);
+            app.wiki_sync_success_anim_started_at = None;
+        }
     }
 }
 
@@ -562,15 +764,21 @@ pub(super) fn render_export_recipes_popup(ctx: &egui::Context, app: &mut Mdcraft
 #[cfg(test)]
 mod tests {
     use eframe::egui;
+    use std::sync::mpsc;
 
     use crate::app::MdcraftApp;
+    use crate::data::wiki_scraper::{ScrapeRefreshData, ScrapedItem};
     use super::{
-        action_button_colors, apply_export_popup_result, build_export_json, close_export_popup,
-        close_import_popup, format_json_pretty, handle_export_close_click, handle_export_copy_click,
-        handle_import_cancel_click, handle_import_confirm_click, handle_import_format_click,
-        handle_sidebar_export_click, handle_sidebar_import_click, insert_imported_crafts,
-        json_layout_job, mark_export_copied, open_export_popup, open_import_popup,
-        parse_imported_saved_crafts, push_json_text,
+        action_button_colors, apply_export_popup_result, apply_resource_refresh_result,
+        apply_cached_npc_prices_to_existing_items,
+        build_export_json, close_export_popup, close_import_popup,
+        ensure_wiki_refresh_started,
+        format_json_pretty, handle_export_close_click,
+        handle_export_copy_click, handle_import_cancel_click, handle_import_confirm_click,
+        handle_import_format_click, handle_sidebar_export_click, handle_sidebar_import_click,
+        handle_sidebar_wiki_refresh_click, insert_imported_crafts, json_layout_job,
+        mark_export_copied, open_export_popup, open_import_popup, parse_imported_saved_crafts,
+        poll_wiki_refresh_result, push_json_text,
     };
     use crate::app::SavedCraft;
 
@@ -932,5 +1140,152 @@ mod tests {
         handle_export_close_click(&mut app, true);
         assert!(!app.awaiting_export_json);
         assert_eq!(app.export_feedback, None);
+    }
+
+    #[test]
+    fn apply_resource_refresh_result_updates_resources_and_feedback() {
+        let mut app = MdcraftApp::default();
+        let initial_resources = app.resource_list.clone();
+        let initial_len = app.wiki_cached_items.len();
+        apply_resource_refresh_result(
+            &mut app,
+            Ok(ScrapeRefreshData {
+                items: vec![
+                    ScrapedItem {
+                        name: "Ancient Wire".to_string(),
+                        npc_price: Some("12k".to_string()),
+                        sources: vec![],
+                    },
+                    ScrapedItem {
+                        name: "Gear Nose".to_string(),
+                        npc_price: None,
+                        sources: vec![],
+                    },
+                ],
+                etag_cache: std::collections::HashMap::new(),
+                last_modified_cache: std::collections::HashMap::new(),
+            }),
+        );
+
+        assert_eq!(app.resource_list, initial_resources);
+        assert!(app.wiki_cached_items.len() >= initial_len);
+        assert!(app
+            .wiki_sync_feedback
+            .as_deref()
+            .expect("feedback should be set")
+            .contains("sincronizada"));
+    }
+
+    #[test]
+    fn apply_resource_refresh_result_stores_error_feedback() {
+        let mut app = MdcraftApp::default();
+        apply_resource_refresh_result(&mut app, Err("falha".to_string()));
+        assert_eq!(app.wiki_sync_feedback.as_deref(), Some("falha"));
+    }
+
+    #[test]
+    fn handle_sidebar_wiki_refresh_click_noop_when_not_clicked() {
+        let mut app = MdcraftApp::default();
+        let before = app.resource_list.clone();
+        handle_sidebar_wiki_refresh_click(&mut app, false);
+        assert_eq!(app.resource_list, before);
+        assert_eq!(app.wiki_sync_feedback, None);
+    }
+
+    #[test]
+    fn poll_wiki_refresh_result_applies_received_data() {
+        let mut app = MdcraftApp::default();
+        let initial_resources = app.resource_list.clone();
+        let initial_len = app.wiki_cached_items.len();
+        let (tx, rx) = mpsc::channel();
+        app.wiki_refresh_in_progress = true;
+        app.wiki_refresh_rx = Some(rx);
+
+        tx.send(Ok(ScrapeRefreshData {
+            items: vec![ScrapedItem {
+                name: "Ancient Wire".to_string(),
+                npc_price: Some("12k".to_string()),
+                sources: vec![],
+            }],
+            etag_cache: std::collections::HashMap::new(),
+            last_modified_cache: std::collections::HashMap::new(),
+        }))
+        .expect("channel should accept message");
+
+        poll_wiki_refresh_result(&mut app);
+
+        assert!(!app.wiki_refresh_in_progress);
+        assert!(app.wiki_refresh_rx.is_none());
+        assert_eq!(app.resource_list, initial_resources);
+        assert!(app.wiki_cached_items.len() >= initial_len);
+    }
+
+    #[test]
+    fn poll_wiki_refresh_result_handles_disconnected_channel() {
+        let mut app = MdcraftApp::default();
+        let (_tx, rx) = mpsc::channel::<Result<ScrapeRefreshData, String>>();
+        app.wiki_refresh_in_progress = true;
+        app.wiki_refresh_rx = Some(rx);
+
+        // Drop sender to force disconnect before poll.
+        drop(_tx);
+
+        poll_wiki_refresh_result(&mut app);
+
+        assert!(!app.wiki_refresh_in_progress);
+        assert!(app.wiki_refresh_rx.is_none());
+        assert!(app
+            .wiki_sync_feedback
+            .as_deref()
+            .expect("feedback should exist")
+            .contains("interrompida"));
+    }
+
+    #[test]
+    fn ensure_wiki_refresh_started_triggers_once() {
+        let mut app = MdcraftApp::default();
+
+        ensure_wiki_refresh_started(&mut app);
+        assert!(app.wiki_refresh_started_on_launch);
+        assert!(app.wiki_refresh_in_progress);
+        assert!(app.wiki_refresh_rx.is_some());
+
+        let rx_ptr = app
+            .wiki_refresh_rx
+            .as_ref()
+            .map(|rx| rx as *const _)
+            .expect("receiver should exist");
+
+        ensure_wiki_refresh_started(&mut app);
+        let rx_ptr_after = app
+            .wiki_refresh_rx
+            .as_ref()
+            .map(|rx| rx as *const _)
+            .expect("receiver should still exist");
+        assert_eq!(rx_ptr, rx_ptr_after);
+    }
+
+    #[test]
+    fn apply_cached_npc_prices_to_existing_items_fills_empty_recipe_inputs() {
+        let mut app = MdcraftApp::default();
+        app.items = vec![crate::model::Item {
+            nome: "Ancient Wire".to_string(),
+            quantidade: 3,
+            preco_unitario: 0.0,
+            valor_total: 0.0,
+            is_resource: false,
+            preco_input: String::new(),
+        }];
+        app.wiki_cached_items = vec![ScrapedItem {
+            name: "Ancient Wire".to_string(),
+            npc_price: Some("2k".to_string()),
+            sources: vec![],
+        }];
+
+        apply_cached_npc_prices_to_existing_items(&mut app);
+
+        assert_eq!(app.items[0].preco_input, "2k");
+        assert_eq!(app.items[0].preco_unitario, 2000.0);
+        assert_eq!(app.items[0].valor_total, 6000.0);
     }
 }

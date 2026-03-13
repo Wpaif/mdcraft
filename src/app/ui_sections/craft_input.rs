@@ -1,8 +1,31 @@
 use eframe::egui;
 
 use crate::parse::parse_clipboard;
+use crate::parse::parse_price_flag;
 
 use super::{MdcraftApp, autosave_active_craft, placeholder};
+
+fn lookup_cached_npc_price_input(app: &MdcraftApp, item_name: &str) -> Option<String> {
+    let normalized = item_name.trim().to_lowercase();
+    app.wiki_cached_items
+        .iter()
+        .find(|entry| entry.name.trim().to_lowercase() == normalized)
+        .and_then(|entry| entry.npc_price.clone())
+}
+
+fn apply_cached_npc_price_if_available(app: &MdcraftApp, item: &mut crate::model::Item) {
+    let Some(npc_input) = lookup_cached_npc_price_input(app, &item.nome) else {
+        return;
+    };
+
+    if parse_price_flag(&npc_input).is_err() {
+        return;
+    }
+
+    item.preco_input = npc_input;
+    item.preco_unitario = parse_price_flag(&item.preco_input).unwrap_or(0.0);
+    item.valor_total = item.preco_unitario * item.quantidade as f64;
+}
 
 fn rebuild_items_from_input(app: &mut MdcraftApp) {
     let resources: Vec<&str> = app.resource_list.iter().map(AsRef::as_ref).collect();
@@ -14,6 +37,8 @@ fn rebuild_items_from_input(app: &mut MdcraftApp) {
             new_item.preco_input = old_item.preco_input.clone();
             new_item.preco_unitario = old_item.preco_unitario;
             new_item.valor_total = new_item.preco_unitario * new_item.quantidade as f64;
+        } else {
+            apply_cached_npc_price_if_available(app, new_item);
         }
     }
 
@@ -58,10 +83,14 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
 
 #[cfg(test)]
 mod tests {
+    use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
     use crate::app::{MdcraftApp, SavedCraft};
     use crate::model::Item;
 
-    use super::{apply_input_change, rebuild_items_from_input};
+    use super::{
+        apply_cached_npc_price_if_available, apply_input_change, lookup_cached_npc_price_input,
+        rebuild_items_from_input,
+    };
 
     #[test]
     fn rebuild_items_from_input_parses_recipe_and_preserves_prices() {
@@ -129,5 +158,61 @@ mod tests {
         apply_input_change(&mut app, true);
         assert_eq!(app.items.len(), 1);
         assert_eq!(app.items[0].nome, "Iron Ore");
+    }
+
+    #[test]
+    fn lookup_cached_npc_price_input_matches_by_normalized_name() {
+        let mut app = MdcraftApp::default();
+        app.wiki_cached_items.push(ScrapedItem {
+            name: "Test Item Alpha".to_string(),
+            npc_price: Some("12k".to_string()),
+            sources: vec![WikiSource::Loot],
+        });
+
+        let found = lookup_cached_npc_price_input(&app, " test item alpha ");
+        assert_eq!(found.as_deref(), Some("12k"));
+    }
+
+    #[test]
+    fn apply_cached_npc_price_if_available_sets_item_values() {
+        let mut app = MdcraftApp::default();
+        app.wiki_cached_items.push(ScrapedItem {
+            name: "Test Item Beta".to_string(),
+            npc_price: Some("2k".to_string()),
+            sources: vec![WikiSource::Loot],
+        });
+
+        let mut item = Item {
+            nome: "Test Item Beta".to_string(),
+            quantidade: 3,
+            preco_unitario: 0.0,
+            valor_total: 0.0,
+            is_resource: false,
+            preco_input: String::new(),
+        };
+
+        apply_cached_npc_price_if_available(&app, &mut item);
+
+        assert_eq!(item.preco_input, "2k");
+        assert_eq!(item.preco_unitario, 2000.0);
+        assert_eq!(item.valor_total, 6000.0);
+    }
+
+    #[test]
+    fn rebuild_items_from_input_prefills_npc_price_for_new_item() {
+        let mut app = MdcraftApp::default();
+        app.input_text = "2 Test Item Gamma".to_string();
+        app.wiki_cached_items.push(ScrapedItem {
+            name: "Test Item Gamma".to_string(),
+            npc_price: Some("1k".to_string()),
+            sources: vec![WikiSource::Nightmare],
+        });
+
+        rebuild_items_from_input(&mut app);
+
+        assert_eq!(app.items.len(), 1);
+        assert_eq!(app.items[0].preco_input, "1k");
+        assert_eq!(app.items[0].preco_unitario, 1000.0);
+        assert_eq!(app.items[0].valor_total, 2000.0);
     }
 }
