@@ -77,7 +77,8 @@ fn normalized_item_key(name: &str) -> String {
 }
 
 pub(crate) fn normalized_ingredient_key(name: &str) -> String {
-    let key = name.split_whitespace()
+    let key = name
+        .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ")
         .trim()
@@ -158,7 +159,11 @@ fn compose_craft_signature(mut entries: Vec<(String, u64)>) -> Option<String> {
         .collect::<Vec<_>>()
         .join("|");
 
-    if joined.is_empty() { None } else { Some(joined) }
+    if joined.is_empty() {
+        None
+    } else {
+        Some(joined)
+    }
 }
 
 fn recipe_quantity_to_u64(quantity: f64) -> Option<u64> {
@@ -240,11 +245,19 @@ fn is_recipe_multiple_of_items(
 }
 
 pub(crate) fn craft_signature_from_items(items: &[Item]) -> Option<String> {
-    compose_craft_signature(ingredient_quantities_from_items(items).into_iter().collect())
+    compose_craft_signature(
+        ingredient_quantities_from_items(items)
+            .into_iter()
+            .collect(),
+    )
 }
 
 pub(crate) fn craft_signature_from_recipe(recipe: &ScrapedCraftRecipe) -> Option<String> {
-    compose_craft_signature(ingredient_quantities_from_recipe(recipe)?.into_iter().collect())
+    compose_craft_signature(
+        ingredient_quantities_from_recipe(recipe)?
+            .into_iter()
+            .collect(),
+    )
 }
 
 pub(crate) fn infer_craft_name_from_items(
@@ -486,7 +499,8 @@ impl MdcraftApp {
     }
 
     pub(crate) fn rebuild_craft_recipe_name_index(&mut self) {
-        self.craft_recipe_name_by_signature = build_craft_recipe_name_index(&self.craft_recipes_cache);
+        self.craft_recipe_name_by_signature =
+            build_craft_recipe_name_index(&self.craft_recipes_cache);
     }
 }
 
@@ -768,7 +782,9 @@ mod tests {
 
     #[test]
     fn infer_craft_name_identifies_after_fuzzy_resolution() {
-        use crate::data::wiki_scraper::{CraftIngredient, CraftProfession, CraftRank, ScrapedCraftRecipe};
+        use crate::data::wiki_scraper::{
+            CraftIngredient, CraftProfession, CraftRank, ScrapedCraftRecipe,
+        };
         use crate::model::Item;
 
         let recipes = vec![ScrapedCraftRecipe {
@@ -776,16 +792,36 @@ mod tests {
             rank: CraftRank::S,
             name: "Drone".to_string(),
             ingredients: vec![
-                CraftIngredient { name: "Brutal Fins".to_string(), quantity: 35.0 },
-                CraftIngredient { name: "Metal Scraps".to_string(), quantity: 500.0 },
+                CraftIngredient {
+                    name: "Brutal Fins".to_string(),
+                    quantity: 35.0,
+                },
+                CraftIngredient {
+                    name: "Metal Scraps".to_string(),
+                    quantity: 500.0,
+                },
             ],
         }];
         let index = super::build_craft_recipe_name_index(&recipes);
 
         // Usuário digita singular + typo — deve identificar via fuzzy.
         let items = vec![
-            Item { nome: "Brutall Fin".to_string(), quantidade: 35, preco_unitario: 0.0, valor_total: 0.0, is_resource: false, preco_input: String::new() },
-            Item { nome: "Metal Scrap".to_string(), quantidade: 500, preco_unitario: 0.0, valor_total: 0.0, is_resource: true, preco_input: String::new() },
+            Item {
+                nome: "Brutall Fin".to_string(),
+                quantidade: 35,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: false,
+                preco_input: String::new(),
+            },
+            Item {
+                nome: "Metal Scrap".to_string(),
+                quantidade: 500,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: true,
+                preco_input: String::new(),
+            },
         ];
 
         let result = super::infer_craft_name_from_items(&items, &recipes, &index);
