@@ -1,8 +1,6 @@
 use eframe::egui;
 
-use crate::app::{
-    MdcraftApp, SavedCraft, apply_saved_item_prices, capture_saved_item_prices,
-};
+use crate::app::{MdcraftApp, SavedCraft, apply_saved_item_prices, capture_saved_item_prices};
 use crate::parse::parse_clipboard;
 
 use super::{json_io, normalize_craft_name, placeholder};
@@ -46,11 +44,7 @@ fn sidebar_header_bg_color(
     hovered_bg: egui::Color32,
     inactive_bg: egui::Color32,
 ) -> egui::Color32 {
-    if hovered {
-        hovered_bg
-    } else {
-        inactive_bg
-    }
+    if hovered { hovered_bg } else { inactive_bg }
 }
 
 pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f32) {
@@ -370,7 +364,8 @@ mod tests {
     fn render_sidebar_content_handles_saved_recipes_list() {
         let mut app = MdcraftApp::default();
         app.sidebar_open = true;
-        app.saved_crafts.push(make_saved_craft("receita a", "1 Iron Ore", "3k"));
+        app.saved_crafts
+            .push(make_saved_craft("receita a", "1 Iron Ore", "3k"));
         app.saved_crafts
             .push(make_saved_craft("receita b", "2 Screw", ""));
         app.active_saved_craft_index = Some(0);
