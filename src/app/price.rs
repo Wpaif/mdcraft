@@ -66,3 +66,42 @@ pub fn paint_price_status(ui: &mut egui::Ui, status: PriceStatus) -> egui::Respo
 
     response
 }
+
+#[cfg(test)]
+mod tests {
+    use eframe::egui;
+
+    use super::{PriceStatus, paint_price_status};
+
+    fn paint_and_capture_rect(status: PriceStatus) -> egui::Rect {
+        let ctx = egui::Context::default();
+        let mut rect = None;
+
+        let _ = ctx.run(egui::RawInput::default(), |ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                let response = paint_price_status(ui, status);
+                rect = Some(response.rect);
+            });
+        });
+
+        rect.expect("price status should allocate a response rect")
+    }
+
+    #[test]
+    fn paint_price_status_allocates_expected_size_for_none() {
+        let rect = paint_and_capture_rect(PriceStatus::None);
+        assert_eq!(rect.size(), egui::vec2(18.0, 18.0));
+    }
+
+    #[test]
+    fn paint_price_status_allocates_expected_size_for_ok() {
+        let rect = paint_and_capture_rect(PriceStatus::Ok);
+        assert_eq!(rect.size(), egui::vec2(18.0, 18.0));
+    }
+
+    #[test]
+    fn paint_price_status_allocates_expected_size_for_invalid() {
+        let rect = paint_and_capture_rect(PriceStatus::Invalid);
+        assert_eq!(rect.size(), egui::vec2(18.0, 18.0));
+    }
+}
