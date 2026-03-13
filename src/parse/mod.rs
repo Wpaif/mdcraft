@@ -8,21 +8,19 @@ pub fn parse_price_flag(valor: &str) -> Result<f64, String> {
     }
 
     let parsed = if valor.ends_with("kk") {
-        let numero = valor
-            .trim_end_matches("kk")
+        let numero = normalize_numeric_literal(valor.trim_end_matches("kk"))
             .parse::<f64>()
             .map_err(|_| "valor inválido")?;
 
         numero * 1_000_000.0
     } else if valor.ends_with('k') {
-        let numero = valor
-            .trim_end_matches('k')
+        let numero = normalize_numeric_literal(valor.trim_end_matches('k'))
             .parse::<f64>()
             .map_err(|_| "valor inválido")?;
 
         numero * 1_000.0
     } else {
-        valor
+        normalize_numeric_literal(&valor)
             .parse::<f64>()
             .map_err(|_| "valor inválido".to_string())?
     };
@@ -32,6 +30,27 @@ pub fn parse_price_flag(valor: &str) -> Result<f64, String> {
     }
 
     Ok(parsed)
+}
+
+fn normalize_numeric_literal(raw: &str) -> String {
+    let candidate = raw.trim();
+    let dot_count = candidate.chars().filter(|&c| c == '.').count();
+
+    if dot_count > 1 {
+        return candidate.replace('.', "");
+    }
+
+    if let Some((left, right)) = candidate.split_once('.') {
+        if !left.is_empty()
+            && right.len() == 3
+            && left.chars().all(|c| c.is_ascii_digit())
+            && right.chars().all(|c| c.is_ascii_digit())
+        {
+            return format!("{left}{right}");
+        }
+    }
+
+    candidate.to_string()
 }
 
 pub fn parse_clipboard(clipboard_content: &str, resource_list: &[&str]) -> Vec<Item> {
@@ -105,9 +124,11 @@ mod tests {
     fn parse_price_flag_parses_plain_and_comma_numbers() {
         let plain = parse_price_flag("123.45").expect("plain number should parse");
         let comma = parse_price_flag("123,45").expect("comma decimal should parse");
+        let thousand = parse_price_flag("50.000").expect("thousand separator should parse");
 
         approx_eq(plain, 123.45);
         approx_eq(comma, 123.45);
+        approx_eq(thousand, 50_000.0);
     }
 
     #[test]

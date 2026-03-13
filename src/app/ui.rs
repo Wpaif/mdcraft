@@ -1,7 +1,8 @@
 use eframe::egui;
+use std::time::Duration;
 
 use super::detect_system_theme;
-use super::sidebar::render_sidebar;
+use super::sidebar::{poll_sidebar_background_tasks, render_sidebar};
 use super::styles::{setup_custom_styles, setup_emoji_support};
 use super::ui_sections::{
     collect_found_resources, render_closing, render_craft_input, render_items_and_values,
@@ -116,8 +117,73 @@ fn render_theme_toggle_area(app: &mut super::MdcraftApp, ctx: &egui::Context) {
         });
 }
 
+fn render_wiki_sync_success_toast(app: &mut super::MdcraftApp, ctx: &egui::Context) {
+    let Some(started_at) = app.wiki_sync_success_anim_started_at else {
+        return;
+    };
+
+    let total = Duration::from_millis(2600);
+    let elapsed = started_at.elapsed();
+
+    if elapsed >= total {
+        app.wiki_sync_success_anim_started_at = None;
+        return;
+    }
+
+    let t = (elapsed.as_secs_f32() / total.as_secs_f32()).clamp(0.0, 1.0);
+    let fade_in = (t / 0.18).clamp(0.0, 1.0);
+    let fade_out = ((1.0 - t) / 0.24).clamp(0.0, 1.0);
+    let alpha = (fade_in * fade_out).clamp(0.0, 1.0);
+    let y_offset = (1.0 - fade_in) * 14.0;
+
+    egui::Area::new(egui::Id::new("wiki_sync_success_toast"))
+        .order(egui::Order::Foreground)
+        .anchor(egui::Align2::RIGHT_BOTTOM, egui::vec2(-22.0, -22.0 + y_offset))
+        .show(ctx, |ui| {
+            let bg = egui::Color32::from_rgba_unmultiplied(26, 127, 55, (225.0 * alpha) as u8);
+            let stroke = egui::Stroke::new(
+                1.0,
+                egui::Color32::from_rgba_unmultiplied(193, 255, 214, (200.0 * alpha) as u8),
+            );
+
+            egui::Frame::new()
+                .fill(bg)
+                .stroke(stroke)
+                .corner_radius(egui::CornerRadius::same(10))
+                .inner_margin(egui::Margin::symmetric(12, 10))
+                .show(ui, |ui| {
+                    ui.label(
+                        egui::RichText::new("Base de precos atualizada")
+                            .strong()
+                            .color(egui::Color32::WHITE),
+                    );
+                    ui.label(
+                        egui::RichText::new("Dados sincronizados com a wiki")
+                            .size(12.0)
+                            .color(egui::Color32::from_rgb(228, 255, 237)),
+                    );
+                });
+        });
+
+    ctx.request_repaint();
+}
+
+fn apply_sidebar_toggle_shortcut(app: &mut super::MdcraftApp, ctx: &egui::Context) {
+    let toggle_pressed = ctx.input_mut(|i| {
+        i.consume_shortcut(&egui::KeyboardShortcut::new(
+            egui::Modifiers::CTRL,
+            egui::Key::E,
+        ))
+    });
+    if toggle_pressed {
+        app.sidebar_open = !app.sidebar_open;
+    }
+}
+
 impl super::MdcraftApp {
     fn render_main_ui(&mut self, ctx: &egui::Context) {
+        apply_sidebar_toggle_shortcut(self, ctx);
+        poll_sidebar_background_tasks(self);
         render_sidebar(ctx, self);
 
         if !self.fonts_loaded {
@@ -136,6 +202,7 @@ impl super::MdcraftApp {
         }
 
         render_theme_toggle_area(self, ctx);
+        render_wiki_sync_success_toast(self, ctx);
 
         egui::CentralPanel::default().show(ctx, |ui| {
             let available_width = ui.available_width();
@@ -191,10 +258,11 @@ mod tests {
 
     use super::super::{APP_SETTINGS_KEY, MdcraftApp, Theme};
     use super::{
+        apply_sidebar_toggle_shortcut,
         apply_follow_system_theme_if_changed, apply_manual_theme_toggle,
         apply_manual_toggle_if_clicked, close_ui_if_requested, content_padding, manual_toggle_label,
         render_theme_toggle_area, render_theme_toggle_button, render_theme_toggle_menu,
-        render_theme_toggle_menu_content,
+        render_theme_toggle_menu_content, render_wiki_sync_success_toast,
     };
 
     #[derive(Default)]
@@ -398,6 +466,26 @@ mod tests {
     }
 
     #[test]
+    fn render_wiki_sync_success_toast_lifecycle_runs_without_panicking() {
+        let mut app = MdcraftApp::default();
+        app.wiki_sync_success_anim_started_at = Some(std::time::Instant::now());
+
+        let ctx = egui::Context::default();
+        let _ = ctx.run(egui::RawInput::default(), |ctx| {
+            render_wiki_sync_success_toast(&mut app, ctx);
+        });
+
+        app.wiki_sync_success_anim_started_at = Some(
+            std::time::Instant::now() - std::time::Duration::from_secs(10),
+        );
+        let _ = ctx.run(egui::RawInput::default(), |ctx| {
+            render_wiki_sync_success_toast(&mut app, ctx);
+        });
+
+        assert!(app.wiki_sync_success_anim_started_at.is_none());
+    }
+
+    #[test]
     fn render_theme_toggle_area_handles_pointer_click_on_menu_button() {
         let mut app = MdcraftApp::default();
         let ctx = egui::Context::default();
@@ -475,5 +563,56 @@ mod tests {
         apply_follow_system_theme_if_changed(&mut app, &ctx, true);
 
         assert_eq!(app.theme, expected);
+    }
+
+    #[test]
+    fn apply_sidebar_toggle_shortcut_toggles_with_ctrl_e() {
+        let mut app = MdcraftApp::default();
+        app.sidebar_open = true;
+
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.modifiers = egui::Modifiers {
+            ctrl: true,
+            ..Default::default()
+        };
+        input.events.push(egui::Event::Key {
+            key: egui::Key::E,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers {
+                ctrl: true,
+                ..Default::default()
+            },
+        });
+
+        let _ = ctx.run(input, |ctx| {
+            apply_sidebar_toggle_shortcut(&mut app, ctx);
+        });
+
+        assert!(!app.sidebar_open);
+    }
+
+    #[test]
+    fn apply_sidebar_toggle_shortcut_ignores_plain_e() {
+        let mut app = MdcraftApp::default();
+        app.sidebar_open = true;
+
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.events.push(egui::Event::Key {
+            key: egui::Key::E,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers::NONE,
+        });
+
+        let _ = ctx.run(input, |ctx| {
+            apply_sidebar_toggle_shortcut(&mut app, ctx);
+        });
+
+        assert!(app.sidebar_open);
     }
 }

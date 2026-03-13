@@ -60,6 +60,11 @@ pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
     json_io::render_export_recipes_popup(ctx, app);
 }
 
+pub(super) fn poll_sidebar_background_tasks(app: &mut MdcraftApp) {
+    json_io::ensure_wiki_refresh_started(app);
+    json_io::poll_wiki_refresh_result(app);
+}
+
 #[cfg(test)]
 mod tests {
     use eframe::egui;

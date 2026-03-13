@@ -35,6 +35,11 @@ pub(super) fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut Md
         return;
     };
 
+    if ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+        app.pending_delete_index = None;
+        return;
+    }
+
     if idx >= app.saved_crafts.len() {
         app.pending_delete_index = None;
         return;
@@ -140,6 +145,7 @@ mod tests {
             name: "Receita X".to_string(),
             recipe_text: "1 Iron Ore".to_string(),
             sell_price_input: "2k".to_string(),
+            item_prices: vec![],
         });
         app.pending_delete_index = Some(0);
 
@@ -152,12 +158,42 @@ mod tests {
     }
 
     #[test]
+    fn delete_popup_closes_on_escape() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "Receita X".to_string(),
+            recipe_text: "1 Iron Ore".to_string(),
+            sell_price_input: "2k".to_string(),
+            item_prices: vec![],
+        });
+        app.pending_delete_index = Some(0);
+
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.events.push(egui::Event::Key {
+            key: egui::Key::Escape,
+            physical_key: None,
+            pressed: true,
+            repeat: false,
+            modifiers: egui::Modifiers::NONE,
+        });
+
+        let _ = ctx.run(input, |ctx| {
+            render_delete_confirmation_popup(ctx, &mut app);
+        });
+
+        assert_eq!(app.pending_delete_index, None);
+        assert_eq!(app.saved_crafts.len(), 1);
+    }
+
+    #[test]
     fn apply_delete_recipe_clears_active_when_deleting_active_item() {
         let mut app = MdcraftApp::default();
         app.saved_crafts.push(SavedCraft {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
         app.pending_delete_index = Some(0);
@@ -176,11 +212,13 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.saved_crafts.push(SavedCraft {
             name: "B".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(1);
         app.pending_delete_index = Some(0);
@@ -199,11 +237,13 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.saved_crafts.push(SavedCraft {
             name: "B".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
         app.pending_delete_index = Some(1);
@@ -234,6 +274,7 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.pending_delete_index = Some(0);
 
