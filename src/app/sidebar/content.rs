@@ -5,6 +5,52 @@ use crate::parse::parse_clipboard;
 
 use super::{json_io, normalize_craft_name, placeholder};
 
+fn apply_pending_sidebar_actions(
+    app: &mut MdcraftApp,
+    pending_click_delete: Option<usize>,
+    pending_click_select: Option<usize>,
+) {
+    if let Some(idx) = pending_click_delete {
+        app.pending_delete_index = Some(idx);
+    }
+
+    if let Some(idx) = pending_click_select {
+        load_saved_craft_for_edit(app, idx);
+    }
+}
+
+fn toggle_sidebar(app: &mut MdcraftApp, clicked: bool) {
+    if clicked {
+        app.sidebar_open = !app.sidebar_open;
+    }
+}
+
+fn set_pending_action(slot: &mut Option<usize>, idx: usize, clicked: bool) {
+    if clicked {
+        *slot = Some(idx);
+    }
+}
+
+fn start_save_recipe_prompt(app: &mut MdcraftApp, save_clicked: bool) {
+    if save_clicked {
+        app.awaiting_craft_name = true;
+        app.pending_craft_name.clear();
+        app.focus_craft_name_input = true;
+    }
+}
+
+fn sidebar_header_bg_color(
+    hovered: bool,
+    hovered_bg: egui::Color32,
+    inactive_bg: egui::Color32,
+) -> egui::Color32 {
+    if hovered {
+        hovered_bg
+    } else {
+        inactive_bg
+    }
+}
+
 pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f32) {
     let content_w = content_w.max(120.0);
     let has_saved_crafts = !app.saved_crafts.is_empty();
@@ -25,12 +71,7 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                 let save_clicked = ui
                     .add_sized([content_w, 32.0], egui::Button::new("Salvar receita atual"))
                     .clicked();
-
-                if save_clicked {
-                    app.awaiting_craft_name = true;
-                    app.pending_craft_name.clear();
-                    app.focus_craft_name_input = true;
-                }
+                start_save_recipe_prompt(app, save_clicked);
             } else {
                 ui.label(egui::RichText::new("Adicione uma receita para salvar").weak());
             }
@@ -151,10 +192,11 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                                 let name_resp = ui
                                     .add_sized([text_width, icon_size], name_btn)
                                     .on_hover_text(hover_details);
-
-                                if name_resp.clicked() {
-                                    pending_click_select = Some(idx);
-                                }
+                                set_pending_action(
+                                    &mut pending_click_select,
+                                    idx,
+                                    name_resp.clicked(),
+                                );
 
                                 let delete_btn = egui::Button::new(
                                     egui::RichText::new("🗑")
@@ -171,23 +213,14 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                                     .add_sized([icon_size, icon_size], delete_btn)
                                     .on_hover_text("Excluir receita")
                                     .clicked();
-
-                                if delete_clicked {
-                                    pending_click_delete = Some(idx);
-                                }
+                                set_pending_action(&mut pending_click_delete, idx, delete_clicked);
                             },
                         );
                     });
                     ui.add_space(6.0);
                 }
 
-                if let Some(idx) = pending_click_delete {
-                    app.pending_delete_index = Some(idx);
-                }
-
-                if let Some(idx) = pending_click_select {
-                    load_saved_craft_for_edit(app, idx);
-                }
+                apply_pending_sidebar_actions(app, pending_click_delete, pending_click_select);
             }
         });
 
@@ -212,11 +245,11 @@ pub(super) fn render_sidebar_header(ui: &mut egui::Ui, app: &mut MdcraftApp) {
         let toggle_icon = if app.sidebar_open { "◀" } else { "▶" };
         let (rect, resp) = ui.allocate_exact_size(egui::vec2(28.0, 28.0), egui::Sense::click());
 
-        let bg = if resp.hovered() {
-            ui.visuals().widgets.hovered.bg_fill
-        } else {
-            ui.visuals().widgets.inactive.bg_fill
-        };
+        let bg = sidebar_header_bg_color(
+            resp.hovered(),
+            ui.visuals().widgets.hovered.bg_fill,
+            ui.visuals().widgets.inactive.bg_fill,
+        );
         ui.painter()
             .rect_filled(rect, egui::CornerRadius::same(6), bg);
         ui.painter().text(
@@ -227,9 +260,7 @@ pub(super) fn render_sidebar_header(ui: &mut egui::Ui, app: &mut MdcraftApp) {
             ui.visuals().text_color(),
         );
 
-        if resp.clicked() {
-            app.sidebar_open = !app.sidebar_open;
-        }
+        toggle_sidebar(app, resp.clicked());
 
         if app.sidebar_open {
             ui.label(egui::RichText::new("RECEITAS").strong());
@@ -243,7 +274,27 @@ mod tests {
 
     use crate::app::{MdcraftApp, SavedCraft};
 
-    use super::{load_saved_craft_for_edit, render_sidebar_content, render_sidebar_header};
+    use super::{
+        apply_pending_sidebar_actions, load_saved_craft_for_edit, render_sidebar_content,
+        render_sidebar_header, set_pending_action, sidebar_header_bg_color,
+        start_save_recipe_prompt, toggle_sidebar,
+    };
+
+    fn run_sidebar_content_with_events(
+        app: &mut MdcraftApp,
+        events: Vec<egui::Event>,
+        content_w: f32,
+    ) {
+        let ctx = egui::Context::default();
+        let mut input = egui::RawInput::default();
+        input.events = events;
+
+        let _ = ctx.run(input, |ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                render_sidebar_content(ui, app, content_w);
+            });
+        });
+    }
 
     fn make_saved_craft(name: &str, recipe_text: &str, sell_price_input: &str) -> SavedCraft {
         SavedCraft {
@@ -292,5 +343,187 @@ mod tests {
                 render_sidebar_content(ui, &mut app, 220.0);
             });
         });
+    }
+
+    #[test]
+    fn render_sidebar_content_handles_saved_recipes_list() {
+        let mut app = MdcraftApp::default();
+        app.sidebar_open = true;
+        app.saved_crafts.push(make_saved_craft("receita a", "1 Iron Ore", "3k"));
+        app.saved_crafts
+            .push(make_saved_craft("receita b", "2 Screw", ""));
+        app.active_saved_craft_index = Some(0);
+
+        let ctx = egui::Context::default();
+        let _ = ctx.run(egui::RawInput::default(), |ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                render_sidebar_content(ui, &mut app, 260.0);
+            });
+        });
+
+        assert_eq!(app.saved_crafts.len(), 2);
+    }
+
+    #[test]
+    fn sidebar_header_bg_color_selects_hover_or_inactive_color() {
+        let hovered = sidebar_header_bg_color(
+            true,
+            egui::Color32::from_rgb(10, 20, 30),
+            egui::Color32::from_rgb(40, 50, 60),
+        );
+        assert_eq!(hovered, egui::Color32::from_rgb(10, 20, 30));
+
+        let inactive = sidebar_header_bg_color(
+            false,
+            egui::Color32::from_rgb(10, 20, 30),
+            egui::Color32::from_rgb(40, 50, 60),
+        );
+        assert_eq!(inactive, egui::Color32::from_rgb(40, 50, 60));
+    }
+
+    #[test]
+    fn render_sidebar_content_handles_pending_name_input_state() {
+        let mut app = MdcraftApp::default();
+        app.sidebar_open = true;
+        app.awaiting_craft_name = true;
+        app.focus_craft_name_input = true;
+        app.pending_craft_name = "Minha Receita".to_string();
+        app.input_text = "1 Iron Ore".to_string();
+        app.items = vec![crate::model::Item {
+            nome: "Iron Ore".to_string(),
+            quantidade: 1,
+            preco_unitario: 0.0,
+            valor_total: 0.0,
+            is_resource: true,
+            preco_input: String::new(),
+        }];
+
+        run_sidebar_content_with_events(&mut app, vec![], 260.0);
+
+        assert!(app.awaiting_craft_name);
+    }
+
+    #[test]
+    fn render_sidebar_content_escape_cancels_name_prompt() {
+        let mut app = MdcraftApp::default();
+        app.awaiting_craft_name = true;
+        app.pending_craft_name = "Tmp".to_string();
+        app.focus_craft_name_input = true;
+
+        run_sidebar_content_with_events(
+            &mut app,
+            vec![egui::Event::Key {
+                key: egui::Key::Escape,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers: egui::Modifiers::NONE,
+            }],
+            260.0,
+        );
+
+        assert!(!app.awaiting_craft_name);
+        assert!(app.pending_craft_name.is_empty());
+        assert!(!app.focus_craft_name_input);
+    }
+
+    #[test]
+    fn render_sidebar_content_enter_saves_pending_recipe_name() {
+        let mut app = MdcraftApp::default();
+        app.awaiting_craft_name = true;
+        app.pending_craft_name = "nova receita".to_string();
+        app.input_text = "1 Iron Ore".to_string();
+        app.sell_price_input = "9k".to_string();
+        app.active_saved_craft_index = Some(1);
+
+        run_sidebar_content_with_events(
+            &mut app,
+            vec![egui::Event::Key {
+                key: egui::Key::Enter,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers: egui::Modifiers::NONE,
+            }],
+            260.0,
+        );
+
+        assert!(!app.awaiting_craft_name);
+        assert_eq!(app.saved_crafts.len(), 1);
+        assert_eq!(app.saved_crafts[0].name, "Nova Receita");
+        assert_eq!(app.saved_crafts[0].sell_price_input, "9k");
+        assert_eq!(app.active_saved_craft_index, Some(2));
+    }
+
+    #[test]
+    fn render_sidebar_content_enter_uses_fallback_name_when_blank() {
+        let mut app = MdcraftApp::default();
+        app.awaiting_craft_name = true;
+        app.pending_craft_name = "   ".to_string();
+        app.input_text = "1 Iron Ore".to_string();
+
+        run_sidebar_content_with_events(
+            &mut app,
+            vec![egui::Event::Key {
+                key: egui::Key::Enter,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers: egui::Modifiers::NONE,
+            }],
+            260.0,
+        );
+
+        assert_eq!(app.saved_crafts[0].name, "Receita 1");
+    }
+
+    #[test]
+    fn apply_pending_sidebar_actions_sets_delete_and_selects_recipe() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts
+            .push(make_saved_craft("receita a", "1 Iron Ore", "3k"));
+
+        apply_pending_sidebar_actions(&mut app, Some(0), Some(0));
+
+        assert_eq!(app.pending_delete_index, Some(0));
+        assert_eq!(app.active_saved_craft_index, Some(0));
+    }
+
+    #[test]
+    fn toggle_sidebar_flips_only_when_clicked() {
+        let mut app = MdcraftApp::default();
+        app.sidebar_open = true;
+
+        toggle_sidebar(&mut app, false);
+        assert!(app.sidebar_open);
+
+        toggle_sidebar(&mut app, true);
+        assert!(!app.sidebar_open);
+    }
+
+    #[test]
+    fn set_pending_action_respects_clicked_flag() {
+        let mut slot = None;
+
+        set_pending_action(&mut slot, 1, false);
+        assert_eq!(slot, None);
+
+        set_pending_action(&mut slot, 3, true);
+        assert_eq!(slot, Some(3));
+    }
+
+    #[test]
+    fn start_save_recipe_prompt_only_changes_state_on_click() {
+        let mut app = MdcraftApp::default();
+        app.pending_craft_name = "keep".to_string();
+
+        start_save_recipe_prompt(&mut app, false);
+        assert!(!app.awaiting_craft_name);
+        assert_eq!(app.pending_craft_name, "keep");
+
+        start_save_recipe_prompt(&mut app, true);
+        assert!(app.awaiting_craft_name);
+        assert!(app.pending_craft_name.is_empty());
+        assert!(app.focus_craft_name_input);
     }
 }

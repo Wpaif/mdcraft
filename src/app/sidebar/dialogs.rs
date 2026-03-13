@@ -2,6 +2,34 @@ use eframe::egui;
 
 use crate::app::MdcraftApp;
 
+fn apply_delete_recipe(app: &mut MdcraftApp, idx: usize) {
+    app.saved_crafts.remove(idx);
+
+    if let Some(active_idx) = app.active_saved_craft_index {
+        app.active_saved_craft_index = if active_idx == idx {
+            None
+        } else if active_idx > idx {
+            Some(active_idx - 1)
+        } else {
+            Some(active_idx)
+        };
+    }
+
+    app.pending_delete_index = None;
+}
+
+fn handle_cancel_delete_click(app: &mut MdcraftApp, clicked: bool) {
+    if clicked {
+        app.pending_delete_index = None;
+    }
+}
+
+fn handle_confirm_delete_click(app: &mut MdcraftApp, idx: usize, clicked: bool) {
+    if clicked {
+        apply_delete_recipe(app, idx);
+    }
+}
+
 pub(super) fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut MdcraftApp) {
     let Some(idx) = app.pending_delete_index else {
         return;
@@ -49,17 +77,15 @@ pub(super) fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut Md
             ui.horizontal(|ui| {
                 ui.add_space(left_pad);
 
-                if ui
+                let cancel_clicked = ui
                     .add_sized(
                         [button_width, row_height],
                         egui::Button::new("Cancelar").fill(cancel_fill),
                     )
-                    .clicked()
-                {
-                    app.pending_delete_index = None;
-                }
+                    .clicked();
+                handle_cancel_delete_click(app, cancel_clicked);
 
-                if ui
+                let delete_clicked = ui
                     .add_sized(
                         [button_width, row_height],
                         egui::Button::new(
@@ -69,22 +95,8 @@ pub(super) fn render_delete_confirmation_popup(ctx: &egui::Context, app: &mut Md
                         )
                         .fill(delete_fill),
                     )
-                    .clicked()
-                {
-                    app.saved_crafts.remove(idx);
-
-                    if let Some(active_idx) = app.active_saved_craft_index {
-                        app.active_saved_craft_index = if active_idx == idx {
-                            None
-                        } else if active_idx > idx {
-                            Some(active_idx - 1)
-                        } else {
-                            Some(active_idx)
-                        };
-                    }
-
-                    app.pending_delete_index = None;
-                }
+                    .clicked();
+                handle_confirm_delete_click(app, idx, delete_clicked);
             });
         });
 }
@@ -95,7 +107,10 @@ mod tests {
 
     use crate::app::{MdcraftApp, SavedCraft};
 
-    use super::render_delete_confirmation_popup;
+    use super::{
+        apply_delete_recipe, handle_cancel_delete_click, handle_confirm_delete_click,
+        render_delete_confirmation_popup,
+    };
 
     #[test]
     fn delete_popup_returns_early_when_no_pending_index() {
@@ -134,5 +149,100 @@ mod tests {
 
         assert_eq!(app.saved_crafts.len(), 1);
         assert_eq!(app.pending_delete_index, Some(0));
+    }
+
+    #[test]
+    fn apply_delete_recipe_clears_active_when_deleting_active_item() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "A".to_string(),
+            recipe_text: String::new(),
+            sell_price_input: String::new(),
+        });
+        app.active_saved_craft_index = Some(0);
+        app.pending_delete_index = Some(0);
+
+        apply_delete_recipe(&mut app, 0);
+
+        assert!(app.saved_crafts.is_empty());
+        assert_eq!(app.active_saved_craft_index, None);
+        assert_eq!(app.pending_delete_index, None);
+    }
+
+    #[test]
+    fn apply_delete_recipe_shifts_active_index_when_needed() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "A".to_string(),
+            recipe_text: String::new(),
+            sell_price_input: String::new(),
+        });
+        app.saved_crafts.push(SavedCraft {
+            name: "B".to_string(),
+            recipe_text: String::new(),
+            sell_price_input: String::new(),
+        });
+        app.active_saved_craft_index = Some(1);
+        app.pending_delete_index = Some(0);
+
+        apply_delete_recipe(&mut app, 0);
+
+        assert_eq!(app.saved_crafts.len(), 1);
+        assert_eq!(app.active_saved_craft_index, Some(0));
+        assert_eq!(app.pending_delete_index, None);
+    }
+
+    #[test]
+    fn apply_delete_recipe_keeps_active_index_when_before_deleted_item() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "A".to_string(),
+            recipe_text: String::new(),
+            sell_price_input: String::new(),
+        });
+        app.saved_crafts.push(SavedCraft {
+            name: "B".to_string(),
+            recipe_text: String::new(),
+            sell_price_input: String::new(),
+        });
+        app.active_saved_craft_index = Some(0);
+        app.pending_delete_index = Some(1);
+
+        apply_delete_recipe(&mut app, 1);
+
+        assert_eq!(app.saved_crafts.len(), 1);
+        assert_eq!(app.active_saved_craft_index, Some(0));
+        assert_eq!(app.pending_delete_index, None);
+    }
+
+    #[test]
+    fn handle_cancel_delete_click_only_clears_when_clicked() {
+        let mut app = MdcraftApp::default();
+        app.pending_delete_index = Some(2);
+
+        handle_cancel_delete_click(&mut app, false);
+        assert_eq!(app.pending_delete_index, Some(2));
+
+        handle_cancel_delete_click(&mut app, true);
+        assert_eq!(app.pending_delete_index, None);
+    }
+
+    #[test]
+    fn handle_confirm_delete_click_only_deletes_when_clicked() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "A".to_string(),
+            recipe_text: String::new(),
+            sell_price_input: String::new(),
+        });
+        app.pending_delete_index = Some(0);
+
+        handle_confirm_delete_click(&mut app, 0, false);
+        assert_eq!(app.saved_crafts.len(), 1);
+        assert_eq!(app.pending_delete_index, Some(0));
+
+        handle_confirm_delete_click(&mut app, 0, true);
+        assert!(app.saved_crafts.is_empty());
+        assert_eq!(app.pending_delete_index, None);
     }
 }
