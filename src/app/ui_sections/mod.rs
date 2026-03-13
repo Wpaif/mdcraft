@@ -51,3 +51,130 @@ pub(super) fn collect_found_resources(app: &MdcraftApp) -> Vec<(String, u64)> {
         .map(|item| (item.nome.clone(), item.quantidade))
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use eframe::egui;
+
+    use crate::model::Item;
+
+    use super::{
+        MdcraftApp, capitalize_display_name, collect_found_resources, render_closing,
+        render_craft_input, render_items_and_values,
+    };
+
+    fn run_ui_frame(mut f: impl FnMut(&egui::Context)) {
+        egui::__run_test_ctx(|ctx| f(ctx));
+    }
+
+    #[test]
+    fn capitalize_display_name_normalizes_words() {
+        assert_eq!(capitalize_display_name("iron ORE"), "Iron Ore");
+        assert_eq!(capitalize_display_name("  pure   grass  "), "Pure Grass");
+    }
+
+    #[test]
+    fn collect_found_resources_returns_only_resource_items() {
+        let mut app = MdcraftApp::default();
+        app.items = vec![
+            Item {
+                nome: "iron ore".to_string(),
+                quantidade: 12,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: true,
+                preco_input: String::new(),
+            },
+            Item {
+                nome: "screw".to_string(),
+                quantidade: 5,
+                preco_unitario: 100.0,
+                valor_total: 500.0,
+                is_resource: false,
+                preco_input: "100".to_string(),
+            },
+        ];
+
+        let found = collect_found_resources(&app);
+        assert_eq!(found, vec![("iron ore".to_string(), 12)]);
+    }
+
+    #[test]
+    fn render_items_and_values_sums_only_priced_items() {
+        let mut app = MdcraftApp::default();
+        app.items = vec![
+            Item {
+                nome: "iron ore".to_string(),
+                quantidade: 10,
+                preco_unitario: 1.0,
+                valor_total: 10.0,
+                is_resource: true,
+                preco_input: "1".to_string(),
+            },
+            Item {
+                nome: "screw".to_string(),
+                quantidade: 4,
+                preco_unitario: 250.0,
+                valor_total: 1_000.0,
+                is_resource: false,
+                preco_input: "250".to_string(),
+            },
+            Item {
+                nome: "rubber ball".to_string(),
+                quantidade: 2,
+                preco_unitario: 500.0,
+                valor_total: 1_000.0,
+                is_resource: false,
+                preco_input: "500".to_string(),
+            },
+        ];
+
+        let mut total_cost = 0.0;
+        run_ui_frame(|ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                render_items_and_values(ui, &mut app, 900.0, &mut total_cost);
+            });
+        });
+
+        let expected_per_pass = 2_000.0;
+        let passes = total_cost / expected_per_pass;
+        assert!(passes >= 1.0);
+        assert!((passes - passes.round()).abs() < 1e-9);
+    }
+
+    #[test]
+    fn render_craft_input_and_closing_render_without_panicking() {
+        let mut app = MdcraftApp::default();
+        app.input_text = "1 Iron Ore, 2 Screw".to_string();
+        app.sell_price_input = "10k".to_string();
+        app.items = vec![
+            Item {
+                nome: "Iron Ore".to_string(),
+                quantidade: 1,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource: true,
+                preco_input: String::new(),
+            },
+            Item {
+                nome: "Screw".to_string(),
+                quantidade: 2,
+                preco_unitario: 100.5,
+                valor_total: 201.0,
+                is_resource: false,
+                preco_input: "100.5".to_string(),
+            },
+        ];
+
+        let found_resources = collect_found_resources(&app);
+
+        run_ui_frame(|ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                render_craft_input(ui, &mut app, 900.0);
+                render_closing(ui, &mut app, 900.0, 201.0, &found_resources);
+            });
+        });
+
+        assert_eq!(app.sell_price_input, "10k");
+    }
+}
