@@ -1,0 +1,90 @@
+name: Release Native Builds
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  linux-native:
+    name: Linux Native (x64 GNU)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libx11-dev \
+            libxi-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libgl1-mesa-dev \
+            libwayland-dev \
+            libxkbcommon-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Linux binary (native)
+        run: cargo build --release --bin mdcraft
+
+      - name: Package Linux artifact
+        run: |
+          mkdir -p dist
+          cp target/release/mdcraft dist/mdcraft-linux-x64
+          tar -C dist -czf dist/mdcraft-linux-x64.tar.gz mdcraft-linux-x64
+
+      - name: Upload Linux artifact (workflow)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdcraft-linux-x64
+          path: dist/mdcraft-linux-x64.tar.gz
+
+      - name: Attach Linux artifact to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/mdcraft-linux-x64.tar.gz
+
+  windows-native:
+    name: Windows Native (x64 MSVC)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Windows binary (native)
+        shell: pwsh
+        run: cargo build --release --bin mdcraft
+
+      - name: Package Windows artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item target/release/mdcraft.exe dist/mdcraft-windows-x64.exe
+          Compress-Archive -Path dist/mdcraft-windows-x64.exe -DestinationPath dist/mdcraft-windows-x64.zip -Force
+
+      - name: Upload Windows artifact (workflow)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdcraft-windows-x64
+          path: dist/mdcraft-windows-x64.zip
+
+      - name: Attach Windows artifact to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/mdcraft-windows-x64.zip

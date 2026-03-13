@@ -841,7 +841,10 @@ pub(super) fn render_export_recipes_popup(ctx: &egui::Context, app: &mut Mdcraft
                     .auto_shrink([false, false])
                     .show(ui, |ui| {
                         ui.add_sized(
-                            [ui.available_width().max(240.0), ui.available_height().max(160.0)],
+                            [
+                                ui.available_width().max(240.0),
+                                ui.available_height().max(160.0),
+                            ],
                             egui::TextEdit::multiline(&mut app.export_json_output)
                                 .font(egui::TextStyle::Monospace)
                                 .desired_width(f32::INFINITY)
