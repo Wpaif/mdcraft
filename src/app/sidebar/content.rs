@@ -1,6 +1,8 @@
 use eframe::egui;
 
-use crate::app::{MdcraftApp, SavedCraft};
+use crate::app::{
+    MdcraftApp, SavedCraft, apply_saved_item_prices, capture_saved_item_prices,
+};
 use crate::parse::parse_clipboard;
 
 use super::{json_io, normalize_craft_name, placeholder};
@@ -123,6 +125,7 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                             name: normalized_name,
                             recipe_text: app.input_text.clone(),
                             sell_price_input: app.sell_price_input.clone(),
+                            item_prices: capture_saved_item_prices(&app.items),
                         },
                     );
                     app.active_saved_craft_index = app.active_saved_craft_index.map(|idx| idx + 1);
@@ -237,6 +240,7 @@ fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {
 
     let resources: Vec<&str> = app.resource_list.iter().map(AsRef::as_ref).collect();
     app.items = parse_clipboard(&app.input_text, &resources);
+    apply_saved_item_prices(&mut app.items, &craft.item_prices);
     app.active_saved_craft_index = Some(idx);
 }
 
@@ -272,7 +276,7 @@ pub(super) fn render_sidebar_header(ui: &mut egui::Ui, app: &mut MdcraftApp) {
 mod tests {
     use eframe::egui;
 
-    use crate::app::{MdcraftApp, SavedCraft};
+    use crate::app::{MdcraftApp, SavedCraft, SavedItemPrice};
 
     use super::{
         apply_pending_sidebar_actions, load_saved_craft_for_edit, render_sidebar_content,
@@ -301,20 +305,35 @@ mod tests {
             name: name.to_string(),
             recipe_text: recipe_text.to_string(),
             sell_price_input: sell_price_input.to_string(),
+            item_prices: vec![],
         }
     }
 
     #[test]
     fn load_saved_craft_for_edit_updates_active_data() {
         let mut app = MdcraftApp::default();
-        app.saved_crafts
-            .push(make_saved_craft("teste", "2 Iron Ore, 3 Screw", "12k"));
+        app.saved_crafts.push(SavedCraft {
+            name: "teste".to_string(),
+            recipe_text: "2 Iron Ore, 3 Screw".to_string(),
+            sell_price_input: "12k".to_string(),
+            item_prices: vec![SavedItemPrice {
+                item_name: "Screw".to_string(),
+                price_input: "250".to_string(),
+            }],
+        });
 
         load_saved_craft_for_edit(&mut app, 0);
 
         assert_eq!(app.active_saved_craft_index, Some(0));
         assert_eq!(app.sell_price_input, "12k");
         assert!(!app.items.is_empty());
+        let screw = app
+            .items
+            .iter()
+            .find(|i| i.nome == "Screw")
+            .expect("Screw should exist after loading saved craft");
+        assert_eq!(screw.preco_input, "250");
+        assert_eq!(screw.preco_unitario, 250.0);
     }
 
     #[test]

@@ -14,6 +14,7 @@ use crate::model::Item;
 use crate::data::wiki_scraper::{
     ScrapeRefreshData, ScrapedItem, embedded_resource_names, embedded_wiki_items,
 };
+use crate::parse::parse_price_flag;
 use dark_light::Mode;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -43,10 +44,75 @@ pub(super) fn detect_system_theme() -> Theme {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SavedItemPrice {
+    pub item_name: String,
+    pub price_input: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SavedCraft {
     pub name: String,
     pub recipe_text: String,
     pub sell_price_input: String,
+    #[serde(default)]
+    pub item_prices: Vec<SavedItemPrice>,
+}
+
+const FIXED_NPC_PRICE_COMPRESSED_NIGHTMARE_GEMS: &str = "25k";
+
+pub fn fixed_npc_price_input(item_name: &str) -> Option<&'static str> {
+    let normalized = item_name.trim().to_lowercase();
+    if normalized == "compressed nightmare gems" {
+        Some(FIXED_NPC_PRICE_COMPRESSED_NIGHTMARE_GEMS)
+    } else {
+        None
+    }
+}
+
+fn normalized_item_key(name: &str) -> String {
+    name.trim().to_lowercase()
+}
+
+pub fn capture_saved_item_prices(items: &[Item]) -> Vec<SavedItemPrice> {
+    let mut result: Vec<SavedItemPrice> = items
+        .iter()
+        .filter_map(|item| {
+            let price_input = item.preco_input.trim();
+            if price_input.is_empty() {
+                return None;
+            }
+
+            Some(SavedItemPrice {
+                item_name: item.nome.clone(),
+                price_input: price_input.to_string(),
+            })
+        })
+        .collect();
+
+    result.sort_by(|a, b| a.item_name.cmp(&b.item_name));
+    result
+}
+
+pub fn apply_saved_item_prices(items: &mut [Item], saved_prices: &[SavedItemPrice]) {
+    let lookup: HashMap<String, &str> = saved_prices
+        .iter()
+        .map(|saved| (normalized_item_key(&saved.item_name), saved.price_input.as_str()))
+        .collect();
+
+    for item in items {
+        let key = normalized_item_key(&item.nome);
+        let Some(saved_input) = lookup.get(&key).copied() else {
+            continue;
+        };
+
+        let Ok(parsed) = parse_price_flag(saved_input) else {
+            continue;
+        };
+
+        item.preco_input = saved_input.to_string();
+        item.preco_unitario = parsed;
+        item.valor_total = parsed * item.quantidade as f64;
+    }
 }
 
 /// The application state that is passed to `eframe`.
@@ -227,6 +293,7 @@ mod tests {
             name: "Receita A".to_string(),
             recipe_text: "1 Iron Ore".to_string(),
             sell_price_input: "10k".to_string(),
+            item_prices: vec![],
         });
 
         let mut storage = MemoryStorage::default();
@@ -251,6 +318,7 @@ mod tests {
                 name: "Restaurada".to_string(),
                 recipe_text: "2 Screw".to_string(),
                 sell_price_input: "4k".to_string(),
+                item_prices: vec![],
             }],
             wiki_cached_items: vec![],
             wiki_http_etag_cache: HashMap::new(),

@@ -3,8 +3,10 @@ use serde::{Deserialize, Serialize};
 use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use chrono::{Datelike, Local, TimeZone, Timelike};
 
 use crate::app::{MdcraftApp, SavedCraft};
+use crate::app::fixed_npc_price_input;
 use crate::data::wiki_scraper::{
     ScrapeRefreshData, ScrapedItem, merge_item_lists, scrape_all_sources_incremental,
 };
@@ -12,7 +14,8 @@ use crate::parse::parse_price_flag;
 
 use super::{normalize_craft_name, placeholder};
 
-const AUTO_WIKI_SYNC_STALE_AFTER_SECONDS: u64 = 60 * 60 * 24;
+const AUTO_WIKI_SYNC_TRIGGER_HOUR: u32 = 7;
+const AUTO_WIKI_SYNC_TRIGGER_MINUTE: u32 = 40;
 
 fn now_unix_seconds() -> Option<u64> {
     SystemTime::now()
@@ -21,16 +24,52 @@ fn now_unix_seconds() -> Option<u64> {
         .map(|d| d.as_secs())
 }
 
-fn is_wiki_sync_stale(app: &MdcraftApp) -> bool {
+fn local_timestamp_to_day_and_minute(unix_seconds: u64) -> Option<(i32, u32, u32)> {
+    let date_time = Local.timestamp_opt(unix_seconds as i64, 0).single()?;
+    let minute_of_day = date_time.hour() * 60 + date_time.minute();
+    Some((date_time.year(), date_time.ordinal(), minute_of_day))
+}
+
+fn has_reached_auto_sync_window(unix_seconds: u64) -> bool {
+    let Some((_, _, minute_of_day)) = local_timestamp_to_day_and_minute(unix_seconds) else {
+        return false;
+    };
+
+    let trigger_minute = AUTO_WIKI_SYNC_TRIGGER_HOUR * 60 + AUTO_WIKI_SYNC_TRIGGER_MINUTE;
+    minute_of_day >= trigger_minute
+}
+
+fn is_same_local_day(left_unix_seconds: u64, right_unix_seconds: u64) -> bool {
+    let Some((left_year, left_ordinal, _)) = local_timestamp_to_day_and_minute(left_unix_seconds) else {
+        return false;
+    };
+    let Some((right_year, right_ordinal, _)) =
+        local_timestamp_to_day_and_minute(right_unix_seconds)
+    else {
+        return false;
+    };
+
+    left_year == right_year && left_ordinal == right_ordinal
+}
+
+fn did_sync_today_after_window(last_sync_unix_seconds: u64, now_unix_seconds: u64) -> bool {
+    if !is_same_local_day(last_sync_unix_seconds, now_unix_seconds) {
+        return false;
+    }
+
+    has_reached_auto_sync_window(last_sync_unix_seconds)
+}
+
+fn should_start_auto_wiki_sync(app: &MdcraftApp, now_unix_seconds: u64) -> bool {
+    if !has_reached_auto_sync_window(now_unix_seconds) {
+        return false;
+    }
+
     let Some(last_sync) = app.wiki_last_sync_unix_seconds else {
         return true;
     };
 
-    let Some(now) = now_unix_seconds() else {
-        return true;
-    };
-
-    now.saturating_sub(last_sync) >= AUTO_WIKI_SYNC_STALE_AFTER_SECONDS
+    !did_sync_today_after_window(last_sync, now_unix_seconds)
 }
 
 fn action_button_colors(ui: &egui::Ui) -> (egui::Color32, egui::Stroke, egui::Color32) {
@@ -337,6 +376,7 @@ fn insert_imported_crafts(app: &mut MdcraftApp, crafts: Vec<SavedCraft>) -> usiz
                 name,
                 recipe_text: craft.recipe_text,
                 sell_price_input: craft.sell_price_input,
+                item_prices: craft.item_prices,
             },
         );
         imported += 1;
@@ -418,12 +458,25 @@ fn handle_sidebar_wiki_refresh_click(app: &mut MdcraftApp, refresh_clicked: bool
 }
 
 pub(super) fn ensure_wiki_refresh_started(app: &mut MdcraftApp) {
-    if app.wiki_refresh_started_on_launch {
+    app.wiki_refresh_started_on_launch = true;
+
+    if app.wiki_refresh_in_progress {
         return;
     }
 
-    app.wiki_refresh_started_on_launch = true;
-    if is_wiki_sync_stale(app) {
+    let Some(now) = now_unix_seconds() else {
+        return;
+    };
+
+    ensure_wiki_refresh_started_at(app, now);
+}
+
+fn ensure_wiki_refresh_started_at(app: &mut MdcraftApp, now_unix_seconds: u64) {
+    if app.wiki_refresh_in_progress {
+        return;
+    }
+
+    if should_start_auto_wiki_sync(app, now_unix_seconds) {
         handle_sidebar_wiki_refresh_click(app, true);
     }
 }
@@ -434,12 +487,14 @@ fn apply_cached_npc_prices_to_existing_items(app: &mut MdcraftApp) {
             continue;
         }
 
-        let Some(cached) = app
+        let cached = app
             .wiki_cached_items
             .iter()
             .find(|entry| entry.name.trim().eq_ignore_ascii_case(item.nome.trim()))
             .and_then(|entry| entry.npc_price.as_deref())
-        else {
+            .or_else(|| fixed_npc_price_input(&item.nome));
+
+        let Some(cached) = cached else {
             continue;
         };
 
@@ -765,6 +820,7 @@ pub(super) fn render_export_recipes_popup(ctx: &egui::Context, app: &mut Mdcraft
 mod tests {
     use eframe::egui;
     use std::sync::mpsc;
+    use chrono::{Datelike, Duration as ChronoDuration, Local, TimeZone};
 
     use crate::app::MdcraftApp;
     use crate::data::wiki_scraper::{ScrapeRefreshData, ScrapedItem};
@@ -772,13 +828,14 @@ mod tests {
         action_button_colors, apply_export_popup_result, apply_resource_refresh_result,
         apply_cached_npc_prices_to_existing_items,
         build_export_json, close_export_popup, close_import_popup,
-        ensure_wiki_refresh_started,
+        did_sync_today_after_window, ensure_wiki_refresh_started,
+        ensure_wiki_refresh_started_at,
         format_json_pretty, handle_export_close_click,
         handle_export_copy_click, handle_import_cancel_click, handle_import_confirm_click,
         handle_import_format_click, handle_sidebar_export_click, handle_sidebar_import_click,
-        handle_sidebar_wiki_refresh_click, insert_imported_crafts, json_layout_job,
+        handle_sidebar_wiki_refresh_click, has_reached_auto_sync_window, insert_imported_crafts, json_layout_job,
         mark_export_copied, open_export_popup, open_import_popup, parse_imported_saved_crafts,
-        poll_wiki_refresh_result, push_json_text,
+        poll_wiki_refresh_result, push_json_text, should_start_auto_wiki_sync,
     };
     use crate::app::SavedCraft;
 
@@ -787,6 +844,7 @@ mod tests {
             name: name.to_string(),
             recipe_text: "1 Iron Ore".to_string(),
             sell_price_input: "10k".to_string(),
+            item_prices: vec![],
         }
     }
 
@@ -921,11 +979,13 @@ mod tests {
                     name: "nova receita".to_string(),
                     recipe_text: "1 X".to_string(),
                     sell_price_input: "2k".to_string(),
+                    item_prices: vec![],
                 },
                 SavedCraft {
                     name: " ".to_string(),
                     recipe_text: "1 Y".to_string(),
                     sell_price_input: "3k".to_string(),
+                    item_prices: vec![],
                 },
             ],
         );
@@ -1241,27 +1301,94 @@ mod tests {
             .contains("interrompida"));
     }
 
+    fn local_timestamp_at(hour: u32, minute: u32) -> u64 {
+        let now = Local::now();
+        Local
+            .with_ymd_and_hms(now.year(), now.month(), now.day(), hour, minute, 0)
+            .single()
+            .expect("valid local datetime")
+            .timestamp() as u64
+    }
+
+    fn timestamp_of_previous_local_day(hour: u32, minute: u32) -> u64 {
+        let now = Local::now();
+        let today = Local
+            .with_ymd_and_hms(now.year(), now.month(), now.day(), hour, minute, 0)
+            .single()
+            .expect("valid local datetime");
+
+        (today - ChronoDuration::days(1)).timestamp() as u64
+    }
+
     #[test]
-    fn ensure_wiki_refresh_started_triggers_once() {
+    fn auto_sync_window_only_after_0740() {
+        let before = local_timestamp_at(7, 39);
+        let at = local_timestamp_at(7, 40);
+        let after = local_timestamp_at(8, 5);
+
+        assert!(!has_reached_auto_sync_window(before));
+        assert!(has_reached_auto_sync_window(at));
+        assert!(has_reached_auto_sync_window(after));
+    }
+
+    #[test]
+    fn should_start_auto_wiki_sync_runs_once_per_day_after_window() {
         let mut app = MdcraftApp::default();
+        let now_after_window = local_timestamp_at(8, 0);
+
+        assert!(should_start_auto_wiki_sync(&app, now_after_window));
+
+        app.wiki_last_sync_unix_seconds = Some(now_after_window);
+        assert!(!should_start_auto_wiki_sync(&app, now_after_window));
+
+        app.wiki_last_sync_unix_seconds = Some(local_timestamp_at(6, 0));
+        assert!(should_start_auto_wiki_sync(&app, now_after_window));
+
+        app.wiki_last_sync_unix_seconds = Some(timestamp_of_previous_local_day(8, 0));
+        assert!(should_start_auto_wiki_sync(&app, now_after_window));
+    }
+
+    #[test]
+    fn should_start_auto_wiki_sync_blocks_before_window() {
+        let mut app = MdcraftApp::default();
+        let now_before_window = local_timestamp_at(6, 30);
+
+        assert!(!should_start_auto_wiki_sync(&app, now_before_window));
+
+        app.wiki_last_sync_unix_seconds = Some(timestamp_of_previous_local_day(9, 0));
+        assert!(!should_start_auto_wiki_sync(&app, now_before_window));
+    }
+
+    #[test]
+    fn did_sync_today_after_window_respects_time_threshold() {
+        let now_after_window = local_timestamp_at(9, 0);
+        let today_before_window = local_timestamp_at(7, 0);
+        let today_after_window = local_timestamp_at(8, 0);
+
+        assert!(!did_sync_today_after_window(today_before_window, now_after_window));
+        assert!(did_sync_today_after_window(today_after_window, now_after_window));
+    }
+
+    #[test]
+    fn ensure_wiki_refresh_started_respects_schedule_and_progress_state() {
+        let mut app = MdcraftApp::default();
+        let now_after_window = local_timestamp_at(8, 0);
+        app.wiki_last_sync_unix_seconds = Some(now_after_window);
 
         ensure_wiki_refresh_started(&mut app);
         assert!(app.wiki_refresh_started_on_launch);
+        assert!(!app.wiki_refresh_in_progress);
+        assert!(app.wiki_refresh_rx.is_none());
+
+        app.wiki_last_sync_unix_seconds = Some(timestamp_of_previous_local_day(9, 0));
+        ensure_wiki_refresh_started_at(&mut app, now_after_window);
         assert!(app.wiki_refresh_in_progress);
         assert!(app.wiki_refresh_rx.is_some());
 
-        let rx_ptr = app
-            .wiki_refresh_rx
-            .as_ref()
-            .map(|rx| rx as *const _)
-            .expect("receiver should exist");
+        let rx_ptr = app.wiki_refresh_rx.as_ref().map(|rx| rx as *const _);
 
-        ensure_wiki_refresh_started(&mut app);
-        let rx_ptr_after = app
-            .wiki_refresh_rx
-            .as_ref()
-            .map(|rx| rx as *const _)
-            .expect("receiver should still exist");
+        ensure_wiki_refresh_started_at(&mut app, now_after_window);
+        let rx_ptr_after = app.wiki_refresh_rx.as_ref().map(|rx| rx as *const _);
         assert_eq!(rx_ptr, rx_ptr_after);
     }
 

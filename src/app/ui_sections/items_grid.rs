@@ -1,11 +1,13 @@
 use eframe::egui;
 use std::collections::HashMap;
 
+use crate::app::fixed_npc_price_input;
 use crate::parse::parse_price_flag;
 use crate::units::format_game_units;
 
 use super::super::price::{PriceStatus, paint_price_status};
 use super::MdcraftApp;
+use super::autosave_active_craft;
 use super::capitalize_display_name;
 use super::placeholder;
 
@@ -60,6 +62,12 @@ fn build_npc_price_lookup(app: &MdcraftApp) -> HashMap<String, f64> {
         lookup.insert(entry.name.trim().to_lowercase(), parsed);
     }
 
+    if let Some(raw_price) = fixed_npc_price_input("Compressed Nightmare Gems")
+        && let Ok(parsed) = parse_price_flag(raw_price)
+    {
+        lookup.insert("compressed nightmare gems".to_string(), parsed);
+    }
+
     lookup
 }
 
@@ -102,7 +110,11 @@ fn npc_price_for_item(item: &crate::model::Item, npc_lookup: &HashMap<String, f6
     npc_lookup.get(&item.nome.trim().to_lowercase()).copied()
 }
 
-fn paint_npc_price_icon(ui: &mut egui::Ui, has_npc_price: bool, is_equal_to_npc: bool) -> egui::Response {
+fn paint_npc_price_icon(
+    ui: &mut egui::Ui,
+    has_npc_price: bool,
+    is_equal_to_npc: bool,
+) -> egui::Response {
     let size = egui::vec2(18.0, 18.0);
     let (rect, response) = ui.allocate_exact_size(size, egui::Sense::click());
 
@@ -240,6 +252,7 @@ pub(crate) fn render_items_and_values(
                                     .spacing([field_gap, 10.0])
                                     .striped(true)
                                     .show(ui, |ui| {
+                                        let mut should_autosave_prices = false;
                                         for _ in 0..column_count {
                                             ui.add_sized(
                                                 [item_w, 20.0],
@@ -356,6 +369,9 @@ pub(crate) fn render_items_and_values(
                                                         .inner;
 
                                                     apply_item_price_if_changed(item, price_changed);
+                                                    if price_changed {
+                                                        should_autosave_prices = true;
+                                                    }
 
                                                     ui.add_sized(
                                                         [total_w, 22.0],
@@ -410,6 +426,7 @@ pub(crate) fn render_items_and_values(
                                                                     apply_item_price_from_input(
                                                                         item,
                                                                     );
+                                                                    should_autosave_prices = true;
                                                                 }
                                                             } else {
                                                                 npc_resp.on_hover_text(
@@ -438,6 +455,10 @@ pub(crate) fn render_items_and_values(
                                                 }
                                             }
                                             ui.end_row();
+                                        }
+
+                                        if should_autosave_prices {
+                                            autosave_active_craft(app);
                                         }
                                     });
                             });
@@ -499,7 +520,10 @@ mod tests {
         let mut invalid = make_item("A", 1, "x", false);
         apply_item_price_from_input(&mut invalid);
         assert_eq!(item_price_status(&invalid), PriceStatus::Invalid);
-        assert_eq!(item_status_hover(PriceStatus::Invalid), Some("Valor Inválido"));
+        assert_eq!(
+            item_status_hover(PriceStatus::Invalid),
+            Some("Valor Inválido")
+        );
 
         let mut ok = make_item("B", 2, "1k", false);
         apply_item_price_from_input(&mut ok);
@@ -586,6 +610,13 @@ mod tests {
             compare_item_price_with_npc(&expensive, &lookup),
             Some(NpcPriceComparison::HigherThanNpc)
         );
+    }
+
+    #[test]
+    fn build_npc_price_lookup_includes_fixed_compressed_nightmare_gems() {
+        let app = MdcraftApp::default();
+        let lookup = build_npc_price_lookup(&app);
+        assert_eq!(lookup.get("compressed nightmare gems").copied(), Some(25_000.0));
     }
 
     #[test]

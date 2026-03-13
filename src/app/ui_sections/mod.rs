@@ -1,5 +1,6 @@
 use eframe::egui;
 
+use crate::app::capture_saved_item_prices;
 use super::MdcraftApp;
 
 mod closing;
@@ -39,6 +40,7 @@ pub(super) fn autosave_active_craft(app: &mut MdcraftApp) {
     if let Some(craft) = app.saved_crafts.get_mut(idx) {
         craft.recipe_text = app.input_text.clone();
         craft.sell_price_input = app.sell_price_input.clone();
+        craft.item_prices = capture_saved_item_prices(&app.items);
     }
 }
 
@@ -184,10 +186,19 @@ mod tests {
         let mut app = MdcraftApp::default();
         app.input_text = "1 Iron Ore".to_string();
         app.sell_price_input = "7k".to_string();
+        app.items = vec![Item {
+            nome: "Iron Ore".to_string(),
+            quantidade: 1,
+            preco_unitario: 120.0,
+            valor_total: 120.0,
+            is_resource: true,
+            preco_input: "120".to_string(),
+        }];
         app.saved_crafts.push(SavedCraft {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
 
@@ -195,6 +206,9 @@ mod tests {
 
         assert_eq!(app.saved_crafts[0].recipe_text, "1 Iron Ore");
         assert_eq!(app.saved_crafts[0].sell_price_input, "7k");
+        assert_eq!(app.saved_crafts[0].item_prices.len(), 1);
+        assert_eq!(app.saved_crafts[0].item_prices[0].item_name, "Iron Ore");
+        assert_eq!(app.saved_crafts[0].item_prices[0].price_input, "120");
     }
 
     #[test]
@@ -206,6 +220,7 @@ mod tests {
             name: "A".to_string(),
             recipe_text: "old".to_string(),
             sell_price_input: "old".to_string(),
+            item_prices: vec![],
         });
 
         autosave_active_craft(&mut app);

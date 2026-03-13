@@ -140,6 +140,7 @@ mod tests {
             name: "Receita X".to_string(),
             recipe_text: "1 Iron Ore".to_string(),
             sell_price_input: "2k".to_string(),
+            item_prices: vec![],
         });
         app.pending_delete_index = Some(0);
 
@@ -158,6 +159,7 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
         app.pending_delete_index = Some(0);
@@ -176,11 +178,13 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.saved_crafts.push(SavedCraft {
             name: "B".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(1);
         app.pending_delete_index = Some(0);
@@ -199,11 +203,13 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.saved_crafts.push(SavedCraft {
             name: "B".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
         app.pending_delete_index = Some(1);
@@ -234,6 +240,7 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.pending_delete_index = Some(0);
 

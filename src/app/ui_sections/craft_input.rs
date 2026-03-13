@@ -1,5 +1,6 @@
 use eframe::egui;
 
+use crate::app::fixed_npc_price_input;
 use crate::parse::parse_clipboard;
 use crate::parse::parse_price_flag;
 
@@ -11,6 +12,7 @@ fn lookup_cached_npc_price_input(app: &MdcraftApp, item_name: &str) -> Option<St
         .iter()
         .find(|entry| entry.name.trim().to_lowercase() == normalized)
         .and_then(|entry| entry.npc_price.clone())
+        .or_else(|| fixed_npc_price_input(item_name).map(ToString::to_string))
 }
 
 fn apply_cached_npc_price_if_available(app: &MdcraftApp, item: &mut crate::model::Item) {
@@ -138,6 +140,7 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
 
@@ -171,6 +174,13 @@ mod tests {
 
         let found = lookup_cached_npc_price_input(&app, " test item alpha ");
         assert_eq!(found.as_deref(), Some("12k"));
+    }
+
+    #[test]
+    fn lookup_cached_npc_price_input_uses_fixed_rule_for_compressed_nightmare_gems() {
+        let app = MdcraftApp::default();
+        let found = lookup_cached_npc_price_input(&app, "Compressed Nightmare Gems");
+        assert_eq!(found.as_deref(), Some("25k"));
     }
 
     #[test]
