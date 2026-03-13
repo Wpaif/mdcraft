@@ -92,7 +92,7 @@ impl eframe::App for super::MdcraftApp {
 
                             ui.add_space(20.0);
 
-                            let mut total_cost: u64 = 0;
+                            let mut total_cost: f64 = 0.0;
                             let found_resources = collect_found_resources(self);
 
                             render_items_and_values(ui, self, content_width, &mut total_cost);

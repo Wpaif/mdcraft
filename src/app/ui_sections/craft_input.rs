@@ -38,7 +38,8 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                         if let Some(old_item) = old_items.iter().find(|o| o.nome == new_item.nome) {
                             new_item.preco_input = old_item.preco_input.clone();
                             new_item.preco_unitario = old_item.preco_unitario;
-                            new_item.valor_total = new_item.preco_unitario * new_item.quantidade;
+                            new_item.valor_total =
+                                new_item.preco_unitario * new_item.quantidade as f64;
                         }
                     }
 

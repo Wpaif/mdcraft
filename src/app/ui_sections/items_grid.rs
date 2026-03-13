@@ -12,7 +12,7 @@ pub(crate) fn render_items_and_values(
     ui: &mut egui::Ui,
     app: &mut MdcraftApp,
     content_width: f32,
-    total_cost: &mut u64,
+    total_cost: &mut f64,
 ) {
     if app.items.is_empty() {
         return;
@@ -160,26 +160,37 @@ pub(crate) fn render_items_and_values(
                                                         &mut item.preco_input,
                                                     )
                                                     .hint_text(placeholder(ui, "0"))
-                                                    .desired_width(price_w - 8.0)
-                                                    .margin(egui::vec2(8.0, 8.0));
+                                                    .desired_width(price_w - 8.0);
 
-                                                    if ui
-                                                        .add_sized([price_w, 24.0], text_edit)
-                                                        .changed()
-                                                    {
+                                                    let price_changed = ui
+                                                        .allocate_ui_with_layout(
+                                                            egui::vec2(price_w, 22.0),
+                                                            egui::Layout::left_to_right(
+                                                                egui::Align::Center,
+                                                            ),
+                                                            |ui| {
+                                                                ui.add_sized(
+                                                                    [price_w, 24.0],
+                                                                    text_edit,
+                                                                )
+                                                                .changed()
+                                                            },
+                                                        )
+                                                        .inner;
+
+                                                    if price_changed {
                                                         item.preco_unitario =
                                                             parse_price_flag(&item.preco_input)
-                                                                .unwrap_or(0);
+                                                                .unwrap_or(0.0);
                                                         item.valor_total =
-                                                            item.preco_unitario * item.quantidade;
+                                                            item.preco_unitario
+                                                                * item.quantidade as f64;
                                                     }
 
                                                     ui.add_sized(
                                                         [total_w, 22.0],
                                                         egui::Label::new(egui::RichText::new(
-                                                            format_game_units(
-                                                                item.valor_total as f64,
-                                                            ),
+                                                            format_game_units(item.valor_total),
                                                         )),
                                                     );
 
@@ -188,7 +199,7 @@ pub(crate) fn render_items_and_values(
                                                             .is_err()
                                                     {
                                                         PriceStatus::Invalid
-                                                    } else if item.valor_total > 0 {
+                                                    } else if item.valor_total > 0.0 {
                                                         PriceStatus::Ok
                                                     } else {
                                                         PriceStatus::None
