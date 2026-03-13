@@ -173,3 +173,130 @@ impl Default for MdcraftApp {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use eframe::{CreationContext, Storage, egui};
+
+    use super::{APP_SETTINGS_KEY, AppSettings, MdcraftApp, SavedCraft, Theme, detect_system_theme};
+
+    #[derive(Default)]
+    struct MemoryStorage {
+        values: HashMap<String, String>,
+    }
+
+    impl Storage for MemoryStorage {
+        fn get_string(&self, key: &str) -> Option<String> {
+            self.values.get(key).cloned()
+        }
+
+        fn set_string(&mut self, key: &str, value: String) {
+            self.values.insert(key.to_string(), value);
+        }
+
+        fn flush(&mut self) {}
+    }
+
+    #[test]
+    fn default_app_starts_with_expected_flags() {
+        let app = MdcraftApp::default();
+        assert!(app.follow_system_theme);
+        assert!(app.sidebar_open);
+        assert!(!app.fonts_loaded);
+        assert!(app.items.is_empty());
+    }
+
+    #[test]
+    fn save_app_settings_writes_json_payload() {
+        let mut app = MdcraftApp::default();
+        app.theme = Theme::Dark;
+        app.follow_system_theme = false;
+        app.saved_crafts.push(SavedCraft {
+            name: "Receita A".to_string(),
+            recipe_text: "1 Iron Ore".to_string(),
+            sell_price_input: "10k".to_string(),
+        });
+
+        let mut storage = MemoryStorage::default();
+        app.save_app_settings(&mut storage);
+
+        let raw = storage
+            .get_string(APP_SETTINGS_KEY)
+            .expect("settings JSON should be stored");
+        assert!(raw.contains("Receita A"));
+
+        storage.flush();
+
+        storage.flush();
+    }
+
+    #[test]
+    fn from_creation_context_restores_saved_settings() {
+        let settings = AppSettings {
+            theme: Some(Theme::Dark),
+            follow_system_theme: Some(false),
+            saved_crafts: vec![SavedCraft {
+                name: "Restaurada".to_string(),
+                recipe_text: "2 Screw".to_string(),
+                sell_price_input: "4k".to_string(),
+            }],
+        };
+
+        let mut storage = MemoryStorage::default();
+        storage.set_string(
+            APP_SETTINGS_KEY,
+            serde_json::to_string(&settings).expect("settings should serialize"),
+        );
+
+        let mut cc = CreationContext::_new_kittest(egui::Context::default());
+        cc.storage = Some(&storage);
+
+        let app = MdcraftApp::from_creation_context(&cc);
+        assert_eq!(app.theme, Theme::Dark);
+        assert!(!app.follow_system_theme);
+        assert_eq!(app.saved_crafts.len(), 1);
+        assert_eq!(app.saved_crafts[0].name, "Restaurada");
+    }
+
+    #[test]
+    fn detect_system_theme_returns_valid_variant() {
+        let theme = detect_system_theme();
+        assert!(matches!(theme, Theme::Light | Theme::Dark));
+    }
+
+    #[test]
+    fn from_creation_context_ignores_invalid_settings_json() {
+        let mut storage = MemoryStorage::default();
+        storage.set_string(APP_SETTINGS_KEY, "{invalid-json".to_string());
+
+        let mut cc = CreationContext::_new_kittest(egui::Context::default());
+        cc.storage = Some(&storage);
+
+        let app = MdcraftApp::from_creation_context(&cc);
+        assert!(app.saved_crafts.is_empty());
+    }
+
+    #[test]
+    fn from_creation_context_applies_partial_settings() {
+        let settings = AppSettings {
+            theme: Some(Theme::Dark),
+            follow_system_theme: None,
+            saved_crafts: vec![],
+        };
+
+        let mut storage = MemoryStorage::default();
+        storage.set_string(
+            APP_SETTINGS_KEY,
+            serde_json::to_string(&settings).expect("settings should serialize"),
+        );
+
+        let mut cc = CreationContext::_new_kittest(egui::Context::default());
+        cc.storage = Some(&storage);
+
+        let app = MdcraftApp::from_creation_context(&cc);
+        assert_eq!(app.theme, Theme::Dark);
+        assert!(app.follow_system_theme);
+    }
+}
