@@ -31,6 +31,7 @@ const APP_SETTINGS_KEY: &str = "mdcraft.app_settings";
 
 mod price;
 mod sidebar;
+mod sqlite;
 mod styles;
 mod theme_state;
 mod ui;
@@ -195,7 +196,17 @@ impl MdcraftApp {
             app.wiki_last_sync_unix_seconds = settings.wiki_last_sync_unix_seconds;
         }
 
+        if let Ok(saved_crafts) = sqlite::load_saved_crafts_from_sqlite() {
+            app.saved_crafts = saved_crafts;
+        }
+
         app
+    }
+
+    pub(crate) fn persist_saved_crafts_to_sqlite(&self) {
+        if let Err(err) = sqlite::save_saved_crafts_to_sqlite(&self.saved_crafts) {
+            eprintln!("Falha ao persistir receitas no SQLite: {err}");
+        }
     }
 
     pub fn save_app_settings(&self, storage: &mut dyn eframe::Storage) {
@@ -212,6 +223,8 @@ impl MdcraftApp {
         if let Ok(raw) = serde_json::to_string(&settings) {
             storage.set_string(APP_SETTINGS_KEY, raw);
         }
+
+        self.persist_saved_crafts_to_sqlite();
     }
 }
 

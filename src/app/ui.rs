@@ -248,6 +248,10 @@ impl eframe::App for super::MdcraftApp {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         self.save_app_settings(storage);
     }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        self.persist_saved_crafts_to_sqlite();
+    }
 }
 
 #[cfg(test)]

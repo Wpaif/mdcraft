@@ -127,6 +127,7 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
                         },
                     );
                     app.active_saved_craft_index = app.active_saved_craft_index.map(|idx| idx + 1);
+                    app.persist_saved_crafts_to_sqlite();
                     app.awaiting_craft_name = false;
                     app.pending_craft_name.clear();
                     app.focus_craft_name_input = false;

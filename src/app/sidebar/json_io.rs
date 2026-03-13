@@ -637,6 +637,8 @@ fn handle_import_confirm_click(app: &mut MdcraftApp, import_clicked: bool) {
 
             let imported = insert_imported_crafts(app, crafts);
 
+            app.persist_saved_crafts_to_sqlite();
+
             app.import_feedback =
                 Some(format!("{} receita(s) importada(s) com sucesso.", imported));
             app.awaiting_import_json = false;

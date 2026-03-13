@@ -24,6 +24,7 @@ O `Mdcraft` foi feito para um fluxo rapido de precificacao:
 - Sincronizacao de precos com wiki em background.
 - Auto-sync diario apos `07:40`
 - Persistencia local de configuracoes, receitas e precos por item.
+- Receitas salvas persistidas em SQLite entre execucoes.
 
 ## Atalhos
 

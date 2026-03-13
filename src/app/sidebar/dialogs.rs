@@ -15,6 +15,7 @@ fn apply_delete_recipe(app: &mut MdcraftApp, idx: usize) {
         };
     }
 
+    app.persist_saved_crafts_to_sqlite();
     app.pending_delete_index = None;
 }
 
