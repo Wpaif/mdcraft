@@ -112,6 +112,10 @@ fn npc_price_for_item(item: &crate::model::Item, npc_lookup: &HashMap<String, f6
     npc_lookup.get(&item.nome.trim().to_lowercase()).copied()
 }
 
+fn should_show_npc_price_icon(item_name: &str) -> bool {
+    !item_name.trim().eq_ignore_ascii_case("diamond")
+}
+
 fn paint_npc_price_icon(
     ui: &mut egui::Ui,
     has_npc_price: bool,
@@ -193,7 +197,7 @@ pub(crate) fn render_items_and_values(
                 ui.label(egui::RichText::new("Itens e Valores").strong().size(16.0));
                 ui.add_space(10.0);
 
-                let available_space_for_cols = (content_width - 10.0).max(300.0);
+                let available_space_for_cols = (ui.available_width() - 10.0).max(300.0);
                 let field_gap = 8.0;
                 let indices_precificaveis: Vec<usize> = app
                     .items
@@ -399,41 +403,43 @@ pub(crate) fn render_items_and_values(
                                                             egui::Align::Center,
                                                         ),
                                                         |ui| {
-                                                            let npc_resp = paint_npc_price_icon(
-                                                                ui,
-                                                                npc_price.is_some(),
-                                                                npc_equal,
-                                                            );
-                                                            let npc_clicked = npc_resp.clicked();
-
-                                                            if let Some(npc_value) = npc_price {
-                                                                let npc_text = format_game_units(
-                                                                    npc_value,
+                                                            if should_show_npc_price_icon(&item.nome) {
+                                                                let npc_resp = paint_npc_price_icon(
+                                                                    ui,
+                                                                    npc_price.is_some(),
+                                                                    npc_equal,
                                                                 );
-                                                                let hover_text = if npc_equal {
-                                                                    format!(
-                                                                        "Preco NPC aplicado ({npc_text}). Clique para reaplicar."
-                                                                    )
-                                                                } else {
-                                                                    format!(
-                                                                        "Preco NPC: {npc_text}. Clique para usar no campo."
-                                                                    )
-                                                                };
-                                                                npc_resp.on_hover_text(
-                                                                    hover_text,
-                                                                );
+                                                                let npc_clicked = npc_resp.clicked();
 
-                                                                if npc_clicked {
-                                                                    item.preco_input = npc_text;
-                                                                    apply_item_price_from_input(
-                                                                        item,
+                                                                if let Some(npc_value) = npc_price {
+                                                                    let npc_text = format_game_units(
+                                                                        npc_value,
                                                                     );
-                                                                    should_autosave_prices = true;
+                                                                    let hover_text = if npc_equal {
+                                                                        format!(
+                                                                            "Preco NPC aplicado ({npc_text}). Clique para reaplicar."
+                                                                        )
+                                                                    } else {
+                                                                        format!(
+                                                                            "Preco NPC: {npc_text}. Clique para usar no campo."
+                                                                        )
+                                                                    };
+                                                                    npc_resp.on_hover_text(
+                                                                        hover_text,
+                                                                    );
+
+                                                                    if npc_clicked {
+                                                                        item.preco_input = npc_text;
+                                                                        apply_item_price_from_input(
+                                                                            item,
+                                                                        );
+                                                                        should_autosave_prices = true;
+                                                                    }
+                                                                } else {
+                                                                    npc_resp.on_hover_text(
+                                                                        "Sem preco NPC para este item",
+                                                                    );
                                                                 }
-                                                            } else {
-                                                                npc_resp.on_hover_text(
-                                                                    "Sem preco NPC para este item",
-                                                                );
                                                             }
 
                                                             let resp =
@@ -481,6 +487,7 @@ mod tests {
         NpcPriceComparison, apply_item_price_from_input, apply_item_price_if_changed,
         build_npc_price_lookup, compare_item_price_with_npc, item_price_status, item_status_hover,
         npc_price_for_item, price_input_stroke, render_empty_item_cells, render_items_and_values,
+        should_show_npc_price_icon,
     };
     use crate::app::price::PriceStatus;
     use crate::data::wiki_scraper::{ScrapedItem, WikiSource};
@@ -650,5 +657,12 @@ mod tests {
         let lookup = build_npc_price_lookup(&app);
         let item = make_item("Screw", 1, "", false);
         assert_eq!(npc_price_for_item(&item, &lookup), Some(1000.0));
+    }
+
+    #[test]
+    fn should_show_npc_price_icon_hides_only_for_diamond() {
+        assert!(!should_show_npc_price_icon("Diamond"));
+        assert!(!should_show_npc_price_icon(" diamond "));
+        assert!(should_show_npc_price_icon("Screw"));
     }
 }
