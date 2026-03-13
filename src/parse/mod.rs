@@ -124,6 +124,12 @@ mod tests {
         assert!(parse_price_flag("abc").is_err());
         assert!(parse_price_flag("-1").is_err());
         assert!(parse_price_flag("inf").is_err());
+        assert!(parse_price_flag("1e309").is_err());
+    }
+
+    #[test]
+    fn parse_price_flag_rejects_invalid_kk_payload() {
+        assert!(parse_price_flag("abcKK").is_err());
     }
 
     #[test]
@@ -157,5 +163,29 @@ mod tests {
         assert!(items[0].is_resource, "woods should match wood");
         assert!(items[1].is_resource, "glasses should match glass");
         assert!(!items[2].is_resource, "iron is not in resource list");
+    }
+
+    #[test]
+    fn parse_clipboard_ignores_empty_segments_between_commas() {
+        let items = parse_clipboard("1 wood,, 2 stone, ,", &["wood", "stone"]);
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].quantidade, 1);
+        assert_eq!(items[1].quantidade, 2);
+    }
+
+    #[test]
+    fn parse_clipboard_ignores_leading_and_trailing_empty_segments() {
+        let items = parse_clipboard(", , 1 wood,   , 2 stone,", &["wood", "stone"]);
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].quantidade, 1);
+        assert_eq!(items[1].quantidade, 2);
+    }
+
+    #[test]
+    fn parse_clipboard_ignores_segments_with_non_numeric_quantity() {
+        let items = parse_clipboard("x wood, 2 stone", &["wood", "stone"]);
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].nome, "stone");
+        assert_eq!(items[0].quantidade, 2);
     }
 }

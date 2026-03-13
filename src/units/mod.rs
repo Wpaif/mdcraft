@@ -53,5 +53,11 @@ mod tests {
     fn format_game_units_trims_trailing_zeros_for_small_decimals() {
         assert_eq!(format_game_units(12.30), "12.3");
         assert_eq!(format_game_units(12.05), "12.05");
+        assert_eq!(format_game_units(12.00), "12");
+    }
+
+    #[test]
+    fn format_game_units_removes_trailing_decimal_dot_when_needed() {
+        assert_eq!(format_game_units(1.000_000_1), "1");
     }
 }
