@@ -74,10 +74,22 @@ fn should_start_auto_wiki_sync(app: &MdcraftApp, now_unix_seconds: u64) -> bool 
 }
 
 fn action_button_colors(ui: &egui::Ui) -> (egui::Color32, egui::Stroke, egui::Color32) {
-    let accent = ui.visuals().hyperlink_color;
-    let fill = egui::Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 56);
-    let stroke = egui::Stroke::new(1.0, accent.gamma_multiply(0.9));
-    let text = ui.visuals().text_color();
+    let is_dark = ui.visuals().dark_mode;
+    let fill = if is_dark {
+        egui::Color32::from_rgb(56, 98, 74)
+    } else {
+        egui::Color32::from_rgb(101, 144, 116)
+    };
+    let stroke = if is_dark {
+        egui::Stroke::new(1.0, egui::Color32::from_rgb(110, 173, 138))
+    } else {
+        egui::Stroke::new(1.0, egui::Color32::from_rgb(78, 120, 95))
+    };
+    let text = if is_dark {
+        egui::Color32::from_rgb(242, 248, 241)
+    } else {
+        egui::Color32::from_rgb(245, 250, 244)
+    };
     (fill, stroke, text)
 }
 
