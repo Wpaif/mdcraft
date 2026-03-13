@@ -24,3 +24,20 @@ impl Theme {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Theme;
+
+    #[test]
+    fn toggle_switches_between_light_and_dark() {
+        assert_eq!(Theme::Light.toggle(), Theme::Dark);
+        assert_eq!(Theme::Dark.toggle(), Theme::Light);
+    }
+
+    #[test]
+    fn visuals_match_expected_mode() {
+        assert!(!Theme::Light.visuals().dark_mode);
+        assert!(Theme::Dark.visuals().dark_mode);
+    }
+}

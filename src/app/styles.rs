@@ -48,3 +48,39 @@ pub fn setup_emoji_support(ctx: &egui::Context) {
 
     ctx.set_fonts(fonts);
 }
+
+#[cfg(test)]
+mod tests {
+    use eframe::egui;
+
+    use super::{setup_custom_styles, setup_emoji_support};
+
+    #[test]
+    fn setup_custom_styles_updates_typography_and_spacing() {
+        let ctx = egui::Context::default();
+        setup_custom_styles(&ctx);
+
+        let style = ctx.style();
+        assert_eq!(style.spacing.item_spacing, egui::vec2(10.0, 10.0));
+        assert_eq!(style.spacing.button_padding, egui::vec2(8.0, 8.0));
+        assert_eq!(style.spacing.text_edit_width, 150.0);
+
+        let heading = style
+            .text_styles
+            .get(&egui::TextStyle::Heading)
+            .expect("heading style should exist");
+        assert_eq!(heading.size, 26.0);
+    }
+
+    #[test]
+    fn setup_emoji_support_allows_rendering_emoji_text() {
+        let ctx = egui::Context::default();
+        setup_emoji_support(&ctx);
+
+        let _ = ctx.run(egui::RawInput::default(), |ctx| {
+            egui::CentralPanel::default().show(ctx, |ui| {
+                ui.label("😀 emoji ready");
+            });
+        });
+    }
+}

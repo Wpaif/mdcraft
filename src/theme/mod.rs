@@ -112,3 +112,34 @@ pub fn doki_dark() -> egui::Visuals {
 
     v
 }
+
+#[cfg(test)]
+mod tests {
+    use eframe::egui;
+
+    use super::{doki_dark, github_light, hex};
+
+    #[test]
+    fn hex_splits_rgb_channels_correctly() {
+        let c = hex(0x12_ab_ef);
+        assert_eq!(c, egui::Color32::from_rgb(0x12, 0xab, 0xef));
+    }
+
+    #[test]
+    fn github_light_uses_expected_palette_points() {
+        let v = github_light();
+        assert_eq!(v.dark_mode, false);
+        assert_eq!(v.panel_fill, egui::Color32::from_rgb(0xf6, 0xf8, 0xfa));
+        assert_eq!(v.hyperlink_color, egui::Color32::from_rgb(0x09, 0x69, 0xda));
+        assert_eq!(v.error_fg_color, egui::Color32::from_rgb(0xd1, 0x24, 0x2f));
+    }
+
+    #[test]
+    fn doki_dark_uses_expected_palette_points() {
+        let v = doki_dark();
+        assert_eq!(v.dark_mode, true);
+        assert_eq!(v.panel_fill, egui::Color32::from_rgb(0x1c, 0x1d, 0x26));
+        assert_eq!(v.hyperlink_color, egui::Color32::from_rgb(0x8b, 0xe9, 0xfd));
+        assert_eq!(v.error_fg_color, egui::Color32::from_rgb(0xff, 0x55, 0x55));
+    }
+}
