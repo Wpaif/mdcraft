@@ -204,12 +204,14 @@ impl super::MdcraftApp {
         render_theme_toggle_area(self, ctx);
         render_wiki_sync_success_toast(self, ctx);
 
-        egui::CentralPanel::default().show(ctx, |ui| {
+        egui::CentralPanel::default()
+            .frame(egui::Frame::NONE)
+            .show(ctx, |ui| {
             let available_width = ui.available_width();
             let padding = content_padding(available_width);
 
             egui::Frame::NONE
-                .fill(ui.visuals().panel_fill)
+                .fill(ui.visuals().window_fill())
                 .inner_margin(egui::Margin::symmetric(padding, 20))
                 .show(ui, |ui| {
                     egui::ScrollArea::vertical()
@@ -243,6 +245,10 @@ impl super::MdcraftApp {
 impl eframe::App for super::MdcraftApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.render_main_ui(ctx);
+    }
+
+    fn clear_color(&self, visuals: &egui::Visuals) -> [f32; 4] {
+        visuals.panel_fill.to_normalized_gamma_f32()
     }
 
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
