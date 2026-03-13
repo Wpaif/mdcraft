@@ -42,6 +42,7 @@ mod sidebar;
 mod sqlite;
 mod styles;
 mod theme_state;
+mod theme_toggle;
 mod ui;
 mod ui_sections;
 
