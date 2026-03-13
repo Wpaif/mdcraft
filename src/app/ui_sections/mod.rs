@@ -6,6 +6,7 @@ use crate::app::capture_saved_item_prices;
 mod closing;
 mod craft_input;
 mod items_grid;
+mod npc_price;
 
 pub(super) use closing::render_closing;
 pub(super) use craft_input::render_craft_input;
