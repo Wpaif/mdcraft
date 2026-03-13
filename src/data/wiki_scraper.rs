@@ -18,8 +18,12 @@ pub enum WikiSource {
 impl WikiSource {
     pub fn url(self) -> &'static str {
         match self {
-            Self::Loot => "https://wiki.pokexgames.com/index.php?title=Itens_de_Loot&mobileaction=toggle_view_desktop",
-            Self::Nightmare => "https://wiki.pokexgames.com/index.php/Nightmare_Itens#Itens_Comuns-0",
+            Self::Loot => {
+                "https://wiki.pokexgames.com/index.php?title=Itens_de_Loot&mobileaction=toggle_view_desktop"
+            }
+            Self::Nightmare => {
+                "https://wiki.pokexgames.com/index.php/Nightmare_Itens#Itens_Comuns-0"
+            }
             Self::DimensionalZone => "https://wiki.pokexgames.com/index.php/Dimensional_Zone_Itens",
         }
     }
@@ -40,8 +44,7 @@ pub struct ScrapeRefreshData {
 }
 
 fn has_npc_price(item: &ScrapedItem) -> bool {
-    item
-        .npc_price
+    item.npc_price
         .as_deref()
         .map(|p| !p.trim().is_empty())
         .unwrap_or(false)
@@ -108,7 +111,7 @@ impl std::error::Error for ScrapeError {}
 #[allow(dead_code)]
 pub fn scrape_all_sources(client: &Client) -> Result<Vec<ScrapedItem>, ScrapeError> {
     scrape_all_sources_incremental(client, &[], &HashMap::new(), &HashMap::new())
-    .map(|data| retain_items_with_npc_price(data.items))
+        .map(|data| retain_items_with_npc_price(data.items))
 }
 
 pub fn scrape_all_sources_incremental(
@@ -185,7 +188,7 @@ pub fn scrape_source(client: &Client, source: WikiSource) -> Result<Vec<ScrapedI
         &HashMap::new(),
         &HashMap::new(),
     )
-        .map(|data| retain_items_with_npc_price(data.items))
+    .map(|data| retain_items_with_npc_price(data.items))
 }
 
 #[allow(dead_code)]
@@ -220,10 +223,10 @@ fn scrape_source_incremental_with_cache(
         etag_cache.get(&source_url),
         last_modified_cache.get(&source_url),
     )
-        .map_err(|err| ScrapeError::Request {
-            source,
-            message: err.to_string(),
-        })? {
+    .map_err(|err| ScrapeError::Request {
+        source,
+        message: err.to_string(),
+    })? {
         CachedFetch::NotModified => {
             return Ok(ScrapeRefreshData {
                 items: Vec::new(),
@@ -560,7 +563,9 @@ fn parse_item_rows_from_html(html: &str, source: WikiSource) -> Vec<ParsedItemRo
     result
 }
 
-fn extract_name_and_detail_path_from_row(cells: &[ElementRef<'_>]) -> Option<(String, Option<String>)> {
+fn extract_name_and_detail_path_from_row(
+    cells: &[ElementRef<'_>],
+) -> Option<(String, Option<String>)> {
     for cell in cells {
         if let Some(name_and_path) = extract_name_and_detail_path_from_links(*cell) {
             return Some(name_and_path);
@@ -581,7 +586,9 @@ fn extract_name_from_row(cells: &[ElementRef<'_>]) -> Option<String> {
     extract_name_and_detail_path_from_row(cells).map(|(name, _)| name)
 }
 
-fn extract_name_and_detail_path_from_links(cell: ElementRef<'_>) -> Option<(String, Option<String>)> {
+fn extract_name_and_detail_path_from_links(
+    cell: ElementRef<'_>,
+) -> Option<(String, Option<String>)> {
     let link_selector = Selector::parse("a[title]").expect("link selector should be valid");
 
     for link in cell.select(&link_selector) {
@@ -812,9 +819,8 @@ mod tests {
     use super::{
         ScrapedItem, WikiSource, clean_cell_text, embedded_resource_names, embedded_wiki_items,
         extract_name_from_row, extract_npc_price_from_item_detail, first_price_token,
-        format_npc_price_value, is_valid_item_name, merge_items, merge_item_lists,
-        normalize_npc_price_text, normalized_resource_names,
-        parse_items_from_html,
+        format_npc_price_value, is_valid_item_name, merge_item_lists, merge_items,
+        normalize_npc_price_text, normalized_resource_names, parse_items_from_html,
     };
     use scraper::{Html, Selector};
     use std::collections::HashMap;
@@ -828,7 +834,10 @@ mod tests {
     #[test]
     fn first_price_token_extracts_k_or_plain_number() {
         assert_eq!(first_price_token("Preco: 12k"), Some("12k".to_string()));
-        assert_eq!(first_price_token("npc 4500 coins"), Some("4.5k".to_string()));
+        assert_eq!(
+            first_price_token("npc 4500 coins"),
+            Some("4.5k".to_string())
+        );
         assert_eq!(
             first_price_token("100.000 dolares (100K)"),
             Some("100k".to_string())
@@ -979,7 +988,10 @@ mod tests {
             },
         ]);
 
-        assert_eq!(names, vec!["ancient wire".to_string(), "gear nose".to_string()]);
+        assert_eq!(
+            names,
+            vec!["ancient wire".to_string(), "gear nose".to_string()]
+        );
     }
 
     #[test]
