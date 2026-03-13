@@ -183,7 +183,10 @@ Para atualizar os arquivos locais de seed:
 cargo run --bin refresh_wiki_seed
 ```
 
-Arquivo de saida principal: `src/data/wiki_items_seed.json`.
+Arquivos de saida:
+
+- `src/data/wiki_items_seed.json`
+- `src/data/wiki_crafts_seed.json`
 
 ## Estrutura do Projeto
 
