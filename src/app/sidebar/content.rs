@@ -35,7 +35,7 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
             let has_recipe = !app.input_text.trim().is_empty() && !app.items.is_empty();
             let has_active = app.active_saved_craft_index.is_some();
             if has_recipe {
-                ui.with_layout(egui::Layout::top_down(egui::Align::Min).with_main_justify(false), |ui| {
+                ui.vertical(|ui| {
                     ui.set_min_width(content_w);
                     let save_new_btn = egui::Button::new(
                         egui::RichText::new("Salvar nova receita")
