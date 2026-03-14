@@ -5,6 +5,54 @@ use crate::app::MdcraftApp;
 use super::actions::{apply_pending_sidebar_actions, set_pending_action};
 use super::super::capitalize_display_name;
 
+fn paint_centered_trash_icon(ui: &egui::Ui, button_rect: egui::Rect, color: egui::Color32) {
+    let painter = ui.painter();
+    let icon_rect = button_rect.shrink2(egui::vec2(5.5, 4.5));
+    let stroke = egui::Stroke::new(1.35, color);
+
+    // Body
+    let body_top = icon_rect.top() + icon_rect.height() * 0.24;
+    let body_rect = egui::Rect::from_min_max(
+        egui::pos2(icon_rect.left() + icon_rect.width() * 0.2, body_top),
+        egui::pos2(icon_rect.right() - icon_rect.width() * 0.2, icon_rect.bottom()),
+    );
+    painter.rect_stroke(
+        body_rect,
+        egui::CornerRadius::same(1),
+        stroke,
+        egui::StrokeKind::Middle,
+    );
+
+    // Lid and handle
+    let lid_y = body_rect.top() - icon_rect.height() * 0.16;
+    painter.line_segment(
+        [
+            egui::pos2(body_rect.left() - 0.6, lid_y),
+            egui::pos2(body_rect.right() + 0.6, lid_y),
+        ],
+        stroke,
+    );
+    painter.line_segment(
+        [
+            egui::pos2(icon_rect.center().x - icon_rect.width() * 0.12, lid_y - 1.8),
+            egui::pos2(icon_rect.center().x + icon_rect.width() * 0.12, lid_y - 1.8),
+        ],
+        stroke,
+    );
+
+    // Inner slots
+    for frac in [0.35_f32, 0.5, 0.65] {
+        let x = egui::lerp(body_rect.left()..=body_rect.right(), frac);
+        painter.line_segment(
+            [
+                egui::pos2(x, body_rect.top() + 1.2),
+                egui::pos2(x, body_rect.bottom() - 1.2),
+            ],
+            stroke,
+        );
+    }
+}
+
 pub(super) fn render_saved_recipes_list(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f32) {
     ui.add_space(12.0);
     ui.separator();
@@ -96,11 +144,9 @@ pub(super) fn render_saved_recipes_list(ui: &mut egui::Ui, app: &mut MdcraftApp,
                             egui::Stroke::new(1.0, egui::Color32::from_rgb(180, 72, 72)),
                             egui::StrokeKind::Middle,
                         );
-                        ui.painter().text(
-                            delete_rect.center(),
-                            egui::Align2::CENTER_CENTER,
-                            "🗑",
-                            egui::FontId::proportional(13.0),
+                        paint_centered_trash_icon(
+                            ui,
+                            delete_rect,
                             egui::Color32::from_rgb(220, 98, 98),
                         );
 
