@@ -2,8 +2,8 @@ use eframe::egui;
 
 use crate::app::MdcraftApp;
 
-use super::actions::{apply_pending_sidebar_actions, set_pending_action};
 use super::super::capitalize_display_name;
+use super::actions::{apply_pending_sidebar_actions, set_pending_action};
 
 fn paint_centered_trash_icon(ui: &egui::Ui, button_rect: egui::Rect, color: egui::Color32) {
     let painter = ui.painter();
@@ -14,7 +14,10 @@ fn paint_centered_trash_icon(ui: &egui::Ui, button_rect: egui::Rect, color: egui
     let body_top = icon_rect.top() + icon_rect.height() * 0.24;
     let body_rect = egui::Rect::from_min_max(
         egui::pos2(icon_rect.left() + icon_rect.width() * 0.2, body_top),
-        egui::pos2(icon_rect.right() - icon_rect.width() * 0.2, icon_rect.bottom()),
+        egui::pos2(
+            icon_rect.right() - icon_rect.width() * 0.2,
+            icon_rect.bottom(),
+        ),
     );
     painter.rect_stroke(
         body_rect,
@@ -108,8 +111,7 @@ pub(super) fn render_saved_recipes_list(ui: &mut egui::Ui, app: &mut MdcraftApp,
                     egui::Layout::left_to_right(egui::Align::Center),
                     |ui| {
                         let text_width =
-                            (content_w - icon_size - ui.spacing().item_spacing.x - 8.0)
-                                .max(80.0);
+                            (content_w - icon_size - ui.spacing().item_spacing.x - 8.0).max(80.0);
 
                         let name_btn = egui::Button::new(
                             egui::RichText::new(&name_text)
@@ -122,11 +124,7 @@ pub(super) fn render_saved_recipes_list(ui: &mut egui::Ui, app: &mut MdcraftApp,
                         let name_resp = ui
                             .add_sized([text_width, icon_size], name_btn)
                             .on_hover_text(hover_details);
-                        set_pending_action(
-                            &mut pending_click_select,
-                            idx,
-                            name_resp.clicked(),
-                        );
+                        set_pending_action(&mut pending_click_select, idx, name_resp.clicked());
 
                         let (delete_rect, delete_resp) = ui.allocate_exact_size(
                             egui::vec2(icon_size, icon_size),
@@ -150,13 +148,8 @@ pub(super) fn render_saved_recipes_list(ui: &mut egui::Ui, app: &mut MdcraftApp,
                             egui::Color32::from_rgb(220, 98, 98),
                         );
 
-                        let delete_clicked =
-                            delete_resp.on_hover_text("Excluir receita").clicked();
-                        set_pending_action(
-                            &mut pending_click_delete,
-                            idx,
-                            delete_clicked,
-                        );
+                        let delete_clicked = delete_resp.on_hover_text("Excluir receita").clicked();
+                        set_pending_action(&mut pending_click_delete, idx, delete_clicked);
                     },
                 );
             });
