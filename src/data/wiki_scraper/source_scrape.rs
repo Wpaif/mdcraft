@@ -5,6 +5,7 @@ use std::time::Duration;
 
 use reqwest::blocking::Client;
 use reqwest::header::{ETAG, IF_MODIFIED_SINCE, IF_NONE_MATCH, LAST_MODIFIED};
+use reqwest::Url;
 
 use super::{
     ScrapeError, ScrapeRefreshData, WikiSource, items_parser, merge,
@@ -13,6 +14,7 @@ use super::{
 const DETAIL_FETCH_WORKERS: usize = 3;
 const DETAIL_FETCH_BASE_DELAY_MS: u64 = 220;
 const DETAIL_FETCH_JITTER_MS: u64 = 180;
+const WIKI_HOST: &str = "wiki.pokexgames.com";
 
 trait HttpCacheClient: Send + Sync {
     fn fetch_url_with_cache(
@@ -150,7 +152,7 @@ fn fill_missing_prices_from_details(
         .filter(|row| row.item.npc_price.is_none())
         .filter(|row| !existing_price_map.contains_key(&items_parser::normalize_key(&row.item.name)))
         .filter_map(|row| row.detail_path.clone())
-        .map(|path| resolve_wiki_url(&path))
+        .filter_map(|path| resolve_wiki_url(&path))
         .filter(|url| seen.insert(url.clone()))
         .collect();
 
@@ -244,7 +246,9 @@ fn fill_missing_prices_from_details(
         let Some(path) = row.detail_path.as_ref() else {
             continue;
         };
-        let resolved = resolve_wiki_url(path);
+        let Some(resolved) = resolve_wiki_url(path) else {
+            continue;
+        };
 
         if let Some(price) = price_map.get(&resolved) {
             row.item.npc_price = Some(price.clone());
@@ -319,20 +323,28 @@ fn fetch_url_with_cache_reqwest(
     })
 }
 
-fn resolve_wiki_url(path_or_url: &str) -> String {
+fn resolve_wiki_url(path_or_url: &str) -> Option<String> {
     if path_or_url.starts_with("http://") || path_or_url.starts_with("https://") {
-        path_or_url.to_string()
+        let Ok(url) = Url::parse(path_or_url) else {
+            return None;
+        };
+
+        if url.scheme() == "https" && url.host_str() == Some(WIKI_HOST) {
+            Some(url.to_string())
+        } else {
+            None
+        }
     } else if path_or_url.starts_with('/') {
-        format!("https://wiki.pokexgames.com{path_or_url}")
+        Some(format!("https://{WIKI_HOST}{path_or_url}"))
     } else {
-        format!("https://wiki.pokexgames.com/{path_or_url}")
+        Some(format!("https://{WIKI_HOST}/{path_or_url}"))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        CachedFetch, HttpCacheClient, scrape_source_incremental_with_http,
+        CachedFetch, HttpCacheClient, resolve_wiki_url, scrape_source_incremental_with_http,
     };
     use super::super::WikiSource;
     use std::collections::HashMap;
@@ -450,5 +462,15 @@ mod tests {
             data.etag_cache.get(&detail_url).map(String::as_str),
             Some("etag-detail")
         );
+    }
+
+    #[test]
+    fn resolve_wiki_url_rejects_external_hosts_and_non_https() {
+        assert_eq!(
+            resolve_wiki_url("https://wiki.pokexgames.com/wiki/ok").as_deref(),
+            Some("https://wiki.pokexgames.com/wiki/ok")
+        );
+        assert_eq!(resolve_wiki_url("https://evil.example/pwn"), None);
+        assert_eq!(resolve_wiki_url("http://wiki.pokexgames.com/wiki/ok"), None);
     }
 }
