@@ -55,6 +55,41 @@ jobs:
         with:
           files: dist/mdcraft-linux-x64.tar.gz
 
+  linux-arm64:
+    name: Linux ARM64 (aarch64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Build Linux ARM64 binary
+        run: cross build --release --target aarch64-unknown-linux-gnu --bin mdcraft
+
+      - name: Package Linux ARM64 artifact as .zip
+        run: |
+          mkdir -p dist
+          cp target/aarch64-unknown-linux-gnu/release/mdcraft dist/mdcraft-linux-aarch64
+          zip -j dist/mdcraft-linux-aarch64.zip dist/mdcraft-linux-aarch64
+
+      - name: Upload Linux ARM64 artifact (workflow)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdcraft-linux-aarch64
+          path: dist/mdcraft-linux-aarch64.zip
+
+      - name: Attach Linux ARM64 artifact to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/mdcraft-linux-aarch64.zip
+
   windows-native:
     name: Windows Native (x64 MSVC)
     runs-on: windows-latest
