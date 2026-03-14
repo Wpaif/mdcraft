@@ -21,8 +21,17 @@ pub(super) fn apply_follow_system_theme_if_changed(
     ctx: &egui::Context,
     changed: bool,
 ) {
+    apply_follow_system_theme_if_changed_with(app, ctx, changed, detect_system_theme);
+}
+
+pub(super) fn apply_follow_system_theme_if_changed_with(
+    app: &mut MdcraftApp,
+    ctx: &egui::Context,
+    changed: bool,
+    detect_theme: impl FnOnce() -> Theme,
+) {
     if changed && app.follow_system_theme {
-        app.theme = detect_system_theme();
+        app.theme = detect_theme();
         ctx.set_visuals(app.theme.visuals());
     }
 }

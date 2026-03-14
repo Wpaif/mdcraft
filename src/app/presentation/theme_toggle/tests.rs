@@ -1,8 +1,9 @@
 use eframe::egui;
 
 use super::logic::{
-    apply_follow_system_theme_if_changed, apply_manual_theme_toggle, apply_manual_toggle_if_clicked,
-    close_ui_if_requested, manual_toggle_label,
+    apply_follow_system_theme_if_changed, apply_follow_system_theme_if_changed_with,
+    apply_manual_theme_toggle, apply_manual_toggle_if_clicked, close_ui_if_requested,
+    manual_toggle_label,
 };
 use super::menu::{
     render_theme_toggle_button, render_theme_toggle_menu, render_theme_toggle_menu_content,
@@ -187,11 +188,10 @@ fn apply_follow_system_theme_if_changed_is_noop_when_follow_disabled() {
 fn apply_follow_system_theme_if_changed_updates_theme_when_enabled() {
     let mut app = MdcraftApp::default();
     app.follow_system_theme = true;
-    let expected = crate::app::detect_system_theme();
-    app.theme = expected.toggle();
+    app.theme = Theme::Light;
 
     let ctx = egui::Context::default();
-    apply_follow_system_theme_if_changed(&mut app, &ctx, true);
+    apply_follow_system_theme_if_changed_with(&mut app, &ctx, true, || Theme::Dark);
 
-    assert_eq!(app.theme, expected);
+    assert_eq!(app.theme, Theme::Dark);
 }
