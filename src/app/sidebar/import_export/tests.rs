@@ -70,6 +70,47 @@ fn parse_imported_saved_crafts_rejects_invalid_json() {
 }
 
 #[test]
+fn parse_imported_saved_crafts_rejects_too_many_crafts() {
+    let mut entries = Vec::new();
+    for i in 0..1_001 {
+        entries.push(format!(
+            "{{\"name\":\"R{i}\",\"recipe_text\":\"1 X\",\"sell_price_input\":\"2k\"}}"
+        ));
+    }
+
+    let raw = format!("[{}]", entries.join(","));
+    let err = parse_imported_saved_crafts(&raw).expect_err("payload must be rejected");
+    assert!(err.contains("receitas demais"));
+}
+
+#[test]
+fn parse_imported_saved_crafts_rejects_oversized_json_payload() {
+    let oversized = " ".repeat(2_000_001);
+    let err = parse_imported_saved_crafts(&oversized).expect_err("payload must be rejected");
+    assert!(err.contains("JSON muito grande"));
+}
+
+#[test]
+fn parse_imported_saved_crafts_sanitizes_control_characters() {
+    let raw = r#"[
+        {
+            "name":"A\u0000\n\t",
+            "recipe_text":"1 Iron Ore\r\n2 Screw\u0007",
+            "sell_price_input":" 9k\u0000 ",
+            "item_prices":[{"item_name":"Screw\u0000","price_input":"2k\u0000"}]
+        }
+    ]"#;
+
+    let crafts = parse_imported_saved_crafts(raw).expect("payload should parse and sanitize");
+    assert_eq!(crafts.len(), 1);
+    assert_eq!(crafts[0].name, "A");
+    assert_eq!(crafts[0].recipe_text, "1 Iron Ore\n2 Screw");
+    assert_eq!(crafts[0].sell_price_input, "9k");
+    assert_eq!(crafts[0].item_prices[0].item_name, "Screw");
+    assert_eq!(crafts[0].item_prices[0].price_input, "2k");
+}
+
+#[test]
 fn format_json_pretty_formats_valid_json() {
     let formatted = format_json_pretty("{\"a\":1}").expect("valid JSON should format");
     assert!(formatted.contains("\n"));
