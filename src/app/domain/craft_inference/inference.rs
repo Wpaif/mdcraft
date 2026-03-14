@@ -5,8 +5,8 @@ use crate::model::Item;
 
 use super::fuzzy::{build_ingredient_vocabulary, fuzzy_resolve_ingredient};
 use super::quantities::{
-    craft_signature_from_items, ingredient_quantities_from_items, ingredient_quantities_from_recipe,
-    is_recipe_multiple_of_items,
+    craft_signature_from_items, ingredient_quantities_from_items,
+    ingredient_quantities_from_recipe, is_recipe_multiple_of_items,
 };
 
 pub(super) fn infer_craft_name_from_items(

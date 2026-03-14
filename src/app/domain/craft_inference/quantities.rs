@@ -103,9 +103,17 @@ pub(super) fn is_recipe_multiple_of_items(
 }
 
 pub(super) fn craft_signature_from_items(items: &[Item]) -> Option<String> {
-    compose_craft_signature(ingredient_quantities_from_items(items).into_iter().collect())
+    compose_craft_signature(
+        ingredient_quantities_from_items(items)
+            .into_iter()
+            .collect(),
+    )
 }
 
 pub(super) fn craft_signature_from_recipe(recipe: &ScrapedCraftRecipe) -> Option<String> {
-    compose_craft_signature(ingredient_quantities_from_recipe(recipe)?.into_iter().collect())
+    compose_craft_signature(
+        ingredient_quantities_from_recipe(recipe)?
+            .into_iter()
+            .collect(),
+    )
 }
