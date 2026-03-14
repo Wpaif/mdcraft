@@ -1,0 +1,103 @@
+use eframe::egui;
+
+use super::detect_system_theme;
+use super::sidebar::{poll_sidebar_background_tasks, render_sidebar};
+use super::styles::{setup_custom_styles, setup_emoji_support};
+use super::theme_toggle::render_theme_toggle_area;
+use super::ui_sections::{
+    collect_found_resources, render_closing, render_craft_input, render_items_and_values,
+};
+
+#[path = "ui/layout.rs"]
+mod layout;
+#[path = "ui/shortcuts.rs"]
+mod shortcuts;
+#[cfg(test)]
+#[path = "ui/tests.rs"]
+mod tests;
+#[path = "ui/toast.rs"]
+mod toast;
+
+use layout::content_padding;
+use shortcuts::apply_sidebar_toggle_shortcut;
+use toast::render_wiki_sync_success_toast;
+
+impl super::MdcraftApp {
+    fn render_main_ui(&mut self, ctx: &egui::Context) {
+        apply_sidebar_toggle_shortcut(self, ctx);
+        poll_sidebar_background_tasks(self);
+        render_sidebar(ctx, self);
+
+        if !self.fonts_loaded {
+            setup_custom_styles(ctx);
+            setup_emoji_support(ctx);
+            ctx.set_visuals(self.theme.visuals());
+            self.fonts_loaded = true;
+        }
+
+        if self.follow_system_theme {
+            let system_theme = detect_system_theme();
+            if self.theme != system_theme {
+                self.theme = system_theme;
+                ctx.set_visuals(self.theme.visuals());
+            }
+        }
+
+        render_theme_toggle_area(self, ctx);
+        render_wiki_sync_success_toast(self, ctx);
+
+        egui::CentralPanel::default()
+            .frame(egui::Frame::NONE)
+            .show(ctx, |ui| {
+            let available_width = ui.available_width();
+            let padding = content_padding(available_width);
+
+            egui::Frame::NONE
+                .fill(ui.visuals().window_fill())
+                .inner_margin(egui::Margin::symmetric(padding, 20))
+                .show(ui, |ui| {
+                    egui::ScrollArea::vertical()
+                        .auto_shrink([false, false])
+                        .show(ui, |ui| {
+                            ui.vertical_centered(|ui| {
+                                ui.heading(egui::RichText::new("Mdcraft Calculator").strong());
+                            });
+
+                            ui.add_space(20.0);
+                            let content_width = ui.available_width();
+
+                            render_craft_input(ui, self, content_width);
+
+                            ui.add_space(20.0);
+
+                            let mut total_cost: f64 = 0.0;
+                            let found_resources = collect_found_resources(self);
+
+                            render_items_and_values(ui, self, content_width, &mut total_cost);
+
+                            ui.add_space(20.0);
+
+                            render_closing(ui, self, content_width, total_cost, &found_resources);
+                        });
+                });
+        });
+    }
+}
+
+impl eframe::App for super::MdcraftApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.render_main_ui(ctx);
+    }
+
+    fn clear_color(&self, visuals: &egui::Visuals) -> [f32; 4] {
+        visuals.panel_fill.to_normalized_gamma_f32()
+    }
+
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        self.save_app_settings(storage);
+    }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        self.persist_saved_crafts_to_sqlite();
+    }
+}

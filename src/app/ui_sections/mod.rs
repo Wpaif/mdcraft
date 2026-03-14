@@ -1,36 +1,16 @@
-use eframe::egui;
-
 use super::MdcraftApp;
 use crate::app::capture_saved_item_prices;
 
 mod closing;
 mod craft_input;
 mod items_grid;
+mod npc_price;
 
 pub(super) use closing::render_closing;
 pub(super) use craft_input::render_craft_input;
 pub(super) use items_grid::render_items_and_values;
 
-pub(super) fn placeholder(ui: &egui::Ui, text: &str) -> egui::RichText {
-    egui::RichText::new(text).color(ui.visuals().text_color().gamma_multiply(0.7))
-}
-
-pub(super) fn capitalize_display_name(raw_name: &str) -> String {
-    raw_name
-        .split_whitespace()
-        .filter(|w| !w.is_empty())
-        .map(|word| {
-            let mut chars = word.chars();
-            let first = chars
-                .next()
-                .expect("split_whitespace yields non-empty words");
-            let first = first.to_uppercase().collect::<String>();
-            let rest = chars.as_str().to_lowercase();
-            format!("{}{}", first, rest)
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
-}
+pub(super) use super::{capitalize_display_name, placeholder};
 
 pub(super) fn autosave_active_craft(app: &mut MdcraftApp) {
     let Some(idx) = app.active_saved_craft_index else {

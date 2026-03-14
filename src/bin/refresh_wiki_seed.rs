@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 #[path = "../data/wiki_scraper.rs"]
+#[allow(dead_code)]
 mod wiki_scraper;
 
 fn main() {
@@ -39,9 +40,30 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     items.sort_by(|a, b| a.name.cmp(&b.name));
 
     let json = serde_json::to_string_pretty(&items)?;
-    let out_path = PathBuf::from("src/data/wiki_items_seed.json");
-    fs::write(&out_path, format!("{json}\n"))?;
+    let item_out_path = PathBuf::from("src/data/wiki_items_seed.json");
+    fs::write(&item_out_path, format!("{json}\n"))?;
 
-    println!("seed atualizada com {} itens em {}", items.len(), out_path.display());
+    let mut crafts = wiki_scraper::scrape_all_profession_crafts(&client)?;
+    crafts.sort_by(|a, b| {
+        a.profession
+            .cmp(&b.profession)
+            .then(a.rank.cmp(&b.rank))
+            .then(a.name.cmp(&b.name))
+    });
+
+    let craft_json = serde_json::to_string_pretty(&crafts)?;
+    let craft_out_path = PathBuf::from("src/data/wiki_crafts_seed.json");
+    fs::write(&craft_out_path, format!("{craft_json}\n"))?;
+
+    println!(
+        "seed atualizada com {} itens em {}",
+        items.len(),
+        item_out_path.display()
+    );
+    println!(
+        "seed atualizada com {} crafts em {}",
+        crafts.len(),
+        craft_out_path.display()
+    );
     Ok(())
 }

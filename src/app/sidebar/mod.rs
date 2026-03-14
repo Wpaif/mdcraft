@@ -4,29 +4,15 @@ use super::MdcraftApp;
 
 mod content;
 mod dialogs;
+mod import_export;
 mod json_io;
+mod json_viewer;
+mod wiki_sync;
 
 const SIDEBAR_WIDTH_EXPANDED: f32 = 260.0;
 const SIDEBAR_WIDTH_COLLAPSED: f32 = 56.0;
 
-pub(super) fn placeholder(ui: &egui::Ui, text: &str) -> egui::RichText {
-    egui::RichText::new(text).color(ui.visuals().text_color().gamma_multiply(0.7))
-}
-
-pub(super) fn normalize_craft_name(raw_name: &str) -> String {
-    raw_name
-        .split_whitespace()
-        .filter(|w| !w.is_empty())
-        .map(|word| {
-            let mut chars = word.chars();
-            let first = chars.next().expect("split_whitespace yields non-empty words");
-            let first = first.to_uppercase().collect::<String>();
-            let rest = chars.as_str().to_lowercase();
-            format!("{}{}", first, rest)
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
-}
+pub(super) use super::{capitalize_display_name, placeholder};
 
 pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
     let width = if app.sidebar_open {
@@ -61,20 +47,20 @@ pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
 }
 
 pub(super) fn poll_sidebar_background_tasks(app: &mut MdcraftApp) {
-    json_io::ensure_wiki_refresh_started(app);
-    json_io::poll_wiki_refresh_result(app);
+    wiki_sync::ensure_wiki_refresh_started(app);
+    wiki_sync::poll_wiki_refresh_result(app);
 }
 
 #[cfg(test)]
 mod tests {
     use eframe::egui;
 
-    use super::{normalize_craft_name, placeholder};
+    use super::{capitalize_display_name, placeholder};
 
     #[test]
-    fn normalize_craft_name_capitalizes_words_and_trims_spaces() {
-        assert_eq!(normalize_craft_name("  iron  ore  "), "Iron Ore");
-        assert_eq!(normalize_craft_name("sUPER   PoTiOn"), "Super Potion");
+    fn capitalize_display_name_capitalizes_words_and_trims_spaces() {
+        assert_eq!(capitalize_display_name("  iron  ore  "), "Iron Ore");
+        assert_eq!(capitalize_display_name("sUPER   PoTiOn"), "Super Potion");
     }
 
     #[test]

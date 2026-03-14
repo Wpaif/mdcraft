@@ -14,6 +14,7 @@ reqwest = { version = "0.12", default-features = false, features = ["blocking", 
 scraper = "0.24"
 chrono = "0.4"
 rusqlite = { version = "0.32", features = ["bundled"] }
+strsim = "0.11"
 
 [build-dependencies]
 ico = "0.4"

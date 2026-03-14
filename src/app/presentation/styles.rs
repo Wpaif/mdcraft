@@ -32,7 +32,7 @@ pub fn setup_emoji_support(ctx: &egui::Context) {
 
     fonts.font_data.insert(
         "emoji".to_owned(),
-        egui::FontData::from_static(include_bytes!("../../assets/NotoEmoji-Regular.ttf")).into(),
+        egui::FontData::from_static(include_bytes!("../../../assets/NotoEmoji-Regular.ttf")).into(),
     );
 
     fonts
