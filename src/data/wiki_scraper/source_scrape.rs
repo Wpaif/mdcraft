@@ -3,13 +3,11 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+use reqwest::Url;
 use reqwest::blocking::Client;
 use reqwest::header::{ETAG, IF_MODIFIED_SINCE, IF_NONE_MATCH, LAST_MODIFIED};
-use reqwest::Url;
 
-use super::{
-    ScrapeError, ScrapeRefreshData, WikiSource, items_parser, merge,
-};
+use super::{ScrapeError, ScrapeRefreshData, WikiSource, items_parser, merge};
 
 const DETAIL_FETCH_WORKERS: usize = 3;
 const DETAIL_FETCH_BASE_DELAY_MS: u64 = 220;
@@ -150,7 +148,9 @@ fn fill_missing_prices_from_details(
     let detail_paths: Vec<String> = rows
         .iter()
         .filter(|row| row.item.npc_price.is_none())
-        .filter(|row| !existing_price_map.contains_key(&items_parser::normalize_key(&row.item.name)))
+        .filter(|row| {
+            !existing_price_map.contains_key(&items_parser::normalize_key(&row.item.name))
+        })
         .filter_map(|row| row.detail_path.clone())
         .filter_map(|path| resolve_wiki_url(&path))
         .filter(|url| seen.insert(url.clone()))
@@ -223,7 +223,8 @@ fn fill_missing_prices_from_details(
                     }
                 };
 
-                let Some(price) = items_parser::extract_npc_price_from_item_detail(&detail_html) else {
+                let Some(price) = items_parser::extract_npc_price_from_item_detail(&detail_html)
+                else {
                     continue;
                 };
 
@@ -343,10 +344,10 @@ fn resolve_wiki_url(path_or_url: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
+    use super::super::WikiSource;
     use super::{
         CachedFetch, HttpCacheClient, resolve_wiki_url, scrape_source_incremental_with_http,
     };
-    use super::super::WikiSource;
     use std::collections::HashMap;
     use std::sync::Arc;
 
@@ -405,7 +406,12 @@ mod tests {
         assert_eq!(data.items[0].name, "Tech Data");
         assert_eq!(data.items[0].npc_price.as_deref(), Some("7k"));
         assert_eq!(data.items[0].sources, vec![WikiSource::Loot]);
-        assert_eq!(data.etag_cache.get(WikiSource::Loot.url()).map(String::as_str), Some("etag-list"));
+        assert_eq!(
+            data.etag_cache
+                .get(WikiSource::Loot.url())
+                .map(String::as_str),
+            Some("etag-list")
+        );
     }
 
     #[test]
