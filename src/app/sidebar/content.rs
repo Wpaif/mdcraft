@@ -33,24 +33,50 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
         .max_height(ui.available_height().max(120.0))
         .show(ui, |ui| {
             let has_recipe = !app.input_text.trim().is_empty() && !app.items.is_empty();
+            let has_active = app.active_saved_craft_index.is_some();
             if has_recipe {
-                let save_button = egui::Button::new(
-                    egui::RichText::new("Salvar receita atual")
-                        .strong()
-                        .color(egui::Color32::from_rgb(245, 251, 244)),
-                )
-                .fill(egui::Color32::from_rgb(48, 118, 78))
-                .stroke(egui::Stroke::new(
-                    1.0,
-                    egui::Color32::from_rgb(86, 168, 120),
-                ))
-                .corner_radius(egui::CornerRadius::same(8));
+                let btn_w = if has_active { content_w * 0.5 - 4.0 } else { content_w };
+                ui.horizontal(|ui| {
+                    let save_new_btn = egui::Button::new(
+                        egui::RichText::new("Salvar nova receita")
+                            .strong()
+                            .color(egui::Color32::from_rgb(245, 251, 244)),
+                    )
+                    .fill(egui::Color32::from_rgb(48, 118, 78))
+                    .stroke(egui::Stroke::new(
+                        1.0,
+                        egui::Color32::from_rgb(86, 168, 120),
+                    ))
+                    .corner_radius(egui::CornerRadius::same(8));
 
-                let save_clicked = ui
-                    .add_sized([content_w, 34.0], save_button)
-                    .on_hover_text("Salvar a receita atual com nome automático ou manual")
-                    .clicked();
-                save_prompt::start_save_recipe_prompt(app, save_clicked);
+                    let save_new_clicked = ui
+                        .add_sized([btn_w, 34.0], save_new_btn)
+                        .on_hover_text("Criar nova receita com nome automático ou manual")
+                        .clicked();
+                    save_prompt::start_save_recipe_prompt(app, save_new_clicked);
+
+                    if has_active {
+                        let update_btn = egui::Button::new(
+                            egui::RichText::new("Atualizar receita")
+                                .strong()
+                                .color(egui::Color32::from_rgb(245, 251, 244)),
+                        )
+                        .fill(egui::Color32::from_rgb(70, 90, 120))
+                        .stroke(egui::Stroke::new(
+                            1.0,
+                            egui::Color32::from_rgb(100, 130, 170),
+                        ))
+                        .corner_radius(egui::CornerRadius::same(8));
+
+                        if ui
+                            .add_sized([btn_w, 34.0], update_btn)
+                            .on_hover_text("Gravar alterações na receita selecionada")
+                            .clicked()
+                        {
+                            save_prompt::update_current_recipe(app);
+                        }
+                    }
+                });
             } else {
                 ui.label(egui::RichText::new("Adicione uma receita para salvar").weak());
             }

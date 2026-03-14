@@ -3,7 +3,7 @@ use eframe::egui;
 use crate::parse::parse_price_flag;
 use crate::units::format_game_units;
 
-use super::{MdcraftApp, autosave_active_craft, placeholder};
+use super::{MdcraftApp, placeholder};
 
 pub(crate) fn render_closing(
     ui: &mut egui::Ui,
@@ -22,16 +22,13 @@ pub(crate) fn render_closing(
 
                 ui.horizontal(|ui| {
                     ui.add_sized([150.0, 32.0], egui::Label::new(egui::RichText::new("Preço de Venda Final:").size(14.0)));
-                    let sell_resp = ui.add(
+                    let _sell_resp = ui.add(
                         egui::TextEdit::singleline(&mut app.sell_price_input)
                             .hint_text(placeholder(ui, "100k"))
                             .desired_width(180.0)
                             .margin(egui::vec2(12.0, 10.0)),
                     );
 
-                    if sell_resp.changed() {
-                        autosave_active_craft(app);
-                    }
                 });
 
                 ui.add_space(15.0);

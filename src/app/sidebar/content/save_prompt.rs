@@ -21,6 +21,18 @@ pub(super) fn start_save_recipe_prompt(app: &mut MdcraftApp, save_clicked: bool)
     }
 }
 
+pub(super) fn update_current_recipe(app: &mut MdcraftApp) {
+    let Some(idx) = app.active_saved_craft_index else {
+        return;
+    };
+    if let Some(craft) = app.saved_crafts.get_mut(idx) {
+        craft.recipe_text = app.input_text.clone();
+        craft.sell_price_input = app.sell_price_input.clone();
+        craft.item_prices = capture_saved_item_prices(&app.items);
+    }
+    app.persist_saved_crafts_to_sqlite();
+}
+
 pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f32) {
     if !app.awaiting_craft_name {
         return;
@@ -93,7 +105,7 @@ pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, c
                 item_prices: capture_saved_item_prices(&app.items),
             },
         );
-        app.active_saved_craft_index = app.active_saved_craft_index.map(|idx| idx + 1);
+        app.active_saved_craft_index = Some(0);
         app.persist_saved_crafts_to_sqlite();
         app.awaiting_craft_name = false;
         app.pending_craft_name.clear();
@@ -105,13 +117,14 @@ pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, c
 mod tests {
     use eframe::egui;
 
-    use crate::app::MdcraftApp;
+    use crate::app::{MdcraftApp, SavedCraft};
     use crate::data::wiki_scraper::{
         CraftIngredient, CraftProfession, CraftRank, ScrapedCraftRecipe,
     };
 
     use super::{
         infer_craft_name_from_items, render_save_name_prompt, start_save_recipe_prompt,
+        update_current_recipe,
     };
 
     fn run_with_events(app: &mut MdcraftApp, events: Vec<egui::Event>) {
@@ -187,7 +200,7 @@ mod tests {
         assert_eq!(app.saved_crafts.len(), 1);
         assert_eq!(app.saved_crafts[0].name, "Nova Receita");
         assert_eq!(app.saved_crafts[0].sell_price_input, "9k");
-        assert_eq!(app.active_saved_craft_index, Some(2));
+        assert_eq!(app.active_saved_craft_index, Some(0));
     }
 
     #[test]
@@ -231,5 +244,42 @@ mod tests {
 
         let inferred = infer_craft_name_from_items(&app);
         assert_eq!(inferred.as_deref(), Some("Poke Ball (100x)"));
+    }
+
+    #[test]
+    fn update_current_recipe_updates_active_craft_in_place() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "Receita A".to_string(),
+            recipe_text: "1 Ore".to_string(),
+            sell_price_input: "1k".to_string(),
+            item_prices: vec![],
+        });
+        app.active_saved_craft_index = Some(0);
+        app.input_text = "2 Iron Ore".to_string();
+        app.sell_price_input = "9k".to_string();
+
+        update_current_recipe(&mut app);
+
+        assert_eq!(app.saved_crafts[0].name, "Receita A");
+        assert_eq!(app.saved_crafts[0].recipe_text, "2 Iron Ore");
+        assert_eq!(app.saved_crafts[0].sell_price_input, "9k");
+    }
+
+    #[test]
+    fn update_current_recipe_noop_without_active_index() {
+        let mut app = MdcraftApp::default();
+        app.saved_crafts.push(SavedCraft {
+            name: "A".to_string(),
+            recipe_text: "old".to_string(),
+            sell_price_input: "1k".to_string(),
+            item_prices: vec![],
+        });
+        app.active_saved_craft_index = None;
+        app.input_text = "new".to_string();
+
+        update_current_recipe(&mut app);
+
+        assert_eq!(app.saved_crafts[0].recipe_text, "old");
     }
 }

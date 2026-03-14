@@ -12,6 +12,8 @@ pub(super) use items_grid::render_items_and_values;
 
 pub(super) use super::{capitalize_display_name, placeholder};
 
+
+#[allow(dead_code)]
 pub(super) fn autosave_active_craft(app: &mut MdcraftApp) {
     let Some(idx) = app.active_saved_craft_index else {
         return;

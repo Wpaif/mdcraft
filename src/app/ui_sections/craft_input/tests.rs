@@ -45,22 +45,22 @@ fn rebuild_items_from_input_parses_recipe_and_preserves_prices() {
 }
 
 #[test]
-fn rebuild_items_from_input_autosaves_active_craft() {
+fn rebuild_items_from_input_does_not_autosave_active_craft() {
     let mut app = MdcraftApp::default();
     app.input_text = "1 Iron Ore".to_string();
     app.sell_price_input = "5k".to_string();
     app.saved_crafts.push(SavedCraft {
         name: "A".to_string(),
-        recipe_text: String::new(),
-        sell_price_input: String::new(),
+        recipe_text: "original".to_string(),
+        sell_price_input: "1k".to_string(),
         item_prices: vec![],
     });
     app.active_saved_craft_index = Some(0);
 
     rebuild_items_from_input(&mut app);
 
-    assert_eq!(app.saved_crafts[0].recipe_text, "1 Iron Ore");
-    assert_eq!(app.saved_crafts[0].sell_price_input, "5k");
+    assert_eq!(app.saved_crafts[0].recipe_text, "original");
+    assert_eq!(app.saved_crafts[0].sell_price_input, "1k");
 }
 
 #[test]

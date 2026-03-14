@@ -4,7 +4,6 @@ use crate::units::format_game_units;
 
 use super::super::price::paint_price_status;
 use super::MdcraftApp;
-use super::autosave_active_craft;
 use super::capitalize_display_name;
 use super::npc_price::{
     NpcPriceComparison, build_npc_price_lookup, compare_item_price_with_npc, npc_price_for_item,
@@ -101,7 +100,6 @@ pub(crate) fn render_items_and_values(
                                     .spacing([field_gap, 10.0])
                                     .striped(true)
                                     .show(ui, |ui| {
-                                        let mut should_autosave_prices = false;
                                         for _ in 0..column_count {
                                             ui.add_sized(
                                                 [item_w, 20.0],
@@ -208,9 +206,6 @@ pub(crate) fn render_items_and_values(
                                                         .inner;
 
                                                     apply_item_price_if_changed(item, price_changed);
-                                                    if price_changed {
-                                                        should_autosave_prices = true;
-                                                    }
 
                                                     ui.add_sized(
                                                         [total_w, 22.0],
@@ -258,7 +253,6 @@ pub(crate) fn render_items_and_values(
                                                                     if npc_clicked {
                                                                         item.preco_input = npc_text;
                                                                         apply_item_price_from_input(item);
-                                                                        should_autosave_prices = true;
                                                                     }
                                                                 } else {
                                                                     npc_resp.on_hover_text(
@@ -284,9 +278,6 @@ pub(crate) fn render_items_and_values(
                                             ui.end_row();
                                         }
 
-                                        if should_autosave_prices {
-                                            autosave_active_craft(app);
-                                        }
                                     });
                             });
                     });

@@ -3,7 +3,6 @@ use crate::app::npc_price_rules::fixed_npc_price_input;
 use crate::parse::parse_clipboard;
 use crate::parse::parse_price_flag;
 
-use super::super::autosave_active_craft;
 
 pub(super) fn lookup_cached_npc_price_input(app: &MdcraftApp, item_name: &str) -> Option<String> {
     let normalized = item_name.trim().to_lowercase();
@@ -44,7 +43,6 @@ pub(super) fn rebuild_items_from_input(app: &mut MdcraftApp) {
     }
 
     app.items = new_items;
-    autosave_active_craft(app);
 }
 
 pub(super) fn apply_input_change(app: &mut MdcraftApp, changed: bool) {
