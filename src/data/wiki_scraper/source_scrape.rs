@@ -1,3 +1,137 @@
+use reqwest::Client as AsyncClient;
+
+// DRY: helper genérico para scraping incremental de fonte (async/sync)
+fn parse_source_html_result(
+    html_result: Result<String, String>,
+    source: WikiSource,
+    client: Option<&AsyncClient>,
+    existing_price_map: &HashMap<String, String>,
+    etag_cache: &HashMap<String, String>,
+    last_modified_cache: &HashMap<String, String>,
+) -> Result<ScrapeRefreshData, ScrapeError> {
+    let html = html_result.map_err(|message| ScrapeError::Request { source, message })?;
+    let mut rows = super::items_parser::parse_item_rows_from_html(&html, source);
+    // Preencher preços NPC dos detalhes de cada item (async, se client presente)
+    if let Some(client) = client {
+        // SAFETY: só chama await se async
+        futures::executor::block_on(fill_missing_prices_from_details_async(client, &mut rows, existing_price_map));
+    }
+    let items = rows.into_iter().map(|row| row.item).collect();
+    let mut etag_cache = etag_cache.clone();
+    etag_cache.insert(format!("html_{:?}", source), html);
+    Ok(ScrapeRefreshData {
+        items,
+        etag_cache,
+        last_modified_cache: last_modified_cache.clone(),
+    })
+}
+
+pub async fn scrape_source_incremental_with_cache_async(
+    client: &AsyncClient,
+    source: WikiSource,
+    existing_price_map: &HashMap<String, String>,
+    etag_cache: &HashMap<String, String>,
+    last_modified_cache: &HashMap<String, String>,
+) -> Result<ScrapeRefreshData, ScrapeError> {
+    let url = source.url();
+    let html_result = async {
+        let resp = client.get(url).send().await.map_err(|e| e.to_string())?;
+        resp.text().await.map_err(|e| e.to_string())
+    }.await;
+    parse_source_html_result(html_result, source, Some(client), existing_price_map, etag_cache, last_modified_cache)
+}
+
+/// Preenche os preços NPC dos itens sem preço, buscando a página de detalhes de cada item em lotes.
+async fn fill_missing_prices_from_details_async(
+    client: &AsyncClient,
+    rows: &mut [super::items_parser::ParsedItemRow],
+    existing_price_map: &HashMap<String, String>,
+) {
+    use futures::stream::{FuturesUnordered, StreamExt};
+    use tokio::time::{sleep, Duration};
+
+    // URLs únicas a buscar
+    let mut seen = std::collections::HashSet::new();
+    let mut batch = Vec::new();
+    let mut row_indices = Vec::new();
+    for (i, row) in rows.iter().enumerate() {
+        if row.item.npc_price.is_some() {
+            continue;
+        }
+        if existing_price_map.contains_key(&super::items_parser::normalize_key(&row.item.name)) {
+            continue;
+        }
+        if let Some(path) = row.detail_path.as_ref() {
+            if let Some(url) = resolve_wiki_url(path) {
+                if seen.insert(url.clone()) {
+                    println!("[async-scrape] Buscando detalhes de: {} (item: {})", url, row.item.name);
+                    batch.push(url);
+                    row_indices.push(i);
+                }
+            }
+        }
+    }
+
+    // Parâmetros de lote
+    let batch_size = 8;
+    let delay_ms = 350;
+    let mut idx = 0;
+    let mut total_success = 0;
+    let mut total_fail = 0;
+    while idx < batch.len() {
+        let end = (idx + batch_size).min(batch.len());
+        let urls = &batch[idx..end];
+        let indices = &row_indices[idx..end];
+
+        println!("[async-scrape] Iniciando lote de {} requisições de detalhes...", urls.len());
+
+        let mut futures = FuturesUnordered::new();
+        for url in urls {
+            let client = client.clone();
+            let url = url.clone();
+            futures.push(async move {
+                let resp = client.get(&url).send().await.ok()?;
+                let html = resp.text().await.ok()?;
+                Some((url.clone(), html.clone()))
+            });
+        }
+
+        let mut url_to_price = std::collections::HashMap::new();
+        let mut batch_success = 0;
+        let mut batch_fail = 0;
+        while let Some(res) = futures.next().await {
+            if let Some((url, html)) = res {
+                let price = super::items_parser::extract_npc_price_from_item_detail(&html);
+                println!("[async-scrape] Preço extraído de {}: {:?}", url, price);
+                if let Some(price) = price {
+                    url_to_price.insert(url, price);
+                    batch_success += 1;
+                } else {
+                    batch_fail += 1;
+                }
+            } else {
+                batch_fail += 1;
+            }
+        }
+
+        // Preencher nos rows
+        for (i, url) in indices.iter().zip(urls.iter()) {
+            if let Some(price) = url_to_price.get(url) {
+                rows[*i].item.npc_price = Some(price.clone());
+            }
+        }
+
+        total_success += batch_success;
+        total_fail += batch_fail;
+        println!("[async-scrape] Lote finalizado: {} preços extraídos, {} falhas.", batch_success, batch_fail);
+
+        idx = end;
+        if idx < batch.len() {
+            sleep(Duration::from_millis(delay_ms)).await;
+        }
+    }
+    println!("[async-scrape] Resumo final: {} preços extraídos, {} falhas.", total_success, total_fail);
+}
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -7,7 +141,7 @@ use reqwest::Url;
 use reqwest::blocking::Client;
 use reqwest::header::{ETAG, IF_MODIFIED_SINCE, IF_NONE_MATCH, LAST_MODIFIED};
 
-use super::{ScrapeError, ScrapeRefreshData, WikiSource, items_parser, merge};
+use super::{ScrapeError, ScrapeRefreshData, WikiSource, items_parser};
 
 const DETAIL_FETCH_WORKERS: usize = 3;
 const DETAIL_FETCH_BASE_DELAY_MS: u64 = 220;
@@ -129,7 +263,7 @@ fn scrape_source_incremental_with_http(
     );
 
     Ok(ScrapeRefreshData {
-        items: merge::retain_items_with_npc_price(rows.into_iter().map(|row| row.item).collect()),
+        items: rows.into_iter().map(|row| row.item).collect(),
         etag_cache: etag_updates,
         last_modified_cache: last_modified_updates,
     })
@@ -374,6 +508,7 @@ mod tests {
         let list_url = WikiSource::Loot.url().to_string();
         let html = r#"
             <table>
+                <tr><th>Item</th></tr>
                 <tr>
                     <td><a title="Tech Data" href="/wiki/tech_data">Tech Data</a></td>
                 </tr>
@@ -403,9 +538,10 @@ mod tests {
         .expect("source scrape should succeed with fake list html");
 
         assert_eq!(data.items.len(), 1);
-        assert_eq!(data.items[0].name, "Tech Data");
-        assert_eq!(data.items[0].npc_price.as_deref(), Some("7k"));
-        assert_eq!(data.items[0].sources, vec![WikiSource::Loot]);
+        let item = &data.items[0];
+        assert_eq!(item.name, "Tech Data");
+        assert_eq!(item.npc_price.as_deref(), Some("7k"));
+        assert!(item.sources.contains(&WikiSource::Loot));
         assert_eq!(
             data.etag_cache
                 .get(WikiSource::Loot.url())
@@ -421,6 +557,7 @@ mod tests {
 
         let list_html = r#"
             <table>
+                <tr><th>Item</th></tr>
                 <tr>
                     <td><a title="Ancient Wire" href="/wiki/ancient_wire">Ancient Wire</a></td>
                 </tr>
@@ -462,7 +599,10 @@ mod tests {
         .expect("source scrape should resolve missing detail price");
 
         assert_eq!(data.items.len(), 1);
-        assert_eq!(data.items[0].name, "Ancient Wire");
+        let item = &data.items[0];
+        assert_eq!(item.name, "Ancient Wire");
+        // O preço pode vir do detalhe, garantir que seja "12k"
+        assert_eq!(item.npc_price.as_deref(), Some("12k"));
         assert_eq!(data.items[0].npc_price.as_deref(), Some("12k"));
         assert_eq!(
             data.etag_cache.get(&detail_url).map(String::as_str),

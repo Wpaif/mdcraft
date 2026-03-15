@@ -119,6 +119,7 @@ mod tests {
         app.items = vec![crate::model::Item {
             nome: "Iron Ore".to_string(),
             quantidade: 1,
+            quantidade_base: 1,
             preco_unitario: 0.0,
             valor_total: 0.0,
             is_resource: true,

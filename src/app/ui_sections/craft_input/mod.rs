@@ -1,18 +1,13 @@
-pub use logic::apply_cached_npc_price_if_available;
-use eframe::egui;
-
 use super::MdcraftApp;
+use eframe::egui;
+pub use logic::apply_cached_npc_price_if_available;
 pub mod local_search_thread;
-
 mod logic;
 #[cfg(test)]
 mod tests;
-
 use local_search_thread::LocalSearchResult;
-// poll_elasticsearch removido: integração ElasticSearch não existe mais
 
 pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, content_width: f32) {
-
     ui.group(|ui| {
         ui.set_width(content_width);
         egui::Frame::NONE
@@ -27,10 +22,7 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
 
                 let mut should_update_grid = false;
 
-                // Inputs lado a lado, alinhados pela base, sem centralização vertical
-                // Simula duas "divs" lado a lado, cada uma com label acima do input
                 ui.horizontal(|ui| {
-                    // Primeira div: Nome do item
                     ui.vertical(|ui| {
                         ui.label("Nome do item:");
                         let search_response = ui.add_sized([
@@ -40,7 +32,6 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                                 .hint_text("Digite o nome do item")
                                 .margin(egui::vec2(8.0, 8.0))
                         );
-                        // Filtro: só permite caracteres alfanuméricos e parênteses
                         if search_response.changed() {
                             app.craft_search_query = app.craft_search_query.chars()
                                 .filter(|c| c.is_alphanumeric() || *c == ' ' || *c == '(' || *c == ')')
@@ -54,10 +45,8 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                         }
                     });
                     ui.add_space(32.0);
-                    // Segunda div: Quantidade
                     ui.vertical(|ui| {
                         ui.label("Quantidade:");
-                        // Simula <input type='number'>
                         let mut qty_str = app.craft_search_qty.to_string();
                         let qty_response = ui.add_sized([
                             70.0, 32.0
@@ -72,7 +61,6 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                                 app.craft_search_qty = (val.clamp(1, 9999)) as u64;
                             }
                             should_update_grid = true;
-                            // Atualiza a quantidade de todos os itens do grid e recalcula o valor_total
                             let nova_qtd = app.craft_search_qty.max(1);
                             for item in &mut app.items {
                                 item.quantidade = item.quantidade_base * nova_qtd;
@@ -82,7 +70,6 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                     });
                 });
 
-                // poll_elasticsearch removido: integração ElasticSearch não existe mais
                 if let Some(rx) = &app.es_result_rx {
                     while let Ok(result) = rx.try_recv() {
                         match result {
@@ -134,12 +121,10 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                                 crate::app::ui_sections::craft_input::logic::apply_cached_npc_price_if_available(app, &mut item);
                                 app.items.push(item);
                             }
-                            // Salva o nome do craft selecionado para edição final
                             app.selected_craft_name = recipe.name.clone();
                             app.craft_search_query.clear();
                             app.es_suggestions.clear();
                             should_update_grid = false;
-                                        // Campo editável para o nome do craft selecionado
                                         if !app.selected_craft_name.is_empty() {
                                             ui.add_space(10.0);
                                             ui.label("Nome do craft selecionado (pode editar):");
@@ -164,15 +149,6 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                     ui.colored_label(egui::Color32::RED, err);
                 }
 
-                // Integração com ElasticSearch (placeholder: chamada síncrona não é possível, mas mostra como integrar)
-                // Em produção, use um runtime async para buscar sugestões e atualizar a UI
-                // Exemplo:
-                // let client = elasticsearch::Elasticsearch::default();
-                // if let Ok(suggestions) = futures::executor::block_on(elasticsearch::search_items(&client, &app.craft_search_query)) {
-                //     // Renderize sugestões/autocomplete na UI
-                // }
-
-                // Atualiza o grid automaticamente se houver match válido local
                 if should_update_grid {
                     let query = app.craft_search_query.trim();
                     if !query.is_empty() {

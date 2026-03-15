@@ -1,0 +1,2462 @@
+[
+  {
+    "name": "tooth",
+    "new_price": "8",
+    "old_price": null
+  },
+  {
+    "name": "blue topknot",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "dark gem",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "giant dragon pearl",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "metal jaw",
+    "new_price": "232",
+    "old_price": null
+  },
+  {
+    "name": "trash limbs",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "cow tail",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "sandy remains",
+    "new_price": "130",
+    "old_price": null
+  },
+  {
+    "name": "pinsir horn",
+    "new_price": "102",
+    "old_price": null
+  },
+  {
+    "name": "virtual tail",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "crimson feather",
+    "new_price": "120",
+    "old_price": null
+  },
+  {
+    "name": "big hands",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "catfish tail",
+    "new_price": "45k",
+    "old_price": null
+  },
+  {
+    "name": "fire stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "damson shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "steel wing",
+    "new_price": "192",
+    "old_price": null
+  },
+  {
+    "name": "neodymium magnet",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "ice bra",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "fur ball",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "malefic essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "savage fin",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "volt wing",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "krok scale",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "luchador mask",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "toxic topknot",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "pointy beak",
+    "new_price": "120",
+    "old_price": null
+  },
+  {
+    "name": "bulb",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "strange ball",
+    "new_price": "52",
+    "old_price": null
+  },
+  {
+    "name": "ivory tusk",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "virtual body",
+    "new_price": "37.5k",
+    "old_price": null
+  },
+  {
+    "name": "helicopter leaves",
+    "new_price": "69",
+    "old_price": null
+  },
+  {
+    "name": "ice orb",
+    "new_price": "32.5",
+    "old_price": null
+  },
+  {
+    "name": "purple hair",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "blue greens",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "remains of gears",
+    "new_price": "66.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted venom flute",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted pot of moss bug",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "kite antenna",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "mystic flower",
+    "new_price": "450",
+    "old_price": null
+  },
+  {
+    "name": "venom flute",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "yellow big boss hat",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "dodrio feather",
+    "new_price": "102",
+    "old_price": null
+  },
+  {
+    "name": "pawn",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "plant foot",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "dragon tooth",
+    "new_price": "610",
+    "old_price": null
+  },
+  {
+    "name": "golden steelix tail",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "volcanic essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "azure shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "black hull",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "small blue fins",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "wingeon essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "red insectoid wing",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "petite leaves",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "bone",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "cute ball",
+    "new_price": "50",
+    "old_price": null
+  },
+  {
+    "name": "star remains",
+    "new_price": "50k",
+    "old_price": null
+  },
+  {
+    "name": "ghost skull",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "kick machine",
+    "new_price": "135",
+    "old_price": null
+  },
+  {
+    "name": "naturia essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "dome fossil",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "eggshell",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "butterfly wing",
+    "new_price": "66",
+    "old_price": null
+  },
+  {
+    "name": "lobster claw",
+    "new_price": "150",
+    "old_price": null
+  },
+  {
+    "name": "great petal",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "ghost candle",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "red krooko scale",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "seavell essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "gosme",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "unicorn horn",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted ice orb",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "mount horn",
+    "new_price": "53k",
+    "old_price": null
+  },
+  {
+    "name": "purple cocoon thorn",
+    "new_price": "60",
+    "old_price": null
+  },
+  {
+    "name": "psycraft essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "crystal tail",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "virtual head",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "electric tail",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "rabbit eyebrows",
+    "new_price": "265",
+    "old_price": null
+  },
+  {
+    "name": "pot of dark lava",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "red wing",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "motherboard",
+    "new_price": "500",
+    "old_price": null
+  },
+  {
+    "name": "crystal cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "dark beak",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "nu ball",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "lizard tail",
+    "new_price": "450",
+    "old_price": null
+  },
+  {
+    "name": "psychic mustache",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "cyan fins",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "brutal fin",
+    "new_price": "31k",
+    "old_price": null
+  },
+  {
+    "name": "black spiky tail",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "ancient stone",
+    "new_price": "50k",
+    "old_price": null
+  },
+  {
+    "name": "apple leftovers",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "helix fossil",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "pieces of stone",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted champion belt",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "reddish continent thorn",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "orebound essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "sunflower shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "big yellow mount horn",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "hot fur",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "worm horn",
+    "new_price": "55",
+    "old_price": null
+  },
+  {
+    "name": "crab claw",
+    "new_price": "90",
+    "old_price": null
+  },
+  {
+    "name": "leaf stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "black lucky charm",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "elefish fin",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "air tank",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "insect claw",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "land shark horn",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "curly pig tail",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "bear paw",
+    "new_price": "204",
+    "old_price": null
+  },
+  {
+    "name": "luck medallion",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "beautiful scales",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "small wing",
+    "new_price": "69",
+    "old_price": null
+  },
+  {
+    "name": "yellow eyebrows",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "fire feather",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "zap",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "fire monkey hair",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "insectoid cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "insect tail",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "mimic clothes",
+    "new_price": "450",
+    "old_price": null
+  },
+  {
+    "name": "corrupted pinsir horn",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "bear arm",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "pot of moss bug",
+    "new_price": "7.5",
+    "old_price": null
+  },
+  {
+    "name": "ski poles",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "spider leg",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "pot of lava",
+    "new_price": "18",
+    "old_price": null
+  },
+  {
+    "name": "strange thing",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "blue fins",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "magnetic cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted steelix tail",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "chicken feet",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "royal mane",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "microphone",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "cyan fox tail",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "red flame tail",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "seal tail",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "spiked lycan tail",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "bagworm stone",
+    "new_price": "45k",
+    "old_price": null
+  },
+  {
+    "name": "tech ball",
+    "new_price": "5.02k",
+    "old_price": null
+  },
+  {
+    "name": "thunder stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "automaton seal",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "blaze topknot",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "heart stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "tiny raccoon fur",
+    "new_price": "5",
+    "old_price": null
+  },
+  {
+    "name": "nail",
+    "new_price": "10",
+    "old_price": null
+  },
+  {
+    "name": "green hair",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "metal trunk",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "strange antenna",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "gleam tail",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "onix tail",
+    "new_price": "371",
+    "old_price": null
+  },
+  {
+    "name": "gear nose",
+    "new_price": "31k",
+    "old_price": null
+  },
+  {
+    "name": "white emperor trident",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "big crystal",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "linearly guided hypnosis",
+    "new_price": "410",
+    "old_price": null
+  },
+  {
+    "name": "blue ball",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "talon",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "sunlight ear",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "black wool ball",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "gyarados tail",
+    "new_price": "800",
+    "old_price": null
+  },
+  {
+    "name": "punch stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "shiny aegislash shield",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "dawn stone",
+    "new_price": "55k",
+    "old_price": null
+  },
+  {
+    "name": "big red hand",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "big boss hat",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "giant piece of fur",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "creepy eye",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "miss trace",
+    "new_price": "310",
+    "old_price": null
+  },
+  {
+    "name": "snowball",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "mole hair",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "solid head",
+    "new_price": "31k",
+    "old_price": null
+  },
+  {
+    "name": "bagworm pink leaves",
+    "new_price": "45k",
+    "old_price": null
+  },
+  {
+    "name": "steelix tail",
+    "new_price": "2k",
+    "old_price": null
+  },
+  {
+    "name": "sand pouch",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "strange spike",
+    "new_price": "135",
+    "old_price": null
+  },
+  {
+    "name": "dog ear",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "bitten apple",
+    "new_price": "6.5",
+    "old_price": null
+  },
+  {
+    "name": "balloon arm",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "leek lance",
+    "new_price": "25k",
+    "old_price": null
+  },
+  {
+    "name": "ice stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "fire horse foot",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "doll star",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "mediling",
+    "new_price": "112",
+    "old_price": null
+  },
+  {
+    "name": "giant bat wing",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "golden drill",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "cloud",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "massive vines",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "bug venom",
+    "new_price": "371",
+    "old_price": null
+  },
+  {
+    "name": "giant tusk",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "electric rat tail",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "dark moon",
+    "new_price": "1.2k",
+    "old_price": null
+  },
+  {
+    "name": "link remains",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "squirtle hull",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "bucket of honey",
+    "new_price": "102",
+    "old_price": null
+  },
+  {
+    "name": "lovely topknot",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "traces of voodoo doll",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "electric box",
+    "new_price": "20",
+    "old_price": null
+  },
+  {
+    "name": "poison moth wings",
+    "new_price": "68",
+    "old_price": null
+  },
+  {
+    "name": "rabbit fur",
+    "new_price": "7",
+    "old_price": null
+  },
+  {
+    "name": "pink flower hat",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "solid red head",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "poisonous tail",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "leek shield",
+    "new_price": "25k",
+    "old_price": null
+  },
+  {
+    "name": "hoodlum crest",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "inhibitor chip",
+    "new_price": "500",
+    "old_price": null
+  },
+  {
+    "name": "point of light",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "bug gosme",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "ice crystal",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted feather",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "mini volcano",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "small antenna",
+    "new_price": "66",
+    "old_price": null
+  },
+  {
+    "name": "emperor trident",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted doll star",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted magnet",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "shed scale",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "flame tail",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "kermes shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "tentacruel tentacle",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "sentry remains",
+    "new_price": "25k",
+    "old_price": null
+  },
+  {
+    "name": "big seed",
+    "new_price": "120",
+    "old_price": null
+  },
+  {
+    "name": "tribe mark",
+    "new_price": "112",
+    "old_price": null
+  },
+  {
+    "name": "ruby",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "shell shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "snow blocks",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "elephant foot",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "toxic thing",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "sunlight cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "big eater fur",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "purple shell",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "sweet apple pie",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "pink topknot",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "dragon remains",
+    "new_price": "50k",
+    "old_price": null
+  },
+  {
+    "name": "small bird beak",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "traces of ghost",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "gligar claw",
+    "new_price": "90",
+    "old_price": null
+  },
+  {
+    "name": "bagworm green leaves",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "shiny stone",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "double links",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "fire tail",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "rat tail",
+    "new_price": "54",
+    "old_price": null
+  },
+  {
+    "name": "colored feather",
+    "new_price": "168",
+    "old_price": null
+  },
+  {
+    "name": "ice blocks",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "earth ball",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "seal mustache",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "eyeball wings",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "cactus head",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "pelican wing",
+    "new_price": "150",
+    "old_price": null
+  },
+  {
+    "name": "toxic mustache",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "pond skater legs",
+    "new_price": "118",
+    "old_price": null
+  },
+  {
+    "name": "dodo cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "whiskers fin",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "spiky tail",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "cat ear",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "dragon goo",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "sand tail",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "corrupted miss trace",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "straw",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "water plant",
+    "new_price": "120",
+    "old_price": null
+  },
+  {
+    "name": "strange bone",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "branch of stone",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "metal pink jaw",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "tusk",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "gift bag",
+    "new_price": "90",
+    "old_price": null
+  },
+  {
+    "name": "wooper horn",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "ladybug wing",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "male ear",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "scary smile",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "blue gem star",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "blade horn",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "big mount horn",
+    "new_price": "66.5k",
+    "old_price": null
+  },
+  {
+    "name": "bug antenna",
+    "new_price": "96",
+    "old_price": null
+  },
+  {
+    "name": "horn",
+    "new_price": "25",
+    "old_price": null
+  },
+  {
+    "name": "max volt paw",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "topknot",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "bee sting",
+    "new_price": "54",
+    "old_price": null
+  },
+  {
+    "name": "illusion cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "dragon wings",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "strange flower",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "comb",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "corrupted scizor claw",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "red spike",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "springs",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "sharp leaves",
+    "new_price": "120",
+    "old_price": null
+  },
+  {
+    "name": "black fins",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "bag of pollen",
+    "new_price": "40",
+    "old_price": null
+  },
+  {
+    "name": "psychic spoon",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "female ear",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "pink red insectoid wing",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "small eagle feather",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "bat wing",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "small stone",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "feather",
+    "new_price": "7.5",
+    "old_price": null
+  },
+  {
+    "name": "scarlet shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "pink small tail",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "punch machine",
+    "new_price": "135",
+    "old_price": null
+  },
+  {
+    "name": "snow skis",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "greens",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "bone shield",
+    "new_price": "30k",
+    "old_price": null
+  },
+  {
+    "name": "alolan electric rat tail",
+    "new_price": "45k",
+    "old_price": null
+  },
+  {
+    "name": "frosty hand",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "electric fish tail",
+    "new_price": "45k",
+    "old_price": null
+  },
+  {
+    "name": "piece of shell",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "black venom flute",
+    "new_price": "53k",
+    "old_price": null
+  },
+  {
+    "name": "wool ball",
+    "new_price": "69",
+    "old_price": null
+  },
+  {
+    "name": "frosty tail",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "pink hair",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "black feather",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "belt of champion",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "small shovel",
+    "new_price": "130",
+    "old_price": null
+  },
+  {
+    "name": "fire ear",
+    "new_price": "135",
+    "old_price": null
+  },
+  {
+    "name": "gardestrike essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "karate duck",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "seed",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "shiny gleam tail",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "mach nail",
+    "new_price": "53k",
+    "old_price": null
+  },
+  {
+    "name": "crystal shard",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "electronic components",
+    "new_price": "500",
+    "old_price": null
+  },
+  {
+    "name": "piece of steel",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "corrupted gem star",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "leaves",
+    "new_price": "8.5",
+    "old_price": null
+  },
+  {
+    "name": "martial arts scroll",
+    "new_price": "185",
+    "old_price": null
+  },
+  {
+    "name": "metal hull",
+    "new_price": "232",
+    "old_price": null
+  },
+  {
+    "name": "slow tail",
+    "new_price": "225",
+    "old_price": null
+  },
+  {
+    "name": "pink fins",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "psyduck mug",
+    "new_price": "129",
+    "old_price": null
+  },
+  {
+    "name": "streak tail",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "kanga ear",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "strange fur",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "locksmith of shell",
+    "new_price": "24",
+    "old_price": null
+  },
+  {
+    "name": "white hair",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "future orb",
+    "new_price": "15.5",
+    "old_price": null
+  },
+  {
+    "name": "purple toxic spike",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "fluffy lycan tail",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "magikarp fin",
+    "new_price": "3",
+    "old_price": null
+  },
+  {
+    "name": "rock stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "samurai hair",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "sun piece",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "feline tail",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "piece of blimp",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "ghost essence",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "screw",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "violet luchador mask",
+    "new_price": "50k",
+    "old_price": null
+  },
+  {
+    "name": "enigma stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "harlequin shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "small shell",
+    "new_price": "69",
+    "old_price": null
+  },
+  {
+    "name": "mecha reactor",
+    "new_price": "500k",
+    "old_price": null
+  },
+  {
+    "name": "colored wings",
+    "new_price": "68",
+    "old_price": null
+  },
+  {
+    "name": "moon piece",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "giant fin",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "corrupted tree branch",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "stone orb",
+    "new_price": "16.5",
+    "old_price": null
+  },
+  {
+    "name": "iron bracelet",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "cure flower",
+    "new_price": "150",
+    "old_price": null
+  },
+  {
+    "name": "piece of coral",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "white krooko scale",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "big eagle feather",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "tongue",
+    "new_price": "410",
+    "old_price": null
+  },
+  {
+    "name": "toxic gosme",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "flame cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "ice shard",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "long antenna",
+    "new_price": "102",
+    "old_price": null
+  },
+  {
+    "name": "dark ear",
+    "new_price": "350",
+    "old_price": null
+  },
+  {
+    "name": "magnet remains",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "sheep wool",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "white cocoon thorn",
+    "new_price": "60",
+    "old_price": null
+  },
+  {
+    "name": "enchanted gem",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "strange tail",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "corrupted pot of lava",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "fluffy purple fur",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "martial tail",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "slice of apple",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted poisonous tail",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "mystic petal",
+    "new_price": "180",
+    "old_price": null
+  },
+  {
+    "name": "corrupted streak tail",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "twin stings",
+    "new_price": "50k",
+    "old_price": null
+  },
+  {
+    "name": "white link",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "metal scraps",
+    "new_price": "2k",
+    "old_price": null
+  },
+  {
+    "name": "horn drill",
+    "new_price": "168",
+    "old_price": null
+  },
+  {
+    "name": "scizor claw",
+    "new_price": "2k",
+    "old_price": null
+  },
+  {
+    "name": "mineral cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "leftover garbage",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "yellow flower",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "cerise shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "indigo shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "purple fur",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "brush",
+    "new_price": "90",
+    "old_price": null
+  },
+  {
+    "name": "cocoon stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "mushroom",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "red scale",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "catfish whiskers",
+    "new_price": "66.5k",
+    "old_price": null
+  },
+  {
+    "name": "cave nail",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "farfetch'd stick",
+    "new_price": "300",
+    "old_price": null
+  },
+  {
+    "name": "earth stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "illusion horns",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "magnet",
+    "new_price": "90",
+    "old_price": null
+  },
+  {
+    "name": "metal stone",
+    "new_price": "50k",
+    "old_price": null
+  },
+  {
+    "name": "palm leaves",
+    "new_price": "802",
+    "old_price": null
+  },
+  {
+    "name": "essence of fire",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "strange rock",
+    "new_price": "159",
+    "old_price": null
+  },
+  {
+    "name": "short lycan tail",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "magma foot",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "fur",
+    "new_price": "13",
+    "old_price": null
+  },
+  {
+    "name": "fish fin",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "hyena tail",
+    "new_price": "168",
+    "old_price": null
+  },
+  {
+    "name": "nightmare gem",
+    "new_price": "216",
+    "old_price": null
+  },
+  {
+    "name": "ironhard essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "grabber cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "rabbit ear",
+    "new_price": "21",
+    "old_price": null
+  },
+  {
+    "name": "pig ear",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "giant ruby",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "water stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "titanium imam",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "squirrel tail",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "small tail",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "venom stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "dragon tail",
+    "new_price": "450",
+    "old_price": null
+  },
+  {
+    "name": "fox tail",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "electronic junk",
+    "new_price": "500",
+    "old_price": null
+  },
+  {
+    "name": "raccoon tail",
+    "new_price": "56",
+    "old_price": null
+  },
+  {
+    "name": "mole big hair",
+    "new_price": "66.5k",
+    "old_price": null
+  },
+  {
+    "name": "bird beak",
+    "new_price": "30",
+    "old_price": null
+  },
+  {
+    "name": "brown ear",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted dragon tooth",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "shiny feather",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "moonlight cube",
+    "new_price": "10k",
+    "old_price": null
+  },
+  {
+    "name": "black link",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "crystal stone",
+    "new_price": "50k",
+    "old_price": null
+  },
+  {
+    "name": "blue vines",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "diving mask",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "dragon scale",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "blue fish fin",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "feline fur",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "scythe",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "solid rock paw",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "golden nuggets",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted ice piece",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "reindeer horn",
+    "new_price": "123",
+    "old_price": null
+  },
+  {
+    "name": "ancient wire",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "bear feet",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "gray blade horn",
+    "new_price": "100k",
+    "old_price": null
+  },
+  {
+    "name": "owl feather",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "mini wings",
+    "new_price": "3.2k",
+    "old_price": null
+  },
+  {
+    "name": "snake tail",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "psychic ear",
+    "new_price": "350",
+    "old_price": null
+  },
+  {
+    "name": "spin machine",
+    "new_price": "135",
+    "old_price": null
+  },
+  {
+    "name": "razor claw",
+    "new_price": "37.5k",
+    "old_price": null
+  },
+  {
+    "name": "royal tail",
+    "new_price": "66.5k",
+    "old_price": null
+  },
+  {
+    "name": "fairy flower",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "galarian farfetch'd leek",
+    "new_price": "300",
+    "old_price": null
+  },
+  {
+    "name": "corrupted black hull",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "slate shard",
+    "new_price": "150k",
+    "old_price": null
+  },
+  {
+    "name": "green piece of coral",
+    "new_price": "200",
+    "old_price": null
+  },
+  {
+    "name": "sticky hand",
+    "new_price": "120",
+    "old_price": null
+  },
+  {
+    "name": "water pendant",
+    "new_price": "10",
+    "old_price": null
+  },
+  {
+    "name": "rainbow tail",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "darkness stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "eruption ears",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "pieces of rare stone",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "wolf tail",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "dragon slime",
+    "new_price": "3.5k",
+    "old_price": null
+  },
+  {
+    "name": "band aid",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "corrupted lizard tail",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "pink toxic spike",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "feather stone",
+    "new_price": "5k",
+    "old_price": null
+  },
+  {
+    "name": "purple leftover garbage",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "raibolt essence",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "sandbag",
+    "new_price": "15",
+    "old_price": null
+  },
+  {
+    "name": "armor fossil",
+    "new_price": "60k",
+    "old_price": null
+  },
+  {
+    "name": "big ice ball",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "corrupted vines",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "shock topknot",
+    "new_price": "132",
+    "old_price": null
+  },
+  {
+    "name": "fins",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "strange wing",
+    "new_price": "168",
+    "old_price": null
+  },
+  {
+    "name": "pink fur",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "gem star",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "bull tail",
+    "new_price": "102",
+    "old_price": null
+  },
+  {
+    "name": "electric pink box",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "shadow fox tail",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "bug legs",
+    "new_price": "100",
+    "old_price": null
+  },
+  {
+    "name": "arachnid legs",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "tentacle",
+    "new_price": "159",
+    "old_price": null
+  },
+  {
+    "name": "piece of diglett",
+    "new_price": "78",
+    "old_price": null
+  },
+  {
+    "name": "monkey paw",
+    "new_price": "90",
+    "old_price": null
+  },
+  {
+    "name": "armadillo claw",
+    "new_price": "147",
+    "old_price": null
+  },
+  {
+    "name": "continent thorn",
+    "new_price": "180k",
+    "old_price": null
+  },
+  {
+    "name": "goggles",
+    "new_price": "1k",
+    "old_price": null
+  },
+  {
+    "name": "claw fossil",
+    "new_price": "8k",
+    "old_price": null
+  },
+  {
+    "name": "moonlight ear",
+    "new_price": "2.5k",
+    "old_price": null
+  },
+  {
+    "name": "water gem",
+    "new_price": "0.5",
+    "old_price": null
+  },
+  {
+    "name": "corrupted cow tail",
+    "new_price": "6k",
+    "old_price": null
+  },
+  {
+    "name": "plant tail",
+    "new_price": "114",
+    "old_price": null
+  },
+  {
+    "name": "small crown",
+    "new_price": "32",
+    "old_price": null
+  },
+  {
+    "name": "seahorse tail",
+    "new_price": "204",
+    "old_price": null
+  },
+  {
+    "name": "flower hat",
+    "new_price": "4.5k",
+    "old_price": null
+  },
+  {
+    "name": "brown krooko scale",
+    "new_price": "200",
+    "old_price": null
+  }
+]

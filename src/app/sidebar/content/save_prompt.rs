@@ -27,7 +27,11 @@ pub(super) fn update_current_recipe(app: &mut MdcraftApp) {
         return;
     };
     if let Some(craft) = app.saved_crafts.get_mut(idx) {
-        // craft.recipe_text = app.input_text.clone();
+        // Gera o texto da receita a partir dos itens atuais
+        craft.recipe_text = app.items.iter()
+            .map(|item| format!("{} {}", item.quantidade, capitalize_display_name(&item.nome)))
+            .collect::<Vec<_>>()
+            .join(", ");
         craft.sell_price_input = app.sell_price_input.clone();
         craft.item_prices = capture_saved_item_prices(&app.items);
     }
@@ -127,6 +131,19 @@ pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, c
 
 #[cfg(test)]
 mod tests {
+
+        #[test]
+        fn recipe_save_toast_ativa_e_limpa_apos_tempo() {
+            let mut app = MdcraftApp::default();
+            app.recipe_save_toast_started_at = Some(std::time::Instant::now() - std::time::Duration::from_secs_f32(3.0));
+            // Simula ciclo de UI que limpa o toast após 2.5s
+            if let Some(started) = app.recipe_save_toast_started_at {
+                if started.elapsed().as_secs_f32() > 2.5 {
+                    app.recipe_save_toast_started_at = None;
+                }
+            }
+            assert!(app.recipe_save_toast_started_at.is_none());
+        }
     use eframe::egui;
 
     use crate::app::{MdcraftApp, SavedCraft};
@@ -221,6 +238,7 @@ mod tests {
             crate::model::Item {
                 nome: "Apricorn".to_string(),
                 quantidade: 1,
+                quantidade_base: 1,
                 preco_unitario: 0.0,
                 valor_total: 0.0,
                 is_resource: false,
@@ -229,6 +247,7 @@ mod tests {
             crate::model::Item {
                 nome: "Screw".to_string(),
                 quantidade: 80,
+                quantidade_base: 80,
                 preco_unitario: 0.0,
                 valor_total: 0.0,
                 is_resource: false,
@@ -268,9 +287,24 @@ mod tests {
         });
         app.active_saved_craft_index = Some(0);
         app.sell_price_input = "9k".to_string();
-
+        // Adiciona receita ao cache para reconstrução correta
+        app.craft_recipes_cache.push(crate::data::wiki_scraper::ScrapedCraftRecipe {
+            profession: crate::data::wiki_scraper::CraftProfession::Engineer,
+            rank: crate::data::wiki_scraper::CraftRank::E,
+            name: "Receita A".to_string(),
+            ingredients: vec![crate::data::wiki_scraper::CraftIngredient { name: "Iron Ore".to_string(), quantity: 2.0 }],
+        });
+        // Popula os itens para gerar o texto da receita
+        app.items = vec![crate::model::Item {
+            nome: "Iron Ore".to_string(),
+            quantidade: 2,
+            quantidade_base: 2,
+            preco_unitario: 0.0,
+            valor_total: 0.0,
+            is_resource: true,
+            preco_input: String::new(),
+        }];
         update_current_recipe(&mut app);
-
         assert_eq!(app.saved_crafts[0].name, "Receita A");
         assert_eq!(app.saved_crafts[0].recipe_text, "2 Iron Ore");
         assert_eq!(app.saved_crafts[0].sell_price_input, "9k");

@@ -1,5 +1,3 @@
-//! Domain rules for NPC price overrides not provided (or not stable) in wiki data.
-
 use std::collections::HashMap;
 use std::fs;
 use std::sync::OnceLock;
@@ -21,13 +19,10 @@ pub(crate) fn fixed_npc_price_input(item_name: &str) -> Option<String> {
     let normalized = item_name.trim().to_lowercase();
     let prices = get_fixed_npc_prices();
 
-    // 1. Exact match
     if let Some(price) = prices.get(&normalized) {
         return Some(price.clone());
     }
 
-    // 2. Plural/singular tolerant (smarter)
-    // Try removing 's', 'es', or adding 's', 'es' as appropriate
     let mut variants = vec![normalized.clone()];
     if normalized.ends_with("es") {
         variants.push(normalized.trim_end_matches("es").to_string());
@@ -35,7 +30,6 @@ pub(crate) fn fixed_npc_price_input(item_name: &str) -> Option<String> {
     if normalized.ends_with('s') {
         variants.push(normalized.trim_end_matches('s').to_string());
     }
-    // Try adding 's' and 'es' to the base
     variants.push(format!("{}s", normalized));
     variants.push(format!("{}es", normalized));
 
@@ -45,7 +39,6 @@ pub(crate) fn fixed_npc_price_input(item_name: &str) -> Option<String> {
         }
     }
 
-    // 3. Fuzzy match (Jaro-Winkler) for all variants
     let binding = String::new();
     let mut best_score = 0.0;
     let mut best_price = &binding;

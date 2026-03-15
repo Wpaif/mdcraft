@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 /// Função genérica para popups/modais customizáveis
 pub fn render_modal_window<R>(
     ctx: &egui::Context,

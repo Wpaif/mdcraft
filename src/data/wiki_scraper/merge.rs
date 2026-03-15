@@ -9,12 +9,8 @@ fn has_npc_price(item: &ScrapedItem) -> bool {
         .unwrap_or(false)
 }
 
-pub(super) fn retain_items_with_npc_price(items: Vec<ScrapedItem>) -> Vec<ScrapedItem> {
-    items.into_iter().filter(has_npc_price).collect()
-}
-
-pub(super) fn finalize_scraped_items(items: Vec<ScrapedItem>) -> Vec<ScrapedItem> {
-    let mut items = retain_items_with_npc_price(items);
+// Filtro removido: agora todos os itens são mantidos, mesmo sem preço NPC
+pub(super) fn finalize_scraped_items(mut items: Vec<ScrapedItem>) -> Vec<ScrapedItem> {
     items.sort_by(|a, b| a.name.cmp(&b.name));
     items
 }

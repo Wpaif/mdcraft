@@ -28,9 +28,16 @@ pub(super) fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {
     app.sell_price_input = craft.sell_price_input.clone();
     app.items.clear();
     // Reconstrói os itens a partir dos ingredientes da receita salva
-    if let Some(recipe) = app.craft_recipes_cache.iter().find(|r| r.name == craft.name) {
+    if let Some(recipe) = app
+        .craft_recipes_cache
+        .iter()
+        .find(|r| r.name == craft.name)
+    {
         for ing in &recipe.ingredients {
-            let is_resource = app.resource_list.iter().any(|res| res.eq_ignore_ascii_case(&ing.name));
+            let is_resource = app
+                .resource_list
+                .iter()
+                .any(|res| res.eq_ignore_ascii_case(&ing.name));
             let mut item = crate::model::Item {
                 nome: ing.name.clone(),
                 quantidade: ing.quantity as u64,
@@ -40,7 +47,9 @@ pub(super) fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {
                 is_resource,
                 preco_input: String::new(),
             };
-            crate::app::ui_sections::craft_input::apply_cached_npc_price_if_available(app, &mut item);
+            crate::app::ui_sections::craft_input::apply_cached_npc_price_if_available(
+                app, &mut item,
+            );
             app.items.push(item);
         }
     }
@@ -76,9 +85,17 @@ mod tests {
                 price_input: "250".to_string(),
             }],
         });
-
+        // Adiciona receita ao cache para reconstrução correta
+        app.craft_recipes_cache.push(crate::data::wiki_scraper::ScrapedCraftRecipe {
+            profession: crate::data::wiki_scraper::CraftProfession::Engineer,
+            rank: crate::data::wiki_scraper::CraftRank::E,
+            name: "teste".to_string(),
+            ingredients: vec![
+                crate::data::wiki_scraper::CraftIngredient { name: "Iron Ore".to_string(), quantity: 2.0 },
+                crate::data::wiki_scraper::CraftIngredient { name: "Screw".to_string(), quantity: 3.0 },
+            ],
+        });
         load_saved_craft_for_edit(&mut app, 0);
-
         assert_eq!(app.active_saved_craft_index, Some(0));
         assert_eq!(app.sell_price_input, "12k");
         assert!(!app.items.is_empty());

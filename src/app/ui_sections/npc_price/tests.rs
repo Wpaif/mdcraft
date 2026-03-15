@@ -16,6 +16,7 @@ use super::NpcPriceComparison;
 fn make_item(nome: &str, quantidade: u64, preco_input: &str) -> Item {
     Item {
         nome: nome.to_string(),
+        quantidade_base: quantidade,
         quantidade,
         preco_unitario: 0.0,
         valor_total: 0.0,

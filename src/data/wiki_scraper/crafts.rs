@@ -1,4 +1,37 @@
-use reqwest::blocking::Client;
+// DRY: helper genérico para scraping de profissão (async/sync)
+fn parse_profession_crafts_from_html_result(
+    html_result: Result<String, String>,
+    profession: CraftProfession,
+) -> Result<Vec<ScrapedCraftRecipe>, CraftScrapeError> {
+    let html = html_result.map_err(|message| CraftScrapeError::Request { profession, message })?;
+    Ok(parse_profession_crafts_from_html(&html, profession))
+}
+
+pub async fn scrape_profession_crafts_async(
+    client: &reqwest::Client,
+    profession: CraftProfession,
+) -> Result<Vec<ScrapedCraftRecipe>, CraftScrapeError> {
+    let html_result = async {
+        let resp = client.get(profession.url()).send().await.map_err(|e| e.to_string())?;
+        let status = resp.status();
+        if !status.is_success() {
+            return Err(format!("HTTP status: {}", status));
+        }
+        resp.text().await.map_err(|e| e.to_string())
+    }.await;
+    parse_profession_crafts_from_html_result(html_result, profession)
+}
+
+pub async fn scrape_all_profession_crafts_async(
+    client: &reqwest::Client,
+) -> Result<Vec<ScrapedCraftRecipe>, CraftScrapeError> {
+    let mut all = Vec::new();
+    for profession in ALL_CRAFT_PROFESSIONS {
+        let recipes = scrape_profession_crafts_async(client, profession).await?;
+        all.extend(recipes);
+    }
+    Ok(all)
+}
 use scraper::{ElementRef, Html, Selector};
 
 use super::{
@@ -50,7 +83,6 @@ pub fn parse_profession_crafts_from_html(
     recipes
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub enum CraftScrapeError {
     Request {
@@ -78,39 +110,26 @@ impl std::fmt::Display for CraftScrapeError {
 
 impl std::error::Error for CraftScrapeError {}
 
-#[allow(dead_code)]
 pub fn scrape_profession_crafts(
-    client: &Client,
+    client: &reqwest::blocking::Client,
     profession: CraftProfession,
 ) -> Result<Vec<ScrapedCraftRecipe>, CraftScrapeError> {
-    let html = client
-        .get(profession.url())
-        .send()
-        .and_then(reqwest::blocking::Response::error_for_status)
-        .map_err(|err| CraftScrapeError::Request {
-            profession,
-            message: err.to_string(),
-        })?
-        .text()
-        .map_err(|err| CraftScrapeError::Request {
-            profession,
-            message: err.to_string(),
-        })?;
-
-    Ok(parse_profession_crafts_from_html(&html, profession))
+    let html_result = (|| {
+        let resp = client.get(profession.url()).send().map_err(|e| e.to_string())?;
+        let resp = resp.error_for_status().map_err(|e| e.to_string())?;
+        resp.text().map_err(|e| e.to_string())
+    })();
+    parse_profession_crafts_from_html_result(html_result, profession)
 }
 
-#[allow(dead_code)]
 pub fn scrape_all_profession_crafts(
-    client: &Client,
+    client: &reqwest::blocking::Client,
 ) -> Result<Vec<ScrapedCraftRecipe>, CraftScrapeError> {
     let mut all = Vec::new();
-
     for profession in ALL_CRAFT_PROFESSIONS {
         let recipes = scrape_profession_crafts(client, profession)?;
         all.extend(recipes);
     }
-
     Ok(all)
 }
 

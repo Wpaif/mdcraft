@@ -8,6 +8,15 @@ use crate::parse::parse_price_flag;
 use super::schedule::now_unix_seconds;
 
 pub(super) fn apply_cached_npc_prices_to_existing_items(app: &mut MdcraftApp) {
+    // Fallback: se a base principal estiver vazia, tenta carregar do seed estático
+    if app.wiki_cached_items.is_empty() {
+        if let Ok(static_data) = std::fs::read_to_string("src/data/wiki_items_seed_static.json") {
+            if let Ok(static_items) = serde_json::from_str::<Vec<crate::data::wiki_scraper::ScrapedItem>>(&static_data) {
+                app.wiki_cached_items = static_items;
+                println!("[fallback] Carregado seed estático de preços NPC");
+            }
+        }
+    }
     for item in &mut app.items {
         if !item.preco_input.trim().is_empty() {
             continue;
@@ -49,17 +58,40 @@ pub(super) fn apply_resource_refresh_result(
             app.wiki_cached_items = merged;
             app.wiki_http_etag_cache = data.etag_cache;
             app.wiki_http_last_modified_cache = data.last_modified_cache;
+            // Atualiza crafts com scraping assíncrono
+            if let Ok(rt) = tokio::runtime::Handle::try_current() {
+                let client = reqwest::Client::new();
+                let crafts_fut = crate::data::wiki_scraper::crafts::scrape_all_profession_crafts_async(&client);
+                match rt.block_on(crafts_fut) {
+                    Ok(crafts) => {
+                        app.craft_recipes_cache = crafts.clone();
+                        app.craft_recipe_name_by_signature = crate::app::build_craft_recipe_name_index(&crafts);
+                    }
+                    Err(e) => {
+                        app.wiki_sync_feedback = Some(format!("Itens ok, mas crafts falharam: {e}"));
+                    }
+                }
+            }
             apply_cached_npc_prices_to_existing_items(app);
             app.wiki_sync_feedback = Some(format!(
                 "Base de itens sincronizada ({} total, {} atualizados nesta rodada).",
                 total, updated_count
             ));
             app.wiki_sync_success_anim_started_at = Some(Instant::now());
+            app.wiki_sync_error_anim_started_at = None;
             app.wiki_last_sync_unix_seconds = now_unix_seconds();
+            // Limpa mensagem de erro anterior, se houver
+            if let Some(feedback) = &app.wiki_sync_feedback {
+                if feedback.contains("interrompida antes de concluir") || feedback.contains("falha") {
+                    app.wiki_sync_feedback = None;
+                }
+            }
         }
         Err(err) => {
+            eprintln!("[mdcraft][wiki-sync] Erro na sincronização: {err}");
             app.wiki_sync_feedback = Some(err);
             app.wiki_sync_success_anim_started_at = None;
+            app.wiki_sync_error_anim_started_at = Some(Instant::now());
         }
     }
 }

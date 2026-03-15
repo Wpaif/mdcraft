@@ -1,3 +1,19 @@
+use reqwest::Client as AsyncClient;
+pub async fn scrape_all_sources_incremental_async(
+    client: &AsyncClient,
+    existing: &[ScrapedItem],
+    etag_cache: &HashMap<String, String>,
+    last_modified_cache: &HashMap<String, String>,
+) -> Result<ScrapeRefreshData, ScrapeError> {
+    let existing_price_map = merge::build_existing_price_map(existing);
+    pipeline::scrape_all_sources_parallel_async(
+        client,
+        &ALL_WIKI_SOURCES,
+        &existing_price_map,
+        etag_cache,
+        last_modified_cache,
+    ).await
+}
 use std::collections::HashMap;
 
 use reqwest::blocking::Client;
@@ -8,7 +24,7 @@ use reqwest::blocking::Client;
 // - `pub(super)`/private: submodule internals and implementation details.
 
 #[path = "wiki_scraper/crafts.rs"]
-mod crafts;
+pub mod crafts;
 #[path = "wiki_scraper/errors.rs"]
 mod errors;
 #[path = "wiki_scraper/items_parser.rs"]
@@ -24,7 +40,6 @@ mod source_scrape;
 #[path = "wiki_scraper/types.rs"]
 mod types;
 
-#[allow(unused_imports)]
 pub use crafts::{
     CraftScrapeError, parse_profession_crafts_from_html, scrape_all_profession_crafts,
     scrape_profession_crafts,
@@ -55,37 +70,27 @@ pub fn merge_item_lists(existing: &[ScrapedItem], incoming: &[ScrapedItem]) -> V
     merge::finalize_scraped_items(merged.into_values().collect())
 }
 
-#[allow(dead_code)]
 pub fn normalized_resource_names(items: &[ScrapedItem]) -> Vec<String> {
     merge::normalized_resource_names(items)
 }
 
-#[allow(dead_code)]
-pub fn scrape_all_sources(client: &Client) -> Result<Vec<ScrapedItem>, ScrapeError> {
-    scrape_all_sources_incremental(client, &[], &HashMap::new(), &HashMap::new())
-        .map(|data| merge::finalize_scraped_items(data.items))
+pub fn scrape_all_sources(_client: &Client) -> Result<Vec<ScrapedItem>, ScrapeError> {
+    panic!("scrape_all_sources (sync) removido: use apenas a versão assíncrona!");
 }
 
 pub fn scrape_all_sources_incremental(
-    client: &Client,
-    existing: &[ScrapedItem],
-    etag_cache: &HashMap<String, String>,
-    last_modified_cache: &HashMap<String, String>,
+    _client: &Client,
+    _existing: &[ScrapedItem],
+    _etag_cache: &HashMap<String, String>,
+    _last_modified_cache: &HashMap<String, String>,
 ) -> Result<ScrapeRefreshData, ScrapeError> {
-    let existing_price_map = merge::build_existing_price_map(existing);
-    pipeline::scrape_all_sources_parallel(
-        client,
-        &ALL_WIKI_SOURCES,
-        &existing_price_map,
-        etag_cache,
-        last_modified_cache,
-    )
+    // Versão síncrona desativada após refatoração para async
+    unimplemented!("Use scrape_all_sources_incremental_async no modo assíncrono");
 }
 
-#[allow(dead_code)]
-pub fn scrape_source(client: &Client, source: WikiSource) -> Result<Vec<ScrapedItem>, ScrapeError> {
+pub fn scrape_source(_client: &Client, source: WikiSource) -> Result<Vec<ScrapedItem>, ScrapeError> {
     source_scrape::scrape_source_incremental_with_cache(
-        client,
+        _client,
         source,
         &HashMap::new(),
         &HashMap::new(),
@@ -94,7 +99,6 @@ pub fn scrape_source(client: &Client, source: WikiSource) -> Result<Vec<ScrapedI
     .map(|data| merge::finalize_scraped_items(data.items))
 }
 
-#[allow(dead_code)]
 pub fn scrape_source_incremental(
     client: &Client,
     source: WikiSource,

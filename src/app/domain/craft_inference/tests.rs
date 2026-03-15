@@ -62,6 +62,7 @@ fn infer_craft_name_identifies_after_fuzzy_resolution() {
         Item {
             nome: "Brutall Fin".to_string(),
             quantidade: 35,
+            quantidade_base: 35,
             preco_unitario: 0.0,
             valor_total: 0.0,
             is_resource: false,
@@ -70,6 +71,7 @@ fn infer_craft_name_identifies_after_fuzzy_resolution() {
         Item {
             nome: "Metal Scrap".to_string(),
             quantidade: 500,
+            quantidade_base: 500,
             preco_unitario: 0.0,
             valor_total: 0.0,
             is_resource: true,

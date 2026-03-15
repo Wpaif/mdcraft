@@ -13,6 +13,7 @@ use super::render_items_and_values;
 fn make_item(nome: &str, quantidade: u64, preco_input: &str, is_resource: bool) -> Item {
     Item {
         nome: nome.to_string(),
+        quantidade_base: quantidade,
         quantidade,
         preco_unitario: 0.0,
         valor_total: 0.0,

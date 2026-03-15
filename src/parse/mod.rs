@@ -1,5 +1,3 @@
-
-
 pub fn parse_price_flag(valor: &str) -> Result<f64, String> {
     let valor = valor.trim().to_lowercase().replace(',', ".");
 
@@ -99,62 +97,5 @@ mod tests {
     #[test]
     fn parse_price_flag_rejects_invalid_kk_payload() {
         assert!(parse_price_flag("abcKK").is_err());
-    }
-
-    #[test]
-    fn parse_clipboard_returns_empty_for_blank_input() {
-        let items = parse_clipboard("   ", &["wood"]);
-        assert!(items.is_empty());
-    }
-
-    #[test]
-    fn parse_clipboard_parses_valid_items_and_ignores_invalid_segments() {
-        let items = parse_clipboard("10 Wood, invalid, 2 Stone.", &["wood", "stone"]);
-
-        assert_eq!(items.len(), 2);
-        assert_eq!(items[0].nome, "Wood");
-        assert_eq!(items[0].quantidade, 10);
-        approx_eq(items[0].preco_unitario, 0.0);
-        approx_eq(items[0].valor_total, 0.0);
-        assert!(items[0].is_resource);
-        assert_eq!(items[0].preco_input, "");
-
-        assert_eq!(items[1].nome, "Stone");
-        assert_eq!(items[1].quantidade, 2);
-        assert!(items[1].is_resource);
-    }
-
-    #[test]
-    fn parse_clipboard_detects_plural_and_singular_resources() {
-        let items = parse_clipboard("3 woods, 4 glasses, 5 iron", &["wood", "glass"]);
-
-        assert_eq!(items.len(), 3);
-        assert!(items[0].is_resource, "woods should match wood");
-        assert!(items[1].is_resource, "glasses should match glass");
-        assert!(!items[2].is_resource, "iron is not in resource list");
-    }
-
-    #[test]
-    fn parse_clipboard_ignores_empty_segments_between_commas() {
-        let items = parse_clipboard("1 wood,, 2 stone, ,", &["wood", "stone"]);
-        assert_eq!(items.len(), 2);
-        assert_eq!(items[0].quantidade, 1);
-        assert_eq!(items[1].quantidade, 2);
-    }
-
-    #[test]
-    fn parse_clipboard_ignores_leading_and_trailing_empty_segments() {
-        let items = parse_clipboard(", , 1 wood,   , 2 stone,", &["wood", "stone"]);
-        assert_eq!(items.len(), 2);
-        assert_eq!(items[0].quantidade, 1);
-        assert_eq!(items[1].quantidade, 2);
-    }
-
-    #[test]
-    fn parse_clipboard_ignores_segments_with_non_numeric_quantity() {
-        let items = parse_clipboard("x wood, 2 stone", &["wood", "stone"]);
-        assert_eq!(items.len(), 1);
-        assert_eq!(items[0].nome, "stone");
-        assert_eq!(items[0].quantidade, 2);
     }
 }

@@ -54,6 +54,8 @@ pub struct MdcraftApp {
     pub export_json_output: String,
     pub export_feedback: Option<String>,
     pub wiki_sync_feedback: Option<String>,
+    /// Marca o instante de erro/interrupção na sync da wiki (para cooldown visual)
+    pub wiki_sync_error_anim_started_at: Option<Instant>,
     pub wiki_cached_items: Vec<ScrapedItem>,
     pub craft_recipes_cache: Vec<ScrapedCraftRecipe>,
     pub craft_recipe_name_by_signature: HashMap<String, String>,
@@ -104,6 +106,7 @@ impl Default for MdcraftApp {
             export_json_output: String::new(),
             export_feedback: None,
             wiki_sync_feedback: None,
+            wiki_sync_error_anim_started_at: None,
             wiki_cached_items,
             craft_recipes_cache,
             craft_recipe_name_by_signature,

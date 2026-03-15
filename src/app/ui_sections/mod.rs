@@ -13,14 +13,16 @@ pub(super) use items_grid::render_items_and_values;
 pub(super) use super::{capitalize_display_name, placeholder};
 
 
-#[allow(dead_code)]
 pub(super) fn autosave_active_craft(app: &mut MdcraftApp) {
     let Some(idx) = app.active_saved_craft_index else {
         return;
     };
-
     if let Some(craft) = app.saved_crafts.get_mut(idx) {
-        // craft.recipe_text = app.input_text.clone();
+        // Gera o texto da receita a partir dos itens atuais
+        craft.recipe_text = app.items.iter()
+            .map(|item| format!("{} {}", item.quantidade, capitalize_display_name(&item.nome)))
+            .collect::<Vec<_>>()
+            .join(", ");
         craft.sell_price_input = app.sell_price_input.clone();
         craft.item_prices = capture_saved_item_prices(&app.items);
     }
@@ -65,6 +67,7 @@ mod tests {
             Item {
                 nome: "iron ore".to_string(),
                 quantidade: 12,
+                quantidade_base: 12,
                 preco_unitario: 0.0,
                 valor_total: 0.0,
                 is_resource: true,
@@ -73,6 +76,7 @@ mod tests {
             Item {
                 nome: "screw".to_string(),
                 quantidade: 5,
+                quantidade_base: 5,
                 preco_unitario: 100.0,
                 valor_total: 500.0,
                 is_resource: false,
@@ -91,6 +95,7 @@ mod tests {
             Item {
                 nome: "iron ore".to_string(),
                 quantidade: 10,
+                quantidade_base: 10,
                 preco_unitario: 1.0,
                 valor_total: 10.0,
                 is_resource: true,
@@ -99,6 +104,7 @@ mod tests {
             Item {
                 nome: "screw".to_string(),
                 quantidade: 4,
+                quantidade_base: 4,
                 preco_unitario: 250.0,
                 valor_total: 1_000.0,
                 is_resource: false,
@@ -107,6 +113,7 @@ mod tests {
             Item {
                 nome: "rubber ball".to_string(),
                 quantidade: 2,
+                quantidade_base: 2,
                 preco_unitario: 500.0,
                 valor_total: 1_000.0,
                 is_resource: false,
@@ -135,6 +142,7 @@ mod tests {
             Item {
                 nome: "Iron Ore".to_string(),
                 quantidade: 1,
+                quantidade_base: 1,
                 preco_unitario: 0.0,
                 valor_total: 0.0,
                 is_resource: true,
@@ -143,6 +151,7 @@ mod tests {
             Item {
                 nome: "Screw".to_string(),
                 quantidade: 2,
+                quantidade_base: 2,
                 preco_unitario: 100.5,
                 valor_total: 201.0,
                 is_resource: false,
@@ -169,6 +178,7 @@ mod tests {
         app.items = vec![Item {
             nome: "Iron Ore".to_string(),
             quantidade: 1,
+            quantidade_base: 1,
             preco_unitario: 120.0,
             valor_total: 120.0,
             is_resource: true,
@@ -181,9 +191,14 @@ mod tests {
             item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
-
+        // Adiciona receita ao cache para reconstrução correta
+        app.craft_recipes_cache.push(crate::data::wiki_scraper::ScrapedCraftRecipe {
+            profession: crate::data::wiki_scraper::CraftProfession::Engineer,
+            rank: crate::data::wiki_scraper::CraftRank::E,
+            name: "A".to_string(),
+            ingredients: vec![crate::data::wiki_scraper::CraftIngredient { name: "Iron Ore".to_string(), quantity: 1.0 }],
+        });
         autosave_active_craft(&mut app);
-
         assert_eq!(app.saved_crafts[0].recipe_text, "1 Iron Ore");
         assert_eq!(app.saved_crafts[0].sell_price_input, "7k");
         assert_eq!(app.saved_crafts[0].item_prices.len(), 1);

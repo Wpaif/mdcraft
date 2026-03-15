@@ -46,6 +46,31 @@ impl super::MdcraftApp {
         render_theme_toggle_area(self, ctx);
         render_wiki_sync_success_toast(self, ctx);
 
+        // Toast de erro na sincronização da wiki
+        if let (Some(started_at), Some(msg)) = (self.wiki_sync_error_anim_started_at, self.wiki_sync_feedback.as_ref()) {
+            use crate::app::ui::toast::render_toast_area;
+            // Cores modernas para erro
+            let bg = egui::Color32::from_rgb(180, 40, 40); // vermelho escuro
+            let border = egui::Color32::from_rgb(255, 120, 120); // vermelho claro
+            let sub_color = egui::Color32::from_rgb(255, 220, 220); // pastel
+            let finished = render_toast_area(
+                ctx,
+                egui::Id::new("wiki_sync_error_toast"),
+                "Erro ao sincronizar com a wiki",
+                Some(msg.as_str()),
+                bg,
+                border,
+                sub_color,
+                started_at,
+                std::time::Duration::from_millis(3200),
+            );
+            if finished {
+                self.wiki_sync_error_anim_started_at = None;
+                self.wiki_sync_feedback = None;
+                self.wiki_refresh_in_progress = false;
+            }
+        }
+
         // Toast de sucesso ao salvar/atualizar receita
         if let Some(kind) = self.show_recipe_save_popup {
             use crate::app::ui::toast::render_toast_area;

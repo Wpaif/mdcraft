@@ -38,7 +38,6 @@ pub enum CraftProfession {
 }
 
 impl CraftProfession {
-    #[allow(dead_code)]
     pub fn url(self) -> &'static str {
         match self {
             Self::Engineer => {
@@ -57,7 +56,6 @@ impl CraftProfession {
     }
 }
 
-#[allow(dead_code)]
 pub const ALL_CRAFT_PROFESSIONS: [CraftProfession; 4] = [
     CraftProfession::Engineer,
     CraftProfession::Professor,

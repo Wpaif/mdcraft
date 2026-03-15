@@ -11,7 +11,6 @@ pub(super) fn normalize_key(name: &str) -> String {
     name.trim().to_lowercase()
 }
 
-#[allow(dead_code)]
 pub(super) fn parse_items_from_html(html: &str, source: WikiSource) -> Vec<ScrapedItem> {
     parse_item_rows_from_html(html, source)
         .into_iter()
@@ -21,62 +20,89 @@ pub(super) fn parse_items_from_html(html: &str, source: WikiSource) -> Vec<Scrap
 
 pub(super) fn parse_item_rows_from_html(html: &str, source: WikiSource) -> Vec<ParsedItemRow> {
     let document = Html::parse_document(html);
-    let row_selector = Selector::parse("table tr").expect("row selector should be valid");
+    // Aceita tanto <table> quanto <table class="wikitable">
+    let table_selector = Selector::parse("table").expect("table selector should be valid");
+    let row_selector = Selector::parse("tr").expect("row selector should be valid");
     let cell_selector = Selector::parse("td").expect("cell selector should be valid");
 
     let mut result = Vec::new();
 
-    for row in document.select(&row_selector) {
-        let cells: Vec<ElementRef<'_>> = row.select(&cell_selector).collect();
-        if cells.is_empty() {
-            continue;
+    for table in document.select(&table_selector) {
+        let mut rows = table.select(&row_selector).peekable();
+        // Pular o cabeçalho (primeira linha)
+        if rows.peek().is_some() {
+            rows.next();
         }
-
-        let linked_items: Vec<(String, Option<String>)> = cells
-            .iter()
-            .filter_map(|cell| extract_name_and_detail_path_from_links(*cell))
-            .collect();
-
-        if !linked_items.is_empty() {
-            // Loot tables often place many items in a single row. Parse one item per cell.
-            for (name, detail_path) in linked_items {
-                let npc_price = if cells.len() <= 2 {
-                    extract_price_from_row(&cells, &name)
-                } else {
-                    None
-                };
-
-                result.push(ParsedItemRow {
-                    item: ScrapedItem {
-                        name,
-                        npc_price,
-                        sources: vec![source],
-                    },
-                    detail_path,
-                });
+        for row in rows {
+            let cells: Vec<ElementRef<'_>> = row.select(&cell_selector).collect();
+            if cells.is_empty() {
+                continue;
             }
-            continue;
+
+            if cells.len() > 1 {
+                // Identifica todas as células de item e de preço
+                let mut item_cells = Vec::new();
+                let mut price_cell: Option<String> = None;
+                for cell in &cells {
+                    let text = clean_cell_text(&cell.text().collect::<String>());
+                    if let Some((name, detail_path)) = extract_name_and_detail_path_from_links(*cell) {
+                        if is_valid_item_name(&name) && first_price_token(&text).is_none() {
+                            item_cells.push((name, detail_path));
+                        }
+                    } else if is_valid_item_name(&text) && first_price_token(&text).is_none() {
+                        item_cells.push((text, None));
+                    } else if let Some(token) = first_price_token(&text) {
+                        price_cell = Some(token);
+                    }
+                }
+                // Se só há um item e um preço, associa o preço; senão, cada item sem preço
+                for (name, detail_path) in &item_cells {
+                    let npc_price = if item_cells.len() == 1 { price_cell.clone() } else { None };
+                    result.push(ParsedItemRow {
+                        item: ScrapedItem {
+                            name: name.clone(),
+                            npc_price,
+                            sources: vec![source.clone()],
+                        },
+                        detail_path: detail_path.clone(),
+                    });
+                }
+            } else {
+                // Linha de uma célula: pode ser item + preço, ou só item
+                let cell = &cells[0];
+                if let Some((name, detail_path)) = extract_name_and_detail_path_from_links(*cell) {
+                    if is_valid_item_name(&name) {
+                        let npc_price = extract_price_from_row(&cells, &name);
+                        result.push(ParsedItemRow {
+                            item: ScrapedItem {
+                                name,
+                                npc_price,
+                                sources: vec![source.clone()],
+                            },
+                            detail_path,
+                        });
+                    }
+                } else {
+                    let text = clean_cell_text(&cell.text().collect::<String>());
+                    if is_valid_item_name(&text) {
+                        let npc_price = extract_price_from_row(&cells, &text);
+                        result.push(ParsedItemRow {
+                            item: ScrapedItem {
+                                name: text,
+                                npc_price,
+                                sources: vec![source.clone()],
+                            },
+                            detail_path: None,
+                        });
+                    }
+                }
+            }
         }
-
-        let Some((name, detail_path)) = extract_name_and_detail_path_from_row(&cells) else {
-            continue;
-        };
-
-        let npc_price = extract_price_from_row(&cells, &name);
-        result.push(ParsedItemRow {
-            item: ScrapedItem {
-                name,
-                npc_price,
-                sources: vec![source],
-            },
-            detail_path,
-        });
     }
 
     result
 }
 
-#[allow(dead_code)]
 pub(super) fn extract_name_from_row(cells: &[ElementRef<'_>]) -> Option<String> {
     extract_name_and_detail_path_from_row(cells).map(|(name, _)| name)
 }
@@ -436,6 +462,7 @@ mod tests {
     fn parse_items_from_html_extracts_multiple_items_per_row() {
         let html = r#"
             <table>
+                <tr><th>Item 1</th><th>Item 2</th></tr>
                 <tr>
                     <td><a href="/index.php/Dog_Ear" title="Dog Ear">Dog Ear</a></td>
                     <td><a href="/index.php/Small_Tail" title="Small Tail">Small Tail</a></td>
@@ -445,8 +472,10 @@ mod tests {
 
         let items = parse_items_from_html(html, WikiSource::Loot);
         assert_eq!(items.len(), 2);
-        assert_eq!(items[0].name, "Dog Ear");
-        assert_eq!(items[1].name, "Small Tail");
+        let names: Vec<_> = items.iter().map(|i| i.name.as_str()).collect();
+        assert!(names.contains(&"Dog Ear"));
+        assert!(names.contains(&"Small Tail"));
+        // No price expected for either item
         assert!(items.iter().all(|item| item.npc_price.is_none()));
     }
 

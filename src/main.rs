@@ -64,10 +64,7 @@ fn with_optional_icon(
 
 #[cfg(target_os = "linux")]
 fn ensure_linux_desktop_integration() {
-    ensure_linux_desktop_integration_with(
-        resolve_linux_data_home(),
-        std::env::current_exe().ok(),
-    );
+    ensure_linux_desktop_integration_with(resolve_linux_data_home(), std::env::current_exe().ok());
 }
 
 #[cfg(target_os = "linux")]
@@ -136,7 +133,12 @@ where
     runner(APP_TITLE, options, create_app_creator())
 }
 
-fn main() -> eframe::Result<()> {
+#[tokio::main]
+async fn main() -> eframe::Result<()> {
+    #[cfg(feature = "async-wiki-seed-refresh")]
+    {
+        crate::data::async_wiki_seed_refresh::start_async_wiki_seed_refresh(3600).await;
+    }
     run_app(eframe::run_native)
 }
 
@@ -145,18 +147,21 @@ mod tests {
     use eframe::egui;
     #[cfg(target_os = "linux")]
     use std::ffi::OsString;
-    use std::path::PathBuf;
     #[cfg(target_os = "linux")]
     use std::path::Path;
+    use std::path::PathBuf;
     use std::sync::{Mutex, OnceLock};
 
     use super::{
         APP_ID, build_native_options, build_viewport, create_app_creator,
-        ensure_linux_desktop_integration, load_app_icon, run_app, run_with_runner, with_optional_icon,
+        ensure_linux_desktop_integration, load_app_icon, run_app, run_with_runner,
+        with_optional_icon,
+    };
+    #[cfg(target_os = "linux")]
+    use super::{
+        desktop_entry_for, ensure_linux_desktop_integration_with, resolve_linux_data_home,
     };
     use eframe::CreationContext;
-    #[cfg(target_os = "linux")]
-    use super::{desktop_entry_for, ensure_linux_desktop_integration_with, resolve_linux_data_home};
 
     #[cfg(target_os = "linux")]
     fn restore_env_var(name: &str, old_value: Option<OsString>) {
@@ -200,7 +205,8 @@ mod tests {
 
         ensure_linux_desktop_integration();
 
-        let icon_path: PathBuf = temp_root.join(format!("icons/hicolor/scalable/apps/{APP_ID}.svg"));
+        let icon_path: PathBuf =
+            temp_root.join(format!("icons/hicolor/scalable/apps/{APP_ID}.svg"));
         let desktop_path: PathBuf = temp_root.join(format!("applications/{APP_ID}.desktop"));
 
         assert!(icon_path.exists());
@@ -260,7 +266,10 @@ mod tests {
     fn restore_env_var_handles_some_and_none_values() {
         let old_xdg = std::env::var_os("XDG_DATA_HOME");
 
-        restore_env_var("XDG_DATA_HOME", Some(OsString::from("/tmp/mdcraft-restore")));
+        restore_env_var(
+            "XDG_DATA_HOME",
+            Some(OsString::from("/tmp/mdcraft-restore")),
+        );
         assert_eq!(
             std::env::var_os("XDG_DATA_HOME"),
             Some(OsString::from("/tmp/mdcraft-restore"))
@@ -369,7 +378,10 @@ mod tests {
         }
 
         let resolved = resolve_linux_data_home().expect("home fallback should resolve");
-        assert_eq!(resolved, PathBuf::from("/tmp/mdcraft-home-only/.local/share"));
+        assert_eq!(
+            resolved,
+            PathBuf::from("/tmp/mdcraft-home-only/.local/share")
+        );
 
         restore_env_var("XDG_DATA_HOME", old_xdg);
         restore_env_var("HOME", old_home);
