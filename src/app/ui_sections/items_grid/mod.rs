@@ -13,12 +13,13 @@ use super::placeholder;
 
 mod layout;
 mod price_logic;
+pub use price_logic::apply_item_price_from_input;
 #[cfg(test)]
 mod tests;
 
 use layout::render_empty_item_cells;
 use price_logic::{
-    apply_item_price_from_input, apply_item_price_if_changed, item_price_status, item_status_hover,
+    apply_item_price_if_changed, item_price_status, item_status_hover,
 };
 
 pub(crate) fn render_items_and_values(
