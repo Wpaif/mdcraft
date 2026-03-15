@@ -22,12 +22,39 @@ pub(crate) fn render_closing(
 
                 ui.horizontal(|ui| {
                     ui.add_sized([150.0, 32.0], egui::Label::new(egui::RichText::new("Preço de Venda Final:").size(14.0)));
-                    let _sell_resp = ui.add(
+                    let sell_resp = ui.add(
                         egui::TextEdit::singleline(&mut app.sell_price_input)
                             .hint_text(placeholder(ui, "100k"))
                             .desired_width(180.0)
                             .margin(egui::vec2(12.0, 10.0)),
                     );
+                    // Filtro manual: só permite dígitos, vírgula, ponto, 'k'/'kk' no final
+                    if sell_resp.changed() {
+                        let mut filtered = String::new();
+                        let mut k_count = 0;
+                        for c in app.sell_price_input.chars() {
+                            if c.is_ascii_digit() || c == ',' || c == '.' {
+                                if k_count == 0 {
+                                    filtered.push(c);
+                                }
+                            } else if c == 'k' || c == 'K' {
+                                if k_count < 2 && !filtered.is_empty() {
+                                    filtered.push('k');
+                                    k_count += 1;
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                        // Só permite 'k' ou 'kk' no final
+                        if k_count > 0 {
+                            let pos = filtered.find('k').unwrap();
+                            filtered.truncate(pos + k_count);
+                        }
+                        app.sell_price_input = filtered;
+                    }
 
                 });
 
