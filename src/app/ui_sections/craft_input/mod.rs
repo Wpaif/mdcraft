@@ -40,6 +40,12 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                                 .hint_text("Digite o nome do item")
                                 .margin(egui::vec2(8.0, 8.0))
                         );
+                        // Filtro: só permite caracteres alfanuméricos e parênteses
+                        if search_response.changed() {
+                            app.craft_search_query = app.craft_search_query.chars()
+                                .filter(|c| c.is_alphanumeric() || *c == ' ' || *c == '(' || *c == ')')
+                                .collect();
+                        }
                         if search_response.changed() {
                             should_update_grid = true;
                             if let Some(tx) = &app.es_query_tx {
@@ -136,11 +142,16 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                                         if !app.selected_craft_name.is_empty() {
                                             ui.add_space(10.0);
                                             ui.label("Nome do craft selecionado (pode editar):");
-                                            ui.add(
+                                            let name_resp = ui.add(
                                                 egui::TextEdit::singleline(&mut app.selected_craft_name)
                                                     .desired_width(300.0)
                                                     .font(egui::TextStyle::Heading)
                                             );
+                                            if name_resp.changed() {
+                                                app.selected_craft_name = app.selected_craft_name.chars()
+                                                    .filter(|c| c.is_alphanumeric() || *c == ' ' || *c == '(' || *c == ')')
+                                                    .collect();
+                                            }
                                         }
                         } else {
                             app.craft_search_query = suggestion;
