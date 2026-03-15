@@ -172,11 +172,12 @@ pub(crate) fn render_items_and_values(
                                                     let stroke = price_input_stroke(ui, item, &npc_lookup);
                                                     let fill = price_input_fill_color(item);
 
-                                                    let text_edit =
-                                                        egui::TextEdit::singleline(&mut item.preco_input)
-                                                            .hint_text(placeholder(ui, "0"))
-                                                            .frame(false)
-                                                            .desired_width(price_w - 8.0);
+
+                                                    let text_edit = egui::TextEdit::singleline(&mut item.preco_input)
+                                                        .hint_text(placeholder(ui, "0"))
+                                                        .frame(false)
+                                                        .desired_width(price_w - 8.0);
+
 
                                                     let price_changed = ui
                                                         .allocate_ui_with_layout(
@@ -205,6 +206,37 @@ pub(crate) fn render_items_and_values(
                                                             },
                                                         )
                                                         .inner;
+
+                                                    // Filtro manual: só permite dígitos, vírgula, ponto, 'k'/'K' no final e apenas uma vez
+                                                    if price_changed {
+                                                        let mut filtered = String::new();
+                                                        let mut k_count = 0;
+                                                        let mut last_was_k = false;
+                                                        for c in item.preco_input.chars() {
+                                                            if c.is_ascii_digit() || c == ',' || c == '.' {
+                                                                if k_count == 0 {
+                                                                    filtered.push(c);
+                                                                }
+                                                            } else if c == 'k' || c == 'K' {
+                                                                if k_count < 2 && !filtered.is_empty() {
+                                                                    filtered.push('k');
+                                                                    k_count += 1;
+                                                                    last_was_k = true;
+                                                                } else {
+                                                                    break;
+                                                                }
+                                                            } else {
+                                                                break;
+                                                            }
+                                                        }
+                                                        // Só permite 'k' ou 'kk' no final
+                                                        if k_count > 0 {
+                                                            // Remove qualquer coisa após o(s) 'k'
+                                                            let pos = filtered.find('k').unwrap();
+                                                            filtered.truncate(pos + k_count);
+                                                        }
+                                                        item.preco_input = filtered;
+                                                    }
 
                                                     apply_item_price_if_changed(item, price_changed);
 
