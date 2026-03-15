@@ -1,9 +1,8 @@
 //! Domain rules for NPC price overrides not provided (or not stable) in wiki data.
 
-
 use std::collections::HashMap;
-use std::sync::OnceLock;
 use std::fs;
+use std::sync::OnceLock;
 
 static FIXED_NPC_PRICES: OnceLock<HashMap<String, String>> = OnceLock::new();
 
@@ -79,13 +78,19 @@ mod tests {
             fixed_npc_price_input("  Compressed Nightmare Gems  "),
             Some("25k".to_string())
         );
-        assert_eq!(fixed_npc_price_input("Neutral Essence"), Some("1k".to_string()));
+        assert_eq!(
+            fixed_npc_price_input("Neutral Essence"),
+            Some("1k".to_string())
+        );
     }
 
     #[test]
     fn fixed_npc_price_entries_exposes_all_known_overrides() {
         let entries = fixed_npc_price_entries();
-        assert_eq!(entries.get("compressed nightmare gems"), Some(&"25k".to_string()));
+        assert_eq!(
+            entries.get("compressed nightmare gems"),
+            Some(&"25k".to_string())
+        );
         assert_eq!(entries.get("neutral essence"), Some(&"1k".to_string()));
     }
 }

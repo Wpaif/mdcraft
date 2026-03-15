@@ -51,7 +51,8 @@ pub(super) fn compare_item_price_with_npc(
                 Some(*val)
             } else {
                 // Fuzzy
-                let (_best_name, best_score, best_val) = npc_lookup.iter()
+                let (_best_name, best_score, best_val) = npc_lookup
+                    .iter()
                     .map(|(name, val)| (name, jaro_winkler(&normalized, name), val))
                     .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
                     .unwrap_or((&String::new(), 0.0, &0.0));
@@ -97,7 +98,8 @@ pub(super) fn npc_price_for_item(
         return Some(*val);
     }
     // 4. Fuzzy
-    let (_best_name, best_score, best_val) = npc_lookup.iter()
+    let (_best_name, best_score, best_val) = npc_lookup
+        .iter()
         .map(|(name, val)| (name, jaro_winkler(&normalized, name), val))
         .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
         .unwrap_or((&String::new(), 0.0, &0.0));
