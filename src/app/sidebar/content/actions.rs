@@ -1,5 +1,4 @@
 use crate::app::{MdcraftApp, apply_saved_item_prices};
-use crate::parse::parse_clipboard;
 
 pub(super) fn apply_pending_sidebar_actions(
     app: &mut MdcraftApp,
@@ -26,13 +25,27 @@ pub(super) fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {
         return;
     };
 
-    app.input_text = craft.recipe_text.clone();
     app.sell_price_input = craft.sell_price_input.clone();
-
-    let resources: Vec<&str> = app.resource_list.iter().map(AsRef::as_ref).collect();
-    app.items = parse_clipboard(&app.input_text, &resources);
+    app.items.clear();
+    // Reconstrói os itens a partir dos ingredientes da receita salva
+    if let Some(recipe) = app.craft_recipes_cache.iter().find(|r| r.name == craft.name) {
+        for ing in &recipe.ingredients {
+            let is_resource = app.resource_list.iter().any(|res| res.eq_ignore_ascii_case(&ing.name));
+            let mut item = crate::model::Item {
+                nome: ing.name.clone(),
+                quantidade: ing.quantity as u64,
+                preco_unitario: 0.0,
+                valor_total: 0.0,
+                is_resource,
+                preco_input: String::new(),
+            };
+            crate::app::ui_sections::craft_input::apply_cached_npc_price_if_available(app, &mut item);
+            app.items.push(item);
+        }
+    }
     apply_saved_item_prices(&mut app.items, &craft.item_prices);
     app.active_saved_craft_index = Some(idx);
+    app.selected_craft_name = craft.name.clone();
 }
 
 #[cfg(test)]

@@ -32,7 +32,7 @@ pub(super) fn render_sidebar_content(ui: &mut egui::Ui, app: &mut MdcraftApp, co
         .auto_shrink([false, false])
         .max_height(ui.available_height().max(120.0))
         .show(ui, |ui| {
-            let has_recipe = !app.input_text.trim().is_empty() && !app.items.is_empty();
+            let has_recipe = !app.items.is_empty();
             let has_active = app.active_saved_craft_index.is_some();
             if has_recipe {
                 ui.vertical(|ui| {

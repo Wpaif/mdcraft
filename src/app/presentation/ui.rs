@@ -1,3 +1,4 @@
+use crate::app::state::RecipeSavePopupType;
 use eframe::egui;
 
 use super::detect_system_theme;
@@ -16,7 +17,7 @@ mod shortcuts;
 #[path = "ui/tests.rs"]
 mod tests;
 #[path = "ui/toast.rs"]
-mod toast;
+pub mod toast;
 
 use layout::content_padding;
 use shortcuts::apply_sidebar_toggle_shortcut;
@@ -45,6 +46,53 @@ impl super::MdcraftApp {
 
         render_theme_toggle_area(self, ctx);
         render_wiki_sync_success_toast(self, ctx);
+
+        // Toast de sucesso ao salvar/atualizar receita
+        if let Some(kind) = self.show_recipe_save_popup {
+            use crate::app::ui::toast::render_toast_area;
+            let (main_text, sub_text, bg, border, sub_color) = match kind {
+                RecipeSavePopupType::Save => {
+                    let name = self.last_saved_recipe_name.as_deref().unwrap_or("");
+                    (
+                        "Receita salva!",
+                        Some(format!("{} salvo com sucesso.", name)),
+                        egui::Color32::from_rgb(26, 127, 55), // verde vibrante
+                        egui::Color32::from_rgb(193, 255, 214), // borda clara
+                        egui::Color32::from_rgb(228, 255, 237),
+                    )
+                },
+                RecipeSavePopupType::Update => {
+                    let name = self.last_saved_recipe_name.as_deref().unwrap_or("");
+                    (
+                        "Receita atualizada!",
+                        Some(format!("{} atualizado com sucesso.", name)),
+                        egui::Color32::from_rgb(70, 90, 120), // azul escuro
+                        egui::Color32::from_rgb(180, 200, 255),
+                        egui::Color32::from_rgb(220, 230, 255),
+                    )
+                },
+            };
+            let finished = if let Some(started_at) = self.recipe_save_toast_started_at {
+                render_toast_area(
+                    ctx,
+                    egui::Id::new("recipe_save_toast"),
+                    main_text,
+                    sub_text.as_deref(),
+                    bg,
+                    border,
+                    sub_color,
+                    started_at,
+                    std::time::Duration::from_millis(2600),
+                )
+            } else {
+                false
+            };
+            if finished {
+                self.show_recipe_save_popup = None;
+                self.recipe_save_toast_started_at = None;
+                self.last_saved_recipe_name = None;
+            }
+        }
 
         egui::CentralPanel::default()
             .frame(egui::Frame::NONE)
