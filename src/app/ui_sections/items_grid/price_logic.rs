@@ -2,7 +2,7 @@ use crate::parse::parse_price_flag;
 
 use super::super::super::price::PriceStatus;
 
-pub(super) fn apply_item_price_from_input(item: &mut crate::model::Item) {
+pub fn apply_item_price_from_input(item: &mut crate::model::Item) {
     item.preco_unitario = parse_price_flag(&item.preco_input).unwrap_or(0.0);
     item.valor_total = item.preco_unitario * item.quantidade as f64;
 }

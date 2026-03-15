@@ -1,5 +1,6 @@
+use crate::app::ui_sections::craft_input::local_search_thread::{LocalSearchMsg, LocalSearchResult};
+use std::sync::mpsc::{Sender, Receiver};
 use std::collections::HashMap;
-use std::sync::mpsc::Receiver;
 use std::time::Instant;
 
 use crate::data::wiki_scraper::{
@@ -14,8 +15,23 @@ use super::{SavedCraft, Theme, build_craft_recipe_name_index, detect_system_them
 ///
 /// In GKT4 terms, this is the *model* for the main window; the view logic lives
 /// in `ui.rs` and helpers are in other submodules.
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum RecipeSavePopupType {
+    Save,
+    Update,
+}
+
 pub struct MdcraftApp {
-    pub input_text: String,
+    pub show_recipe_save_popup: Option<RecipeSavePopupType>,
+        /// Nome do craft selecionado pelo usuário (editável)
+        pub selected_craft_name: String,
+    pub es_suggestions: Vec<String>,
+    pub es_error: Option<String>,
+    pub es_query_tx: Option<Sender<LocalSearchMsg>>,
+    pub es_result_rx: Option<Receiver<LocalSearchResult>>,
+    pub craft_search_query: String,
+    pub craft_search_qty: u64,
     pub items: Vec<Item>,
     pub sell_price_input: String,
     pub resource_list: Vec<String>,
@@ -46,6 +62,8 @@ pub struct MdcraftApp {
     pub wiki_sync_success_anim_started_at: Option<Instant>,
     pub wiki_refresh_started_on_launch: bool,
     pub wiki_last_sync_unix_seconds: Option<u64>,
+    pub recipe_save_toast_started_at: Option<Instant>,
+    pub last_saved_recipe_name: Option<String>,
 }
 
 impl Default for MdcraftApp {
@@ -56,8 +74,13 @@ impl Default for MdcraftApp {
         let craft_recipe_name_by_signature = build_craft_recipe_name_index(&craft_recipes_cache);
         let resource_list = embedded_resource_names();
 
+        let (es_query_tx, es_result_rx) = crate::app::ui_sections::craft_input::local_search_thread::start_local_search_thread();
+
         Self {
-            input_text: String::new(),
+            show_recipe_save_popup: None,
+                        selected_craft_name: String::new(),
+            craft_search_query: String::new(),
+            craft_search_qty: 1,
             items: Vec::new(),
             sell_price_input: String::new(),
             resource_list,
@@ -88,6 +111,12 @@ impl Default for MdcraftApp {
             wiki_sync_success_anim_started_at: None,
             wiki_refresh_started_on_launch: false,
             wiki_last_sync_unix_seconds: None,
+            recipe_save_toast_started_at: None,
+            last_saved_recipe_name: None,
+            es_suggestions: Vec::new(),
+            es_error: None,
+            es_query_tx: Some(es_query_tx),
+            es_result_rx: Some(es_result_rx),
         }
     }
 }

@@ -2,7 +2,7 @@ use super::MdcraftApp;
 use crate::app::capture_saved_item_prices;
 
 mod closing;
-mod craft_input;
+pub mod craft_input;
 mod items_grid;
 mod npc_price;
 
@@ -20,7 +20,7 @@ pub(super) fn autosave_active_craft(app: &mut MdcraftApp) {
     };
 
     if let Some(craft) = app.saved_crafts.get_mut(idx) {
-        craft.recipe_text = app.input_text.clone();
+        // craft.recipe_text = app.input_text.clone();
         craft.sell_price_input = app.sell_price_input.clone();
         craft.item_prices = capture_saved_item_prices(&app.items);
     }

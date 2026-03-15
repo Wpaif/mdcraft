@@ -1,19 +1,72 @@
+use strsim::jaro_winkler;
 use crate::app::MdcraftApp;
 use crate::app::npc_price_rules::fixed_npc_price_input;
-use crate::parse::parse_clipboard;
 use crate::parse::parse_price_flag;
 
 
 pub(super) fn lookup_cached_npc_price_input(app: &MdcraftApp, item_name: &str) -> Option<String> {
     let normalized = item_name.trim().to_lowercase();
-    app.wiki_cached_items
+    // Tenta casar exatamente
+    if let Some(price) = app.wiki_cached_items
         .iter()
         .find(|entry| entry.name.trim().to_lowercase() == normalized)
-        .and_then(|entry| entry.npc_price.clone())
-        .or_else(|| fixed_npc_price_input(item_name).map(ToString::to_string))
+        .and_then(|entry| entry.npc_price.clone()) {
+        return Some(price);
+    }
+
+    // Tenta casar removendo 's' do final (plural simples)
+    if normalized.ends_with('s') {
+        let singular = normalized.trim_end_matches('s');
+        if let Some(price) = app.wiki_cached_items
+            .iter()
+            .find(|entry| entry.name.trim().to_lowercase() == singular)
+            .and_then(|entry| entry.npc_price.clone()) {
+            return Some(price);
+        }
+    }
+    // Tenta casar adicionando 's' (caso o JSON esteja no plural)
+    let plural = format!("{}s", normalized);
+    if let Some(price) = app.wiki_cached_items
+        .iter()
+        .find(|entry| entry.name.trim().to_lowercase() == plural)
+        .and_then(|entry| entry.npc_price.clone()) {
+        return Some(price);
+    }
+
+    // Fuzzy matching: encontra o nome mais parecido usando Jaro-Winkler
+    let (_best_name, best_score, best_price) = app.wiki_cached_items.iter()
+        .filter_map(|entry| {
+            let entry_name = entry.name.trim().to_lowercase();
+            let score = jaro_winkler(&normalized, &entry_name);
+            entry.npc_price.as_ref().map(|price| (entry_name, score, price.clone()))
+        })
+        .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+        .unwrap_or((String::new(), 0.0, String::new()));
+    if best_score > 0.90 {
+        return Some(best_price);
+    }
+
+    // Busca tolerante a plural/singular no JSON de preços fixos
+    if let Some(price) = fixed_npc_price_input(item_name) {
+        return Some(price);
+    }
+    // Tenta singular
+    let normalized = item_name.trim().to_lowercase();
+    if normalized.ends_with('s') {
+        let singular = normalized.trim_end_matches('s');
+        if let Some(price) = fixed_npc_price_input(singular) {
+            return Some(price);
+        }
+    }
+    // Tenta plural
+    let plural = format!("{}s", normalized);
+    if let Some(price) = fixed_npc_price_input(&plural) {
+        return Some(price);
+    }
+    None
 }
 
-pub(super) fn apply_cached_npc_price_if_available(app: &MdcraftApp, item: &mut crate::model::Item) {
+pub fn apply_cached_npc_price_if_available(app: &MdcraftApp, item: &mut crate::model::Item) {
     let Some(npc_input) = lookup_cached_npc_price_input(app, &item.nome) else {
         return;
     };
@@ -27,26 +80,3 @@ pub(super) fn apply_cached_npc_price_if_available(app: &MdcraftApp, item: &mut c
     item.valor_total = item.preco_unitario * item.quantidade as f64;
 }
 
-pub(super) fn rebuild_items_from_input(app: &mut MdcraftApp) {
-    let resources: Vec<&str> = app.resource_list.iter().map(AsRef::as_ref).collect();
-    let old_items = std::mem::take(&mut app.items);
-    let mut new_items = parse_clipboard(&app.input_text, &resources);
-
-    for new_item in &mut new_items {
-        if let Some(old_item) = old_items.iter().find(|o| o.nome == new_item.nome) {
-            new_item.preco_input = old_item.preco_input.clone();
-            new_item.preco_unitario = old_item.preco_unitario;
-            new_item.valor_total = new_item.preco_unitario * new_item.quantidade as f64;
-        } else {
-            apply_cached_npc_price_if_available(app, new_item);
-        }
-    }
-
-    app.items = new_items;
-}
-
-pub(super) fn apply_input_change(app: &mut MdcraftApp, changed: bool) {
-    if changed {
-        rebuild_items_from_input(app);
-    }
-}
