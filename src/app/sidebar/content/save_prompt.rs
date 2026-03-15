@@ -1,3 +1,4 @@
+use crate::app::state::RecipeSavePopupType;
 use eframe::egui;
 
 use crate::app::{MdcraftApp, SavedCraft, capture_saved_item_prices};
@@ -31,6 +32,9 @@ pub(super) fn update_current_recipe(app: &mut MdcraftApp) {
         craft.item_prices = capture_saved_item_prices(&app.items);
     }
     app.persist_saved_crafts_to_sqlite();
+    app.last_saved_recipe_name = Some(app.saved_crafts[idx].name.clone());
+    app.recipe_save_toast_started_at = Some(std::time::Instant::now());
+    app.show_recipe_save_popup = Some(RecipeSavePopupType::Update);
 }
 
 pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, content_w: f32) {
@@ -104,7 +108,7 @@ pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, c
         app.saved_crafts.insert(
             0,
             SavedCraft {
-                name: normalized_name,
+                name: normalized_name.clone(),
                 recipe_text: String::new(),
                 sell_price_input: app.sell_price_input.clone(),
                 item_prices: capture_saved_item_prices(&app.items),
@@ -115,6 +119,9 @@ pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, c
         app.awaiting_craft_name = false;
         app.pending_craft_name.clear();
         app.focus_craft_name_input = false;
+        app.last_saved_recipe_name = Some(normalized_name);
+        app.recipe_save_toast_started_at = Some(std::time::Instant::now());
+        app.show_recipe_save_popup = Some(RecipeSavePopupType::Save);
     }
 }
 

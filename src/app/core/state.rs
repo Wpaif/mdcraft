@@ -15,7 +15,15 @@ use super::{SavedCraft, Theme, build_craft_recipe_name_index, detect_system_them
 ///
 /// In GKT4 terms, this is the *model* for the main window; the view logic lives
 /// in `ui.rs` and helpers are in other submodules.
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum RecipeSavePopupType {
+    Save,
+    Update,
+}
+
 pub struct MdcraftApp {
+    pub show_recipe_save_popup: Option<RecipeSavePopupType>,
         /// Nome do craft selecionado pelo usuário (editável)
         pub selected_craft_name: String,
     pub es_suggestions: Vec<String>,
@@ -54,6 +62,8 @@ pub struct MdcraftApp {
     pub wiki_sync_success_anim_started_at: Option<Instant>,
     pub wiki_refresh_started_on_launch: bool,
     pub wiki_last_sync_unix_seconds: Option<u64>,
+    pub recipe_save_toast_started_at: Option<Instant>,
+    pub last_saved_recipe_name: Option<String>,
 }
 
 impl Default for MdcraftApp {
@@ -67,6 +77,7 @@ impl Default for MdcraftApp {
         let (es_query_tx, es_result_rx) = crate::app::ui_sections::craft_input::local_search_thread::start_local_search_thread();
 
         Self {
+            show_recipe_save_popup: None,
                         selected_craft_name: String::new(),
             craft_search_query: String::new(),
             craft_search_qty: 1,
@@ -100,6 +111,8 @@ impl Default for MdcraftApp {
             wiki_sync_success_anim_started_at: None,
             wiki_refresh_started_on_launch: false,
             wiki_last_sync_unix_seconds: None,
+            recipe_save_toast_started_at: None,
+            last_saved_recipe_name: None,
             es_suggestions: Vec::new(),
             es_error: None,
             es_query_tx: Some(es_query_tx),
