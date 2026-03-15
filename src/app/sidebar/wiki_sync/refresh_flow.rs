@@ -1,7 +1,5 @@
 use crate::app::MdcraftApp;
-use crate::data::wiki_scraper::{
-    ScrapeRefreshData, ScrapedItem,
-};
+// ...existing code...
 
 use super::apply::apply_resource_refresh_result;
 use super::schedule::{now_unix_seconds, should_start_auto_wiki_sync};

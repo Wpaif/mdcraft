@@ -34,7 +34,7 @@ pub(super) fn render_sidebar_json_actions(
     let (action_fill, action_stroke, action_text) = action_button_colors(ui);
 
     // Bloqueia botão de sync durante erro/interrupção cooldown
-    let error_cooldown = app.wiki_sync_error_anim_started_at
+    let _error_cooldown = app.wiki_sync_error_anim_started_at
         .map(|t| t.elapsed().as_secs_f32() < 2.5)
         .unwrap_or(false);
 

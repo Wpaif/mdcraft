@@ -16,7 +16,7 @@ pub async fn scrape_all_sources_incremental_async(
 }
 use std::collections::HashMap;
 
-use reqwest::blocking::Client;
+// ...existing code...
 
 // Visibility conventions:
 // - `pub`: scraper API and domain types consumed by app/data layers.
@@ -40,10 +40,7 @@ mod source_scrape;
 #[path = "wiki_scraper/types.rs"]
 mod types;
 
-pub use crafts::{
-    CraftScrapeError, parse_profession_crafts_from_html, scrape_all_profession_crafts,
-    scrape_profession_crafts,
-};
+// ...existing code...
 pub use errors::ScrapeError;
 pub use types::{
     ALL_CRAFT_PROFESSIONS, ALL_WIKI_SOURCES, CraftIngredient, CraftProfession, CraftRank,
@@ -74,44 +71,7 @@ pub fn normalized_resource_names(items: &[ScrapedItem]) -> Vec<String> {
     merge::normalized_resource_names(items)
 }
 
-pub fn scrape_all_sources(_client: &Client) -> Result<Vec<ScrapedItem>, ScrapeError> {
-    panic!("scrape_all_sources (sync) removido: use apenas a versão assíncrona!");
-}
-
-pub fn scrape_all_sources_incremental(
-    _client: &Client,
-    _existing: &[ScrapedItem],
-    _etag_cache: &HashMap<String, String>,
-    _last_modified_cache: &HashMap<String, String>,
-) -> Result<ScrapeRefreshData, ScrapeError> {
-    // Versão síncrona desativada após refatoração para async
-    unimplemented!("Use scrape_all_sources_incremental_async no modo assíncrono");
-}
-
-pub fn scrape_source(_client: &Client, source: WikiSource) -> Result<Vec<ScrapedItem>, ScrapeError> {
-    source_scrape::scrape_source_incremental_with_cache(
-        _client,
-        source,
-        &HashMap::new(),
-        &HashMap::new(),
-        &HashMap::new(),
-    )
-    .map(|data| merge::finalize_scraped_items(data.items))
-}
-
-pub fn scrape_source_incremental(
-    client: &Client,
-    source: WikiSource,
-    existing_price_map: &HashMap<String, String>,
-) -> Result<ScrapeRefreshData, ScrapeError> {
-    source_scrape::scrape_source_incremental_with_cache(
-        client,
-        source,
-        existing_price_map,
-        &HashMap::new(),
-        &HashMap::new(),
-    )
-}
+// Funções síncronas de scraping removidas após refatoração para async.
 
 #[cfg(test)]
 mod tests {
