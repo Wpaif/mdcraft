@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 /// Função genérica para popups/modais customizáveis
 pub fn render_modal_window<R>(
     ctx: &egui::Context,
@@ -77,7 +78,7 @@ pub(super) fn render_wiki_sync_success_toast(
                 egui::Color32::from_rgba_unmultiplied(193, 255, 214, (200.0 * alpha) as u8),
             );
 
-            egui::Frame::new()
+            egui::Frame::NONE
                 .fill(bg)
                 .stroke(stroke)
                 .corner_radius(egui::CornerRadius::same(10))
@@ -145,7 +146,7 @@ pub fn render_toast_area(
         .order(egui::Order::Foreground)
         .anchor(egui::Align2::RIGHT_BOTTOM, egui::vec2(-22.0, -22.0 + y_offset))
         .show(ctx, |ui| {
-            egui::Frame::none()
+            egui::Frame::NONE
                 .fill(bg)
                 .stroke(egui::Stroke::new(1.5, border))
                 .shadow(shadow)

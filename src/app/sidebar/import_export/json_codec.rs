@@ -99,9 +99,7 @@ fn sanitize_single_line(raw: &str) -> String {
 fn sanitize_multiline(raw: &str) -> String {
     let mut out = String::with_capacity(raw.len());
     for c in raw.chars() {
-        if c == '\n' || c == '\t' {
-            out.push(c);
-        } else if !c.is_control() {
+        if c == '\n' || c == '\t' || !c.is_control() {
             out.push(c);
         }
     }

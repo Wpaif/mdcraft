@@ -30,12 +30,11 @@ pub(super) fn infer_craft_name_from_items(
         })
         .collect();
 
-    if let Some(resolved_sig) = craft_signature_from_items(&resolved) {
-        if resolved_sig != item_signature {
-            if let Some(name) = recipe_name_by_signature.get(&resolved_sig) {
-                return Some(name.clone());
-            }
-        }
+    if let Some(resolved_sig) = craft_signature_from_items(&resolved)
+        && resolved_sig != item_signature
+        && let Some(name) = recipe_name_by_signature.get(&resolved_sig)
+    {
+        return Some(name.clone());
     }
 
     let item_quantities = ingredient_quantities_from_items(&resolved);

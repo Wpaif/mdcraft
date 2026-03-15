@@ -98,7 +98,6 @@ mod tests {
     #[test]
     fn render_sidebar_header_and_content_do_not_panic() {
         let mut app = MdcraftApp::default();
-        app.input_text = "1 Iron Ore".to_string();
         app.items = vec![];
 
         let ctx = egui::Context::default();
@@ -117,7 +116,6 @@ mod tests {
         app.awaiting_craft_name = true;
         app.focus_craft_name_input = true;
         app.pending_craft_name = "Minha Receita".to_string();
-        app.input_text = "1 Iron Ore".to_string();
         app.items = vec![crate::model::Item {
             nome: "Iron Ore".to_string(),
             quantidade: 1,

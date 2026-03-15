@@ -9,7 +9,6 @@ pub enum PriceStatus {
 
 /// Paints a small status indicator for price validity. Returns the response that
 /// can be used for hover text.
-
 pub fn paint_price_status(ui: &mut egui::Ui, status: PriceStatus) -> egui::Response {
     let size = egui::vec2(18.0, 18.0);
     let (rect, response) = ui.allocate_exact_size(size, egui::Sense::hover());

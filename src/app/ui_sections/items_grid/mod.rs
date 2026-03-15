@@ -18,9 +18,7 @@ pub use price_logic::apply_item_price_from_input;
 mod tests;
 
 use layout::render_empty_item_cells;
-use price_logic::{
-    apply_item_price_if_changed, item_price_status, item_status_hover,
-};
+use price_logic::{apply_item_price_if_changed, item_price_status, item_status_hover};
 
 pub(crate) fn render_items_and_values(
     ui: &mut egui::Ui,
@@ -211,7 +209,6 @@ pub(crate) fn render_items_and_values(
                                                     if price_changed {
                                                         let mut filtered = String::new();
                                                         let mut k_count = 0;
-                                                        let mut last_was_k = false;
                                                         for c in item.preco_input.chars() {
                                                             if c.is_ascii_digit() || c == ',' || c == '.' {
                                                                 if k_count == 0 {
@@ -221,7 +218,6 @@ pub(crate) fn render_items_and_values(
                                                                 if k_count < 2 && !filtered.is_empty() {
                                                                     filtered.push('k');
                                                                     k_count += 1;
-                                                                    last_was_k = true;
                                                                 } else {
                                                                     break;
                                                                 }

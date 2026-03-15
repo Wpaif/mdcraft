@@ -75,7 +75,7 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                             // Atualiza a quantidade de todos os itens do grid e recalcula o valor_total
                             let nova_qtd = app.craft_search_qty.max(1);
                             for item in &mut app.items {
-                                item.quantidade = nova_qtd;
+                                item.quantidade = item.quantidade_base * nova_qtd;
                                 crate::app::ui_sections::items_grid::apply_item_price_from_input(item);
                             }
                         }
@@ -124,7 +124,8 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                                 let is_resource = app.resource_list.iter().any(|res| res.eq_ignore_ascii_case(&ing.name));
                                 let mut item = crate::model::Item {
                                     nome: ing.name.clone(),
-                                    quantidade: ing.quantity as u64,
+                                    quantidade: (ing.quantity as u64) * app.craft_search_qty.max(1),
+                                    quantidade_base: ing.quantity as u64,
                                     preco_unitario: 0.0,
                                     valor_total: 0.0,
                                     is_resource,
@@ -189,7 +190,8 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                             if !found {
                                 app.items.push(crate::model::Item {
                                     nome,
-                                    quantidade,
+                                    quantidade: quantidade,
+                                    quantidade_base: 1,
                                     preco_unitario: 0.0,
                                     valor_total: 0.0,
                                     is_resource: false,

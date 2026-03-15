@@ -36,10 +36,10 @@ impl MdcraftApp {
             app.wiki_last_sync_unix_seconds = settings.wiki_last_sync_unix_seconds;
         }
 
-        if load_from_store {
-            if let Ok(saved_crafts) = store.load_saved_crafts() {
-                app.saved_crafts = saved_crafts;
-            }
+        if load_from_store
+            && let Ok(saved_crafts) = store.load_saved_crafts()
+        {
+            app.saved_crafts = saved_crafts;
         }
 
         app

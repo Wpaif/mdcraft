@@ -3,7 +3,7 @@ use eframe::egui;
 
 use crate::app::{MdcraftApp, SavedCraft, capture_saved_item_prices};
 
-use super::super::{capitalize_display_name, placeholder};
+use super::super::capitalize_display_name;
 
 pub(super) fn infer_craft_name_from_items(app: &MdcraftApp) -> Option<String> {
     crate::app::infer_craft_name_from_items(
@@ -193,7 +193,6 @@ mod tests {
         let mut app = MdcraftApp::default();
         app.awaiting_craft_name = true;
         app.pending_craft_name = "nova receita".to_string();
-        app.input_text = "1 Iron Ore".to_string();
         app.sell_price_input = "9k".to_string();
         app.active_saved_craft_index = Some(1);
 
@@ -268,7 +267,6 @@ mod tests {
             item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
-        app.input_text = "2 Iron Ore".to_string();
         app.sell_price_input = "9k".to_string();
 
         update_current_recipe(&mut app);
@@ -288,7 +286,6 @@ mod tests {
             item_prices: vec![],
         });
         app.active_saved_craft_index = None;
-        app.input_text = "new".to_string();
 
         update_current_recipe(&mut app);
 

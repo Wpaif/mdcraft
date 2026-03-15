@@ -34,6 +34,7 @@ pub(super) fn load_saved_craft_for_edit(app: &mut MdcraftApp, idx: usize) {
             let mut item = crate::model::Item {
                 nome: ing.name.clone(),
                 quantidade: ing.quantity as u64,
+                quantidade_base: ing.quantity as u64,
                 preco_unitario: 0.0,
                 valor_total: 0.0,
                 is_resource,
@@ -93,13 +94,11 @@ mod tests {
     #[test]
     fn load_saved_craft_for_edit_ignores_out_of_bounds_index() {
         let mut app = MdcraftApp::default();
-        app.input_text = "unchanged".to_string();
         app.saved_crafts
             .push(make_saved_craft("teste", "1 Iron Ore", "1k"));
 
         load_saved_craft_for_edit(&mut app, 9);
 
-        assert_eq!(app.input_text, "unchanged");
         assert_eq!(app.active_saved_craft_index, None);
     }
 

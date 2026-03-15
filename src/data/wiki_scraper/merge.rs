@@ -50,10 +50,9 @@ pub(super) fn merge_items(
         let key = items_parser::normalize_key(&item.name);
 
         if let Some(existing) = merged.get_mut(&key) {
-            if existing.npc_price.is_none() {
-                if let Some(price) = item.npc_price {
-                    existing.npc_price = Some(price);
-                }
+            if existing.npc_price.is_none()
+                && let Some(price) = item.npc_price {
+                existing.npc_price = Some(price);
             }
             for source in item.sources {
                 if !existing.sources.contains(&source) {

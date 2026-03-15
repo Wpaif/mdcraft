@@ -216,14 +216,12 @@ fn normalize_numeric_literal(raw: &str) -> String {
         return candidate.replace('.', "");
     }
 
-    if let Some((left, right)) = candidate.split_once('.') {
-        if !left.is_empty()
-            && right.len() == 3
-            && left.chars().all(|c| c.is_ascii_digit())
-            && right.chars().all(|c| c.is_ascii_digit())
-        {
-            return format!("{left}{right}");
-        }
+    if let Some((left, right)) = candidate.split_once('.')
+        && !left.is_empty()
+        && right.len() == 3
+        && left.chars().all(|c| c.is_ascii_digit())
+    {
+        return format!("{left}{right}");
     }
 
     candidate.to_string()

@@ -1,6 +1,8 @@
-use crate::app::ui_sections::craft_input::local_search_thread::{LocalSearchMsg, LocalSearchResult};
-use std::sync::mpsc::{Sender, Receiver};
+use crate::app::ui_sections::craft_input::local_search_thread::{
+    LocalSearchMsg, LocalSearchResult,
+};
 use std::collections::HashMap;
+use std::sync::mpsc::{Receiver, Sender};
 use std::time::Instant;
 
 use crate::data::wiki_scraper::{
@@ -24,8 +26,8 @@ pub enum RecipeSavePopupType {
 
 pub struct MdcraftApp {
     pub show_recipe_save_popup: Option<RecipeSavePopupType>,
-        /// Nome do craft selecionado pelo usuário (editável)
-        pub selected_craft_name: String,
+    /// Nome do craft selecionado pelo usuário (editável)
+    pub selected_craft_name: String,
     pub es_suggestions: Vec<String>,
     pub es_error: Option<String>,
     pub es_query_tx: Option<Sender<LocalSearchMsg>>,
@@ -74,11 +76,12 @@ impl Default for MdcraftApp {
         let craft_recipe_name_by_signature = build_craft_recipe_name_index(&craft_recipes_cache);
         let resource_list = embedded_resource_names();
 
-        let (es_query_tx, es_result_rx) = crate::app::ui_sections::craft_input::local_search_thread::start_local_search_thread();
+        let (es_query_tx, es_result_rx) =
+            crate::app::ui_sections::craft_input::local_search_thread::start_local_search_thread();
 
         Self {
             show_recipe_save_popup: None,
-                        selected_craft_name: String::new(),
+            selected_craft_name: String::new(),
             craft_search_query: String::new(),
             craft_search_qty: 1,
             items: Vec::new(),

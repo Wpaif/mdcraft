@@ -130,7 +130,6 @@ mod tests {
     #[test]
     fn render_craft_input_and_closing_render_without_panicking() {
         let mut app = MdcraftApp::default();
-        app.input_text = "1 Iron Ore, 2 Screw".to_string();
         app.sell_price_input = "10k".to_string();
         app.items = vec![
             Item {
@@ -166,7 +165,6 @@ mod tests {
     #[test]
     fn autosave_active_craft_updates_selected_entry() {
         let mut app = MdcraftApp::default();
-        app.input_text = "1 Iron Ore".to_string();
         app.sell_price_input = "7k".to_string();
         app.items = vec![Item {
             nome: "Iron Ore".to_string(),
@@ -196,7 +194,6 @@ mod tests {
     #[test]
     fn autosave_active_craft_noop_without_active_index() {
         let mut app = MdcraftApp::default();
-        app.input_text = "2 Screw".to_string();
         app.sell_price_input = "3k".to_string();
         app.saved_crafts.push(SavedCraft {
             name: "A".to_string(),
