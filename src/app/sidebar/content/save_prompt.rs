@@ -65,12 +65,17 @@ pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, c
             let input_width = (content_w - 12.0).max(80.0);
             let name_resp = ui.add_sized(
                 [input_width, 30.0],
-                egui::TextEdit::singleline(&mut app.pending_craft_name)
-                    .font(egui::TextStyle::Button)
-                    .horizontal_align(egui::Align::Center)
-                    .vertical_align(egui::Align::Center)
-                    .hint_text(placeholder(ui, "Digite um nome ou pressione Enter")),
+                    egui::TextEdit::singleline(&mut app.pending_craft_name)
+                        .font(egui::TextStyle::Button)
+                        .horizontal_align(egui::Align::Center)
+                        .vertical_align(egui::Align::Center)
+                        .hint_text("Nome da receita"),
             );
+            if name_resp.changed() {
+                app.pending_craft_name = app.pending_craft_name.chars()
+                    .filter(|c| c.is_alphanumeric() || *c == ' ' || *c == '(' || *c == ')')
+                    .collect();
+            }
             name_resp_opt = Some(name_resp);
         });
 
