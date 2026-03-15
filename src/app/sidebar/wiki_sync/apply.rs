@@ -17,18 +17,18 @@ pub(super) fn apply_cached_npc_prices_to_existing_items(app: &mut MdcraftApp) {
             .wiki_cached_items
             .iter()
             .find(|entry| entry.name.trim().eq_ignore_ascii_case(item.nome.trim()))
-            .and_then(|entry| entry.npc_price.as_deref())
+            .and_then(|entry| entry.npc_price.clone())
             .or_else(|| fixed_npc_price_input(&item.nome));
 
         let Some(cached) = cached else {
             continue;
         };
 
-        let Ok(parsed) = parse_price_flag(cached) else {
+        let Ok(parsed) = parse_price_flag(&cached) else {
             continue;
         };
 
-        item.preco_input = cached.to_string();
+        item.preco_input = cached;
         item.preco_unitario = parsed;
         item.valor_total = parsed * item.quantidade as f64;
     }

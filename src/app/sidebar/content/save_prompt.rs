@@ -26,7 +26,7 @@ pub(super) fn update_current_recipe(app: &mut MdcraftApp) {
         return;
     };
     if let Some(craft) = app.saved_crafts.get_mut(idx) {
-        craft.recipe_text = app.input_text.clone();
+        // craft.recipe_text = app.input_text.clone();
         craft.sell_price_input = app.sell_price_input.clone();
         craft.item_prices = capture_saved_item_prices(&app.items);
     }
@@ -100,7 +100,7 @@ pub(super) fn render_save_name_prompt(ui: &mut egui::Ui, app: &mut MdcraftApp, c
             0,
             SavedCraft {
                 name: normalized_name,
-                recipe_text: app.input_text.clone(),
+                recipe_text: String::new(),
                 sell_price_input: app.sell_price_input.clone(),
                 item_prices: capture_saved_item_prices(&app.items),
             },
