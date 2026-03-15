@@ -25,24 +25,23 @@ use toast::render_wiki_sync_success_toast;
 
 impl super::MdcraftApp {
     fn render_main_ui(&mut self, ctx: &egui::Context) {
-        apply_sidebar_toggle_shortcut(self, ctx);
-        poll_sidebar_background_tasks(self);
-        render_sidebar(ctx, self);
-
+        // Sempre aplicar o tema antes de qualquer renderização
         if !self.fonts_loaded {
             setup_custom_styles(ctx);
             setup_emoji_support(ctx);
-            ctx.set_visuals(self.theme.visuals());
             self.fonts_loaded = true;
         }
-
         if self.follow_system_theme {
             let system_theme = detect_system_theme();
             if self.theme != system_theme {
                 self.theme = system_theme;
-                ctx.set_visuals(self.theme.visuals());
             }
         }
+        ctx.set_visuals(self.theme.visuals());
+
+        apply_sidebar_toggle_shortcut(self, ctx);
+        poll_sidebar_background_tasks(self);
+        render_sidebar(ctx, self);
 
         render_theme_toggle_area(self, ctx);
         render_wiki_sync_success_toast(self, ctx);
