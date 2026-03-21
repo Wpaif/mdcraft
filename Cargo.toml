@@ -1,6 +1,6 @@
 [package]
 name = "mdcraft"
-version = "2.2.0"
+version = "2.1.0"
 edition = "2024"
 default-run = "mdcraft"
 
