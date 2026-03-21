@@ -19,11 +19,13 @@ O `Mdcraft` foi feito para um fluxo rapido de precificacao:
 ## Principais Recursos
 
 - Parse de receita em texto para grade de itens.
-- Comparacao visual de preco informado vs preco NPC.
+- Comparacao visual de preco informado vs preco NPC (com regras fixas).
 - Regras fixas de preco NPC para itens especificos de negocio.
-- Sincronizacao de precos com wiki em background.
-- Auto-sync diario apos `07:40`
-- Persistencia local de configuracoes, receitas e precos por item.
+- Sincronizacao da wiki em background (sem travar a UI) + atualizacao de crafts.
+- Auto-sync diario apos `07:40` (no maximo 1x/dia).
+- Opcao de "Preco por item" para producoes multiplas (quantidade > 1 ou craft com `(Nx)`).
+- Autosave com debounce para receitas ativas.
+- Persistencia local de configuracoes, receitas e precos por item (SQLite + JSON import/export).
 - Receitas salvas persistidas em SQLite entre execucoes.
 
 ## Atalhos
@@ -75,7 +77,7 @@ cargo run
 ### Testes
 
 ```bash
-cargo test --bin mdcraft
+cargo test
 ```
 
 ## Build
@@ -168,25 +170,13 @@ Detalhes completos de targets, toolchains e saidas: `docs/build-targets.md`.
 - Botao da sidebar: `Sincronizar precos`.
 - A sincronizacao manual pode ser disparada a qualquer momento.
 - Auto-sync segue regra diaria: apenas apos `07:40` e no maximo 1 vez por dia.
+- Ao concluir, o app tambem atualiza o cache de crafts em segundo plano.
 
 ## Importacao e Exportacao (JSON)
 
 - `Importar receitas (JSON)`: sempre disponivel.
 - `Exportar receitas (JSON)`: aparece quando existem receitas salvas.
 - Export suporta JSON grande com area rolavel no popup.
-
-## Seed de Dados da Wiki
-
-Para atualizar os arquivos locais de seed:
-
-```bash
-cargo run --bin refresh_wiki_seed
-```
-
-Arquivos de saida:
-
-- `src/data/wiki_items_seed.json`
-- `src/data/wiki_crafts_seed.json`
 
 ## Estrutura do Projeto
 
@@ -196,12 +186,12 @@ src/
     sidebar/
     ui_sections/
   data/
+    wiki_scraper/
+  main/
   model/
   parse/
   units/
   main.rs
-  bin/
-    refresh_wiki_seed.rs
 scripts/
   build-all.sh
 docs/
