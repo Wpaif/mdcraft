@@ -1,12 +1,9 @@
 use crate::app::MdcraftApp;
 
 mod apply;
+mod craft_refresh_flow;
 mod refresh_flow;
 mod schedule;
-
-pub(super) fn handle_sidebar_wiki_refresh_click(app: &mut MdcraftApp, refresh_clicked: bool) {
-    refresh_flow::handle_sidebar_wiki_refresh_click(app, refresh_clicked);
-}
 
 pub(super) fn ensure_wiki_refresh_started(app: &mut MdcraftApp) {
     refresh_flow::ensure_wiki_refresh_started(app);
@@ -14,6 +11,10 @@ pub(super) fn ensure_wiki_refresh_started(app: &mut MdcraftApp) {
 
 pub(super) fn poll_wiki_refresh_result(app: &mut MdcraftApp) {
     refresh_flow::poll_wiki_refresh_result(app);
+}
+
+pub(super) fn poll_craft_refresh_result(app: &mut MdcraftApp) {
+    craft_refresh_flow::poll_craft_refresh_result(app);
 }
 
 #[cfg(test)]
