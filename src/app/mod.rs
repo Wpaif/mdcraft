@@ -56,6 +56,8 @@ pub(crate) fn placeholder(ui: &egui::Ui, text: &str) -> egui::RichText {
 mod craft_inference;
 #[path = "domain/npc_price_rules.rs"]
 pub(crate) mod npc_price_rules;
+#[path = "domain/sell_price.rs"]
+pub(crate) mod sell_price;
 #[path = "presentation/price.rs"]
 mod price;
 #[path = "core/saved_craft.rs"]
@@ -145,6 +147,7 @@ mod tests {
             name: "Receita A".to_string(),
             recipe_text: "1 Iron Ore".to_string(),
             sell_price_input: "10k".to_string(),
+            sell_price_is_per_item: false,
             item_prices: vec![],
         });
 
@@ -170,6 +173,7 @@ mod tests {
                 name: "Restaurada".to_string(),
                 recipe_text: "2 Screw".to_string(),
                 sell_price_input: "4k".to_string(),
+                sell_price_is_per_item: false,
                 item_prices: vec![],
             }],
             wiki_cached_items: vec![],

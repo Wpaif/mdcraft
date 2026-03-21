@@ -26,6 +26,7 @@ pub(super) fn insert_imported_crafts(app: &mut MdcraftApp, crafts: Vec<SavedCraf
                 name,
                 recipe_text: craft.recipe_text,
                 sell_price_input: craft.sell_price_input,
+                sell_price_is_per_item: craft.sell_price_is_per_item,
                 item_prices: craft.item_prices,
             },
         );

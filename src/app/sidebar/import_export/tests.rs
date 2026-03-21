@@ -18,6 +18,7 @@ pub(super) fn sample_craft(name: &str) -> SavedCraft {
         name: name.to_string(),
         recipe_text: "1 Iron Ore".to_string(),
         sell_price_input: "10k".to_string(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     }
 }
@@ -136,12 +137,14 @@ fn insert_imported_crafts_normalizes_and_offsets_active_index() {
                 name: "nova receita".to_string(),
                 recipe_text: "1 X".to_string(),
                 sell_price_input: "2k".to_string(),
+                sell_price_is_per_item: false,
                 item_prices: vec![],
             },
             SavedCraft {
                 name: " ".to_string(),
                 recipe_text: "1 Y".to_string(),
                 sell_price_input: "3k".to_string(),
+                sell_price_is_per_item: false,
                 item_prices: vec![],
             },
         ],
