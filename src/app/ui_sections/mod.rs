@@ -13,7 +13,7 @@ pub(super) use items_grid::render_items_and_values;
 pub(super) use super::{capitalize_display_name, placeholder};
 
 
-pub(super) fn autosave_active_craft(app: &mut MdcraftApp) {
+pub(crate) fn autosave_active_craft(app: &mut MdcraftApp) {
     let Some(idx) = app.active_saved_craft_index else {
         return;
     };
@@ -24,6 +24,7 @@ pub(super) fn autosave_active_craft(app: &mut MdcraftApp) {
             .collect::<Vec<_>>()
             .join(", ");
         craft.sell_price_input = app.sell_price_input.clone();
+        craft.sell_price_is_per_item = app.sell_price_is_per_item;
         craft.item_prices = capture_saved_item_prices(&app.items);
     }
 }
@@ -188,6 +189,7 @@ mod tests {
             name: "A".to_string(),
             recipe_text: String::new(),
             sell_price_input: String::new(),
+            sell_price_is_per_item: false,
             item_prices: vec![],
         });
         app.active_saved_craft_index = Some(0);
@@ -214,6 +216,7 @@ mod tests {
             name: "A".to_string(),
             recipe_text: "old".to_string(),
             sell_price_input: "old".to_string(),
+            sell_price_is_per_item: false,
             item_prices: vec![],
         });
 

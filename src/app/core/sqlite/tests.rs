@@ -24,6 +24,7 @@ fn sqlite_roundtrip_preserves_saved_crafts_and_item_prices() {
             name: "Receita A".to_string(),
             recipe_text: "1 Iron Ore, 2 Screw".to_string(),
             sell_price_input: "12k".to_string(),
+            sell_price_is_per_item: true,
             item_prices: vec![
                 SavedItemPrice {
                     item_name: "Iron Ore".to_string(),
@@ -39,6 +40,7 @@ fn sqlite_roundtrip_preserves_saved_crafts_and_item_prices() {
             name: "Receita B".to_string(),
             recipe_text: "3 Rubber Ball".to_string(),
             sell_price_input: "4k".to_string(),
+            sell_price_is_per_item: false,
             item_prices: vec![SavedItemPrice {
                 item_name: "Rubber Ball".to_string(),
                 price_input: "1k".to_string(),
@@ -53,6 +55,7 @@ fn sqlite_roundtrip_preserves_saved_crafts_and_item_prices() {
     assert_eq!(loaded[0].name, expected[0].name);
     assert_eq!(loaded[0].recipe_text, expected[0].recipe_text);
     assert_eq!(loaded[0].sell_price_input, expected[0].sell_price_input);
+    assert_eq!(loaded[0].sell_price_is_per_item, expected[0].sell_price_is_per_item);
     assert_eq!(loaded[0].item_prices.len(), expected[0].item_prices.len());
     assert_eq!(loaded[0].item_prices[0].item_name, "Iron Ore");
     assert_eq!(loaded[0].item_prices[0].price_input, "100");

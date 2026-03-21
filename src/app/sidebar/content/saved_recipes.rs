@@ -172,6 +172,7 @@ mod tests {
             name: name.to_string(),
             recipe_text: recipe_text.to_string(),
             sell_price_input: sell_price_input.to_string(),
+            sell_price_is_per_item: false,
             item_prices: vec![],
         }
     }

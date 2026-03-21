@@ -52,7 +52,9 @@ fn apply_resource_refresh_result_updates_resources_and_feedback() {
 fn apply_resource_refresh_result_stores_error_feedback() {
     let mut app = MdcraftApp::default();
     apply_resource_refresh_result(&mut app, Err("falha".to_string()));
-    assert_eq!(app.wiki_sync_feedback.as_deref(), Some("falha"));
+    let feedback = app.wiki_sync_feedback.as_deref().expect("feedback should be set");
+    assert!(feedback.contains("falha"));
+    assert!(feedback.contains("usando base local"));
 }
 
 #[test]
@@ -196,10 +198,10 @@ fn ensure_wiki_refresh_started_respects_schedule_and_progress_state() {
 
     app.wiki_last_sync_unix_seconds = Some(timestamp_of_previous_local_day(9, 0));
     ensure_wiki_refresh_started_at(&mut app, now_after_window);
-    // Após a chamada, wiki_refresh_in_progress pode ficar true, pois não há mais reset automático.
-    // O importante é que o canal não é criado.
+    // Após a chamada, iniciamos a sync (em testes, sem spawn de rede), mas o estado
+    // deve indicar progresso e ter um receiver configurado.
     assert!(app.wiki_refresh_in_progress);
-    assert!(app.wiki_refresh_rx.is_none());
+    assert!(app.wiki_refresh_rx.is_some());
 
     let rx_ptr = app.wiki_refresh_rx.as_ref().map(|rx| rx as *const _);
 

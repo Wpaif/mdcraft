@@ -2,13 +2,6 @@ use std::collections::HashMap;
 
 use super::{ScrapedItem, items_parser};
 
-fn has_npc_price(item: &ScrapedItem) -> bool {
-    item.npc_price
-        .as_deref()
-        .map(|p| !p.trim().is_empty())
-        .unwrap_or(false)
-}
-
 // Filtro removido: agora todos os itens são mantidos, mesmo sem preço NPC
 pub(super) fn finalize_scraped_items(mut items: Vec<ScrapedItem>) -> Vec<ScrapedItem> {
     items.sort_by(|a, b| a.name.cmp(&b.name));

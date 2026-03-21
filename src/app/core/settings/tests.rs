@@ -51,6 +51,7 @@ fn from_creation_context_with_store_loads_saved_crafts_from_store() {
         name: "From Store".to_string(),
         recipe_text: "1 Iron Ore".to_string(),
         sell_price_input: "10k".to_string(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
 
@@ -71,6 +72,7 @@ fn save_app_settings_with_store_persists_to_storage_and_store() {
         name: "Persist Me".to_string(),
         recipe_text: "2 Screw".to_string(),
         sell_price_input: "5k".to_string(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
 

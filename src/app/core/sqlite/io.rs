@@ -21,7 +21,7 @@ pub(super) fn load_saved_crafts_from_path(db_path: &Path) -> Result<Vec<SavedCra
     let mut stmt = conn
         .prepare(
             "
-            SELECT name, recipe_text, sell_price_input, item_prices_json
+            SELECT name, recipe_text, sell_price_input, sell_price_is_per_item, item_prices_json
             FROM saved_crafts
             ORDER BY position ASC, id ASC
             ",
@@ -30,7 +30,7 @@ pub(super) fn load_saved_crafts_from_path(db_path: &Path) -> Result<Vec<SavedCra
 
     let rows = stmt
         .query_map([], |row| {
-            let item_prices_json: String = row.get(3)?;
+            let item_prices_json: String = row.get(4)?;
             let item_prices = serde_json::from_str::<Vec<SavedItemPrice>>(&item_prices_json)
                 .unwrap_or_default();
 
@@ -38,6 +38,7 @@ pub(super) fn load_saved_crafts_from_path(db_path: &Path) -> Result<Vec<SavedCra
                 name: row.get(0)?,
                 recipe_text: row.get(1)?,
                 sell_price_input: row.get(2)?,
+                sell_price_is_per_item: row.get::<_, i64>(3)? != 0,
                 item_prices,
             })
         })
@@ -78,14 +79,15 @@ pub(super) fn save_saved_crafts_to_path(
 
         tx.execute(
             "
-            INSERT INTO saved_crafts (position, name, recipe_text, sell_price_input, item_prices_json)
-            VALUES (?1, ?2, ?3, ?4, ?5)
+            INSERT INTO saved_crafts (position, name, recipe_text, sell_price_input, sell_price_is_per_item, item_prices_json)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6)
             ",
             params![
                 idx as i64,
                 craft.name,
                 craft.recipe_text,
                 craft.sell_price_input,
+                if craft.sell_price_is_per_item { 1i64 } else { 0i64 },
                 item_prices_json,
             ],
         )

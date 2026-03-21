@@ -9,21 +9,13 @@ pub enum WikiSource {
     DimensionalZone,
 }
 
-pub const ALL_WIKI_SOURCES: [WikiSource; 3] = [
-    WikiSource::Loot,
-    WikiSource::Nightmare,
-    WikiSource::DimensionalZone,
-];
+pub const ALL_WIKI_SOURCES: [WikiSource; 2] = [WikiSource::Loot, WikiSource::Nightmare];
 
 impl WikiSource {
     pub fn url(self) -> &'static str {
         match self {
-            Self::Loot => {
-                "https://wiki.pokexgames.com/index.php?title=Itens_de_Loot&mobileaction=toggle_view_desktop"
-            }
-            Self::Nightmare => {
-                "https://wiki.pokexgames.com/index.php/Nightmare_Itens#Itens_Comuns-0"
-            }
+            Self::Loot => "https://wiki.pokexgames.com/index.php/Itens_de_Loot",
+            Self::Nightmare => "https://wiki.pokexgames.com/index.php/Nightmare_Itens",
             Self::DimensionalZone => "https://wiki.pokexgames.com/index.php/Dimensional_Zone_Itens",
         }
     }

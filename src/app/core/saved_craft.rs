@@ -12,5 +12,7 @@ pub struct SavedCraft {
     pub recipe_text: String,
     pub sell_price_input: String,
     #[serde(default)]
+    pub sell_price_is_per_item: bool,
+    #[serde(default)]
     pub item_prices: Vec<SavedItemPrice>,
 }

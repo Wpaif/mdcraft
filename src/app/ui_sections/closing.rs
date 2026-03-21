@@ -20,6 +20,16 @@ pub(crate) fn render_closing(
                 ui.label(egui::RichText::new("Fechamento").strong().size(20.0));
                 ui.add_space(10.0);
 
+                let output_multiplier_per_craft =
+                    crate::app::sell_price::output_multiplier_from_craft_name(&app.selected_craft_name);
+                let crafts = app.craft_search_qty.max(1);
+                let show_per_item_toggle =
+                    crate::app::sell_price::should_show_per_item_toggle_for_craft_count(
+                        output_multiplier_per_craft,
+                        crafts,
+                    );
+                let mut should_autosave_recipe = false;
+
                 ui.horizontal(|ui| {
                     ui.add_sized([150.0, 32.0], egui::Label::new(egui::RichText::new("Preço de Venda Final:").size(14.0)));
                     let sell_resp = ui.add(
@@ -56,7 +66,30 @@ pub(crate) fn render_closing(
                         app.sell_price_input = filtered;
                     }
 
+                    if show_per_item_toggle {
+                        ui.add_space(10.0);
+                        let toggled = ui
+                            .checkbox(&mut app.sell_price_is_per_item, "Preço por item")
+                            .on_hover_text(
+                            "Marque para informar o preço de 1 unidade (ex: Beast Ball (15x)).",
+                        )
+                            .changed();
+                        if toggled {
+                            should_autosave_recipe = true;
+                        }
+                    } else {
+                        // Evita manter estado "por item" ligado quando o craft atual não tem (Nx).
+                        app.sell_price_is_per_item = false;
+                    }
+
+                    if sell_resp.changed() {
+                        should_autosave_recipe = true;
+                    }
                 });
+
+                if should_autosave_recipe {
+                    app.schedule_active_recipe_autosave();
+                }
 
                 ui.add_space(15.0);
 
@@ -75,9 +108,20 @@ pub(crate) fn render_closing(
 
                     ui.add_space(40.0);
 
-                    let sell_price = parse_price_flag(&app.sell_price_input).unwrap_or(0.0);
-                    if sell_price > 0.0 {
-                        let lucro_total = sell_price - total_cost;
+                    let input_value = parse_price_flag(&app.sell_price_input).unwrap_or(0.0);
+                    let sell_price_total = crate::app::sell_price::compute_total_revenue(
+                        input_value,
+                        app.sell_price_is_per_item,
+                        output_multiplier_per_craft,
+                        crafts,
+                    );
+                    let total_output = crate::app::sell_price::compute_total_output(
+                        output_multiplier_per_craft,
+                        crafts,
+                    );
+
+                    if sell_price_total > 0.0 {
+                        let lucro_total = sell_price_total - total_cost;
                         let is_profit = lucro_total >= 0.0;
                         let color = if is_profit {
                             ui.visuals().widgets.active.bg_stroke.color
@@ -87,7 +131,23 @@ pub(crate) fn render_closing(
 
                         ui.vertical(|ui| {
                             ui.label(caption("RECEITA TOTAL", ui));
-                            ui.label(egui::RichText::new(format_game_units(sell_price)).strong().size(22.0));
+                            ui.label(
+                                egui::RichText::new(format_game_units(sell_price_total))
+                                    .strong()
+                                    .size(22.0),
+                            );
+                            if app.sell_price_is_per_item && total_output > 1 {
+                                ui.label(
+                                    egui::RichText::new(format!(
+                                        "{} por item • {} itens ({}x por craft)",
+                                        format_game_units(input_value),
+                                        total_output,
+                                        output_multiplier_per_craft.max(1)
+                                    ))
+                                    .size(11.0)
+                                    .color(ui.visuals().weak_text_color()),
+                                );
+                            }
                         });
 
                         ui.add_space(40.0);

@@ -25,6 +25,8 @@ use toast::render_wiki_sync_success_toast;
 
 impl super::MdcraftApp {
     fn render_main_ui(&mut self, ctx: &egui::Context) {
+        self.poll_recipe_autosave();
+
         // Sempre aplicar o tema antes de qualquer renderização
         if !self.fonts_loaded {
             setup_custom_styles(ctx);
@@ -47,8 +49,17 @@ impl super::MdcraftApp {
         render_wiki_sync_success_toast(self, ctx);
 
         // Toast de erro na sincronização da wiki
-        if let (Some(started_at), Some(msg)) = (self.wiki_sync_error_anim_started_at, self.wiki_sync_feedback.as_ref()) {
+        if let (Some(started_at), Some(msg)) = (
+            self.wiki_sync_error_anim_started_at,
+            self.wiki_sync_feedback.as_ref(),
+        ) {
             use crate::app::ui::toast::render_toast_area;
+            let has_cached_data = !self.wiki_cached_items.is_empty();
+            let title = if has_cached_data {
+                "Wiki indisponível (usando base local)"
+            } else {
+                "Erro ao sincronizar com a wiki"
+            };
             // Cores modernas para erro
             let bg = egui::Color32::from_rgb(180, 40, 40); // vermelho escuro
             let border = egui::Color32::from_rgb(255, 120, 120); // vermelho claro
@@ -56,7 +67,7 @@ impl super::MdcraftApp {
             let finished = render_toast_area(
                 ctx,
                 egui::Id::new("wiki_sync_error_toast"),
-                "Erro ao sincronizar com a wiki",
+                title,
                 Some(msg.as_str()),
                 bg,
                 border,

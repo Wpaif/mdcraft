@@ -47,24 +47,52 @@ pub(crate) fn render_craft_input(ui: &mut egui::Ui, app: &mut MdcraftApp, conten
                     ui.add_space(32.0);
                     ui.vertical(|ui| {
                         ui.label("Quantidade:");
-                        let mut qty_str = app.craft_search_qty.to_string();
                         let qty_response = ui.add_sized([
                             70.0, 32.0
                         ],
-                            egui::TextEdit::singleline(&mut qty_str)
+                            egui::TextEdit::singleline(&mut app.craft_search_qty_input)
                                 .hint_text("1")
                                 .margin(egui::vec2(8.0, 8.0))
                                 .char_limit(4)
                         );
+                        // Normaliza input: permite apagar tudo com backspace enquanto edita,
+                        // mas só aplica quando for um inteiro válido (1..=9999).
                         if qty_response.changed() {
-                            if let Ok(val) = qty_str.parse::<u32>() {
-                                app.craft_search_qty = (val.clamp(1, 9999)) as u64;
+                            app.craft_search_qty_input.retain(|c| c.is_ascii_digit());
+                            if let Ok(val) = app.craft_search_qty_input.parse::<u64>() {
+                                if (1..=9999).contains(&val) && val != app.craft_search_qty {
+                                    app.craft_search_qty = val;
+                                    should_update_grid = true;
+                                    for item in &mut app.items {
+                                        item.quantidade = item.quantidade_base * app.craft_search_qty;
+                                        crate::app::ui_sections::items_grid::apply_item_price_from_input(item);
+                                    }
+                                }
                             }
-                            should_update_grid = true;
-                            let nova_qtd = app.craft_search_qty.max(1);
-                            for item in &mut app.items {
-                                item.quantidade = item.quantidade_base * nova_qtd;
-                                crate::app::ui_sections::items_grid::apply_item_price_from_input(item);
+                        }
+
+                        let enter_pressed =
+                            qty_response.has_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
+                        let commit = qty_response.lost_focus() || enter_pressed;
+                        if commit {
+                            let trimmed = app.craft_search_qty_input.trim();
+                            if trimmed.is_empty() {
+                                // Reverte para o valor atual (mantém a UX de "campo normal").
+                                app.craft_search_qty_input = app.craft_search_qty.to_string();
+                            } else if let Ok(val) = trimmed.parse::<u64>() {
+                                let clamped = val.clamp(1, 9999);
+                                if clamped != app.craft_search_qty {
+                                    app.craft_search_qty = clamped;
+                                    should_update_grid = true;
+                                    for item in &mut app.items {
+                                        item.quantidade = item.quantidade_base * app.craft_search_qty;
+                                        crate::app::ui_sections::items_grid::apply_item_price_from_input(item);
+                                    }
+                                }
+                                // Normaliza string (remove zeros à esquerda, aplica clamp).
+                                app.craft_search_qty_input = app.craft_search_qty.to_string();
+                            } else {
+                                app.craft_search_qty_input = app.craft_search_qty.to_string();
                             }
                         }
                     });

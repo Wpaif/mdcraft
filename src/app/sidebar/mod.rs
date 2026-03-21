@@ -49,6 +49,7 @@ pub(super) fn render_sidebar(ctx: &egui::Context, app: &mut MdcraftApp) {
 pub(super) fn poll_sidebar_background_tasks(app: &mut MdcraftApp) {
     wiki_sync::ensure_wiki_refresh_started(app);
     wiki_sync::poll_wiki_refresh_result(app);
+    wiki_sync::poll_craft_refresh_result(app);
 }
 
 #[cfg(test)]
