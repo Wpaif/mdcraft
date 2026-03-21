@@ -5,9 +5,30 @@ use std::sync::OnceLock;
 static FIXED_NPC_PRICES: OnceLock<HashMap<String, String>> = OnceLock::new();
 
 fn load_fixed_npc_prices() -> HashMap<String, String> {
+    // Embed para funcionar em builds distribuídos (sem depender do arquivo no disco).
+    // Em dev, ainda tentamos ler o arquivo do repo para permitir ajustes sem rebuild da crate inteira.
+    const EMBEDDED: &str = include_str!("../../data/fixed_npc_prices.json");
+
+    let mut merged = serde_json::from_str::<HashMap<String, String>>(EMBEDDED).unwrap_or_default();
+
     let path = "src/data/fixed_npc_prices.json";
-    let json = fs::read_to_string(path).unwrap_or_else(|_| "{}".to_string());
-    serde_json::from_str(&json).unwrap_or_default()
+    if let Ok(json) = fs::read_to_string(path)
+        && let Ok(from_disk) = serde_json::from_str::<HashMap<String, String>>(&json)
+        && !from_disk.is_empty()
+    {
+        merged.extend(from_disk);
+    }
+
+    // Normaliza chaves para lookup (trim + lowercase).
+    let mut normalized = HashMap::with_capacity(merged.len());
+    for (name, price) in merged {
+        let key = name.trim().to_lowercase();
+        if key.is_empty() {
+            continue;
+        }
+        normalized.insert(key, price.trim().to_string());
+    }
+    normalized
 }
 
 fn get_fixed_npc_prices() -> &'static HashMap<String, String> {
