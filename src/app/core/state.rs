@@ -72,6 +72,8 @@ pub struct MdcraftApp {
     pub wiki_last_sync_unix_seconds: Option<u64>,
     pub recipe_save_toast_started_at: Option<Instant>,
     pub last_saved_recipe_name: Option<String>,
+    pub recipe_autosave_dirty: bool,
+    pub recipe_autosave_last_change_at: Option<Instant>,
 }
 
 impl Default for MdcraftApp {
@@ -127,6 +129,8 @@ impl Default for MdcraftApp {
             wiki_last_sync_unix_seconds: None,
             recipe_save_toast_started_at: None,
             last_saved_recipe_name: None,
+            recipe_autosave_dirty: false,
+            recipe_autosave_last_change_at: None,
             es_suggestions: Vec::new(),
             es_error: None,
             es_query_tx: Some(es_query_tx),

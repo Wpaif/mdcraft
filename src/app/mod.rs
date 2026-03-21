@@ -66,6 +66,8 @@ mod saved_craft;
 mod saved_prices;
 #[path = "core/settings.rs"]
 mod settings;
+#[path = "core/recipe_autosave.rs"]
+mod recipe_autosave;
 mod sidebar;
 #[path = "core/sqlite.rs"]
 mod sqlite;
