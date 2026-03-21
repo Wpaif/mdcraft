@@ -138,6 +138,7 @@ mod tests {
             name: name.to_string(),
             recipe_text: "1 Iron Ore".to_string(),
             sell_price_input: "10k".to_string(),
+            sell_price_is_per_item: false,
             item_prices: vec![],
         }
     }

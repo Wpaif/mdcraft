@@ -35,6 +35,7 @@ fn delete_popup_keeps_state_when_waiting_user_action() {
         name: "Receita X".to_string(),
         recipe_text: "1 Iron Ore".to_string(),
         sell_price_input: "2k".to_string(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.pending_delete_index = Some(0);
@@ -54,6 +55,7 @@ fn delete_popup_closes_on_escape() {
         name: "Receita X".to_string(),
         recipe_text: "1 Iron Ore".to_string(),
         sell_price_input: "2k".to_string(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.pending_delete_index = Some(0);
@@ -83,6 +85,7 @@ fn apply_delete_recipe_clears_active_when_deleting_active_item() {
         name: "A".to_string(),
         recipe_text: String::new(),
         sell_price_input: String::new(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.active_saved_craft_index = Some(0);
@@ -102,12 +105,14 @@ fn apply_delete_recipe_shifts_active_index_when_needed() {
         name: "A".to_string(),
         recipe_text: String::new(),
         sell_price_input: String::new(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.saved_crafts.push(SavedCraft {
         name: "B".to_string(),
         recipe_text: String::new(),
         sell_price_input: String::new(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.active_saved_craft_index = Some(1);
@@ -127,12 +132,14 @@ fn apply_delete_recipe_keeps_active_index_when_before_deleted_item() {
         name: "A".to_string(),
         recipe_text: String::new(),
         sell_price_input: String::new(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.saved_crafts.push(SavedCraft {
         name: "B".to_string(),
         recipe_text: String::new(),
         sell_price_input: String::new(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.active_saved_craft_index = Some(0);
@@ -164,6 +171,7 @@ fn handle_confirm_delete_click_only_deletes_when_clicked() {
         name: "A".to_string(),
         recipe_text: String::new(),
         sell_price_input: String::new(),
+        sell_price_is_per_item: false,
         item_prices: vec![],
     });
     app.pending_delete_index = Some(0);
