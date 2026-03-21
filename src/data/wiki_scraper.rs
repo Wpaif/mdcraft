@@ -23,11 +23,11 @@ use std::collections::HashMap;
 // - `pub(crate)`: cross-module helpers inside this crate.
 // - `pub(super)`/private: submodule internals and implementation details.
 
-#[path = "wiki_scraper/crafts.rs"]
+#[path = "wiki_scraper/crafts/mod.rs"]
 pub mod crafts;
 #[path = "wiki_scraper/errors.rs"]
 mod errors;
-#[path = "wiki_scraper/items_parser.rs"]
+#[path = "wiki_scraper/items_parser/mod.rs"]
 mod items_parser;
 #[path = "wiki_scraper/merge.rs"]
 mod merge;
@@ -35,7 +35,7 @@ mod merge;
 mod pipeline;
 #[path = "wiki_scraper/seeds.rs"]
 mod seeds;
-#[path = "wiki_scraper/source_scrape.rs"]
+#[path = "wiki_scraper/source_scrape/mod.rs"]
 mod source_scrape;
 #[path = "wiki_scraper/types.rs"]
 mod types;

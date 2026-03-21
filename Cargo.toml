@@ -22,6 +22,3 @@ futures = "0.3"
 ico = "0.4"
 resvg = "0.45"
 winresource = "0.1"
-
-[features]
-async-wiki-seed-refresh = []
